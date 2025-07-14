@@ -12,6 +12,7 @@ public class Game1 : Game
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        Window.Title = "DHBW Game";
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
