@@ -15,12 +15,5 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
 
-      - name: Build android project
-        uses: igotinfected-ci/build-monogame@v2
-        with:
-          solution-path: '${{ github.workspace }}\Project\Project.sln'
-          content-mgcb-path: '${{ github.workspace }}\Project\Android\Content'
-          content-mgcb-platform: "Android"
-          csproj-path: '${{ github.workspace }}\Project\Android.csproj'
-          build-target: "PackageForAndroid"
-          build-configuration: "Release"
+    - name: Build projekt
+      run: dotnet build monogame-projekt.csproj --configuration Release
