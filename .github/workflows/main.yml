@@ -49,3 +49,9 @@ jobs:
           }
         shell: pwsh
 
+      - name: Upload filtered artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: DHBW Game
+          path: filtered
+
