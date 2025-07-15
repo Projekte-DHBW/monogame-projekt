@@ -23,30 +23,38 @@ jobs:
           $source = "bin/Release/net8.0"
           $destination = "filtered/net8.0"
       
-          # Remove any existing filtered folder to avoid leftovers
+          # Remove previous filtered folder if it exists
           if (Test-Path "filtered") {
             Remove-Item -Recurse -Force "filtered"
           }
       
-          # Create destination folder
+          # Create destination directory
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
       
-          # Copy all files/folders except runtimes directly to filtered/net8.0
-          Get-ChildItem -Path $source -Recurse -Force |
-            Where-Object { $_.FullName -notmatch "\\runtimes\\.*" } |
-            ForEach-Object {
-              $relativePath = $_.FullName.Substring($source.Length).TrimStart("\")
-              $targetPath = Join-Path $destination $relativePath
-              if ($_.PSIsContainer) {
-                New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
-              } else {
-                $dir = Split-Path $targetPath
-                if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-                Copy-Item $_.FullName -Destination $targetPath -Force
-              }
+          # Copy everything except runtimes
+          Get-ChildItem -Path $source -Recurse -Force | ForEach-Object {
+            # Compute the relative path starting from $source folder
+            $relativePath = $_.FullName.Substring($source.Length).TrimStart('\','/')
+      
+            # Skip runtimes folder here (filter later)
+            if ($relativePath -like "runtimes*") {
+              return
             }
       
-          # Copy runtimes/win-x64 folder directly inside filtered/net8.0/runtimes/win-x64
+            $targetPath = Join-Path $destination $relativePath
+      
+            if ($_.PSIsContainer) {
+              New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+            } else {
+              $targetDir = Split-Path $targetPath
+              if (-not (Test-Path $targetDir)) {
+                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+              }
+              Copy-Item -Path $_.FullName -Destination $targetPath -Force
+            }
+          }
+      
+          # Copy runtimes/win-x64 specifically
           $runtimeSrc = Join-Path $source "runtimes\win-x64"
           $runtimeDest = Join-Path $destination "runtimes\win-x64"
           if (Test-Path $runtimeSrc) {
@@ -54,11 +62,15 @@ jobs:
           }
         shell: pwsh
 
-
       - name: Upload filtered artifact
         uses: actions/upload-artifact@v4.6.2
         with:
           name: DHBW Game
           path: filtered/net8.0
+
+      - name: List filtered/net8.0 folder
+        run: |
+          Get-ChildItem -Recurse filtered/net8.0 | ForEach-Object { Write-Output $_.FullName }
+        shell: pwsh
 
 
