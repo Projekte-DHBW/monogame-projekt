@@ -1,0 +1,69 @@
+﻿name: .NET Build
+
+on:
+  pull_request:
+    branches: [main]
+
+  # allow running this workflow manually
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Build projekt
+        run: dotnet build monogame-projekt.csproj --configuration Release
+
+      - name: Prepare filtered net8.0 output
+        run: |
+          $source = "bin/Release/net8.0"
+          $destination = "filtered/net8.0"
+          
+          # Resolve full path of source folder
+          $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
+          
+          # Remove previous filtered folder if exists
+          if (Test-Path "filtered") {
+            Remove-Item -Recurse -Force "filtered"
+          }
+          
+          # Create destination directory
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          
+          # Copy everything except runtimes
+          Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
+            $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
+          
+            # Skip runtimes folder here
+            if ($relativePath -like "runtimes*") { return }
+          
+            $targetPath = Join-Path $destination $relativePath
+          
+            if ($_.PSIsContainer) {
+              New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+            } else {
+              $targetDir = Split-Path $targetPath
+              if (-not (Test-Path $targetDir)) {
+                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+              }
+              Copy-Item -Path $_.FullName -Destination $targetPath -Force
+            }
+          }
+          
+          # Copy runtimes/win-x64 specifically
+          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
+          $runtimeDest = Join-Path $destination "runtimes\win-x64"
+          if (Test-Path $runtimeSrc) {
+            Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
+          }
+        shell: pwsh
+
+      - name: Upload filtered artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: DHBW Game
+          path: filtered/net8.0
