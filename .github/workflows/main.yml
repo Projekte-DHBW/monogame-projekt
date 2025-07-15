@@ -1,4 +1,4 @@
-monogame-projektname: Run checks on incoming PR
+name: .NET
 
 on:
   pull_request:
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  android-build-check:
+  build:
     runs-on: windows-latest
 
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
 
-    - name: Build projekt
-      run: dotnet build monogame-projekt.csproj --configuration Release
+      - name: Build projekt
+        run: dotnet build monogame-projekt.csproj --configuration Release
