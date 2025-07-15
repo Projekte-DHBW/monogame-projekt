@@ -22,11 +22,16 @@ jobs:
         run: |
           $source = "bin/Release/net8.0"
           $destination = "filtered/net8.0"
-
+      
+          # Remove any existing filtered folder to avoid leftovers
+          if (Test-Path "filtered") {
+            Remove-Item -Recurse -Force "filtered"
+          }
+      
           # Create destination folder
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
-
-          # Copy everything except runtimes
+      
+          # Copy all files/folders except runtimes directly to filtered/net8.0
           Get-ChildItem -Path $source -Recurse -Force |
             Where-Object { $_.FullName -notmatch "\\runtimes\\.*" } |
             ForEach-Object {
@@ -40,8 +45,8 @@ jobs:
                 Copy-Item $_.FullName -Destination $targetPath -Force
               }
             }
-
-          # Copy only runtimes/win-x64
+      
+          # Copy runtimes/win-x64 folder directly inside filtered/net8.0/runtimes/win-x64
           $runtimeSrc = Join-Path $source "runtimes\win-x64"
           $runtimeDest = Join-Path $destination "runtimes\win-x64"
           if (Test-Path $runtimeSrc) {
@@ -49,9 +54,11 @@ jobs:
           }
         shell: pwsh
 
+
       - name: Upload filtered artifact
         uses: actions/upload-artifact@v4.6.2
         with:
           name: DHBW Game
-          path: filtered
+          path: filtered/net8.0
+
 
