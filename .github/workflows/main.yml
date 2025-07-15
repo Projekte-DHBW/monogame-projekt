@@ -18,15 +18,15 @@ jobs:
       - name: Build projekt
         run: dotnet build monogame-projekt.csproj --configuration Release
 
-      - name: Prepare filtered output
+      - name: Prepare filtered net8.0 output
         run: |
           $source = "bin/Release/net8.0"
-          $destination = "filtered"
+          $destination = "filtered/net8.0"
 
-          # Erstellt Zielverzeichnis
+          # Create destination folder
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
 
-          # Kopiert alles außer runtimes/
+          # Copy everything except runtimes
           Get-ChildItem -Path $source -Recurse -Force |
             Where-Object { $_.FullName -notmatch "\\runtimes\\.*" } |
             ForEach-Object {
@@ -41,16 +41,11 @@ jobs:
               }
             }
 
-          # Fügt nur runtimes/win-x64 hinzu
+          # Copy only runtimes/win-x64
           $runtimeSrc = Join-Path $source "runtimes\win-x64"
+          $runtimeDest = Join-Path $destination "runtimes\win-x64"
           if (Test-Path $runtimeSrc) {
-            $runtimeDest = Join-Path $destination "runtimes\win-x64"
             Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
           }
         shell: pwsh
 
-      - name: Upload filtered artifact
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: DHBW Game
-          path: filtered
