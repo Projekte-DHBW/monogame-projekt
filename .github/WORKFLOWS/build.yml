@@ -1,0 +1,2 @@
+﻿- name: Build MonoGame project
+  uses: igotinfected-ci/build-monogame@v2.0.3
