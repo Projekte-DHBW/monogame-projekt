@@ -17,3 +17,9 @@ jobs:
 
       - name: Build projekt
         run: dotnet build monogame-projekt.csproj --configuration Release
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: DHBW Game
+          path: bin/Debug/net8.0/monogame-projekt.exe
