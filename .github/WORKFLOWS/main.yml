@@ -1,0 +1,26 @@
+﻿name: Run checks on incoming PR
+
+on:
+  pull_request:
+    branches: [main]
+
+  # allow running this workflow manually
+  workflow_dispatch:
+
+jobs:
+  android-build-check:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      
+      - name: Build project 
+        uses: igotinfected-ci/build-monogame@v2
+        with:
+          solution-path: '${{ github.workspace }}\monogame-projekt\monogame-projekt.sln'
+          content-mgcb-path: '${{ github.workspace }}\monogame-projekt\Content'
+          content-mgcb-platform: "DesktopGL"
+          csproj-path: '${{ github.workspace }}\monogame-projekt\monogame-projekt.csproj'
+          build-target: "PackageForWindows"
+          build-configuration: "Release"
