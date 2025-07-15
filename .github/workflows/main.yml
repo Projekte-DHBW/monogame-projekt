@@ -23,7 +23,10 @@ jobs:
           $source = "bin/Release/net8.0"
           $destination = "filtered/net8.0"
       
-          # Remove previous filtered folder if it exists
+          # Resolve full path of source folder
+          $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
+      
+          # Remove previous filtered folder if exists
           if (Test-Path "filtered") {
             Remove-Item -Recurse -Force "filtered"
           }
@@ -32,14 +35,11 @@ jobs:
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
       
           # Copy everything except runtimes
-          Get-ChildItem -Path $source -Recurse -Force | ForEach-Object {
-            # Compute the relative path starting from $source folder
-            $relativePath = $_.FullName.Substring($source.Length).TrimStart('\','/')
+          Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
+            $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
       
-            # Skip runtimes folder here (filter later)
-            if ($relativePath -like "runtimes*") {
-              return
-            }
+            # Skip runtimes folder here
+            if ($relativePath -like "runtimes*") { return }
       
             $targetPath = Join-Path $destination $relativePath
       
@@ -55,7 +55,7 @@ jobs:
           }
       
           # Copy runtimes/win-x64 specifically
-          $runtimeSrc = Join-Path $source "runtimes\win-x64"
+          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
           $runtimeDest = Join-Path $destination "runtimes\win-x64"
           if (Test-Path $runtimeSrc) {
             Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
