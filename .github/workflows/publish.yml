@@ -1,0 +1,105 @@
+name: Release Build
+
+on:
+  schedule:
+    # Alle 12 Stunden
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build project
+        run: dotnet build monogame-projekt.csproj --configuration Release
+
+      - name: Prepare filtered net8.0 output
+        run: |
+          $source = "bin/Release/net8.0"
+          $destination = "filtered/net8.0"
+          $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
+          if (Test-Path "filtered") { Remove-Item -Recurse -Force "filtered" }
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
+            $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
+            if ($relativePath -like "runtimes*") { return }
+            $targetPath = Join-Path $destination $relativePath
+            if ($_.PSIsContainer) {
+              New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+            } else {
+              $targetDir = Split-Path $targetPath
+              if (-not (Test-Path $targetDir)) {
+                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+              }
+              Copy-Item -Path $_.FullName -Destination $targetPath -Force
+            }
+          }
+          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
+          $runtimeDest = Join-Path $destination "runtimes\win-x64"
+          if (Test-Path $runtimeSrc) {
+            Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
+          }
+        shell: pwsh
+
+      - name: Zip filtered output
+        run: |
+          Compress-Archive -Path filtered/net8.0/* -DestinationPath DHBW-Game.zip
+        shell: pwsh
+
+      - name: Get current date in Germany
+        id: date
+        run: |
+          $date = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
+            (Get-Date).ToUniversalTime(),
+            'W. Europe Standard Time'
+          )
+          $tag = $date.ToString('yyyy-MM-dd_HH-mm')
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Get last release tag
+        id: last_release
+        run: |
+          $release = gh release list --limit 1 --json tagName --jq '.[0].tagName'
+          if ($release) {
+            echo "tag=$release" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "tag=" >> $env:GITHUB_OUTPUT
+          }
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+
+      - name: Generate release notes from PRs
+        id: notes
+        run: |
+          $lastTag = "${{ steps.last_release.outputs.tag }}"
+          if ($lastTag) {
+            $prs = gh pr list --state merged --search "merged:>$lastTag" --json title,number,body --jq '.[] | "- PR #\(.number): \(.title)\n  \(.body)"'
+          } else {
+            $prs = gh pr list --state merged --json title,number,body --jq '.[] | "- PR #\(.number): \(.title)\n  \(.body)"'
+          }
+          if (-not $prs) { $prs = "No merged PRs since last release." }
+          $prs | Out-File -FilePath release_notes.txt -Encoding utf8
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.date.outputs.tag }}
+          name: ${{ steps.date.outputs.tag }}
+          body_path: release_notes.txt
+          files: DHBW-Game.zip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
