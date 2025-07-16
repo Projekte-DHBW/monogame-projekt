@@ -21,11 +21,9 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Build project
-        if: steps.changes.outputs.has_changes == 'true'
         run: dotnet build monogame-projekt.csproj --configuration Release
 
       - name: Prepare filtered net8.0 output
-        if: steps.changes.outputs.has_changes == 'true'
         run: |
           $source = "bin/Release/net8.0"
           $destination = "filtered/net8.0"
@@ -54,13 +52,11 @@ jobs:
         shell: pwsh
 
       - name: Zip filtered output
-        if: steps.changes.outputs.has_changes == 'true'
         run: |
           Compress-Archive -Path filtered/net8.0/* -DestinationPath DHBW-Game.zip
         shell: pwsh
 
       - name: Get current date in Germany
-        if: steps.changes.outputs.has_changes == 'true'
         id: date
         run: |
           $date = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
@@ -71,44 +67,8 @@ jobs:
           echo "tag=$tag" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Get last merged PR commit
-        id: last_pr
-        run: |
-          $lastPR = gh pr list --state merged --limit 1 --json mergeCommit --jq '.[0].mergeCommit.oid'
-          if ($lastPR) {
-            echo "commit=$lastPR" >> $env:GITHUB_OUTPUT
-            echo "Last merged PR commit: $lastPR"
-          } else {
-            echo "commit=" >> $env:GITHUB_OUTPUT
-            echo "No merged PRs found"
-          }
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: pwsh
-
-      - name: Check for changes since last PR
-        id: changes
-        run: |
-          $lastPRCommit = "${{ steps.last_pr.outputs.commit }}"
-          $currentCommit = git rev-parse HEAD
-          
-          if ([string]::IsNullOrEmpty($lastPRCommit)) {
-            echo "has_changes=true" >> $env:GITHUB_OUTPUT
-            echo "No previous PR found, proceeding with build"
-          } elseif ($lastPRCommit -eq $currentCommit) {
-            echo "has_changes=false" >> $env:GITHUB_OUTPUT
-            echo "No changes since last PR ($lastPRCommit), skipping build"
-          } else {
-            echo "has_changes=true" >> $env:GITHUB_OUTPUT
-            echo "Changes detected since last PR"
-            echo "Last PR: $lastPRCommit"
-            echo "Current: $currentCommit"
-          }
-        shell: pwsh
-
       - name: Get last release tag
         id: last_release
-        if: steps.changes.outputs.has_changes == 'true'
         run: |
           $release = gh release list --limit 1 --json tagName --jq '.[0].tagName'
           if ($release) {
@@ -121,11 +81,12 @@ jobs:
         shell: pwsh
 
       - name: Create GitHub Release
-        if: steps.changes.outputs.has_changes == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.date.outputs.tag }}
           name: ${{ steps.date.outputs.tag }}
+
+        
           files: DHBW-Game.zip
         env:
           GITHUB_TOKEN: ${{ github.token }}
