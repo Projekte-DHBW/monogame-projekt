@@ -78,7 +78,7 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
         run: |
           $body = @{
-            body = "The build artifact 'DHBW Game' is available for download from the [workflow run]($env:SERVER_URL/$env:REPO/actions/runs/$env:RUN_ID)."
+            body = "Das Build-Artefakt ‚DHBW Game‘ steht zum Download im [workflow run]($env:SERVER_URL/$env:REPO/actions/runs/$env:RUN_ID) tab bereit."
           } | ConvertTo-Json
 
           $headers = @{
