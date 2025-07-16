@@ -80,27 +80,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
 
-      - name: Generate release notes from PRs
-        id: notes
-        run: |
-          $lastTag = "${{ steps.last_release.outputs.tag }}"
-          if ($lastTag) {
-            $prs = gh pr list --state merged --search "merged:>$lastTag" --json title,number,body --jq '.[] | "- PR #\(.number): \(.title)\n  \(.body)"'
-          } else {
-            $prs = gh pr list --state merged --json title,number,body --jq '.[] | "- PR #\(.number): \(.title)\n  \(.body)"'
-          }
-          if (-not $prs) { $prs = "No merged PRs since last release." }
-          $prs | Out-File -FilePath release_notes.txt -Encoding utf8
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: pwsh
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.date.outputs.tag }}
           name: ${{ steps.date.outputs.tag }}
-          body_path: release_notes.txt
+
+        
           files: DHBW-Game.zip
         env:
           GITHUB_TOKEN: ${{ github.token }}
