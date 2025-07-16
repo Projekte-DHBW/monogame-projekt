@@ -92,9 +92,3 @@ jobs:
             -Body $body `
             -ContentType "application/json"
         shell: pwsh
-
-      - name: Upload filtered artifact
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: DHBW Game
-          path: filtered/net8.0
