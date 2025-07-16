@@ -1,4 +1,4 @@
-﻿name: .NET Build
+﻿name: .NET
 
 on:
   pull_request:
@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+        
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
       - name: Build projekt
         run: dotnet build monogame-projekt.csproj --configuration Release
@@ -77,18 +82,28 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           SERVER_URL: ${{ github.server_url }}
         run: |
-          $body = @{
-            body = "The build artifact 'DHBW Game' is available for download from the [workflow run]($env:SERVER_URL/$env:REPO/actions/runs/$env:RUN_ID)."
-          } | ConvertTo-Json
-
           $headers = @{
             Authorization = "token $env:GH_TOKEN"
             Accept = "application/vnd.github.v3+json"
           }
-
-          Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/issues/$env:PR_NUMBER/comments" `
-            -Method Post `
-            -Headers $headers `
-            -Body $body `
-            -ContentType "application/json"
+          
+          # Get list of artifacts for this run
+          $artifactsUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/actions/runs/$env:RUN_ID/artifacts"
+          $artifacts = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers
+          
+          # Find our artifact by name
+          $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "DHBW Game" }
+          
+          if ($artifact -ne $null) {
+            $artifactLink = "$env:SERVER_URL/$env:REPO/actions/artifacts/$($artifact.id)/zip"
+            $body = @{
+              body = "📦 Das Build-Artifact **DHBW Game** ist verfügbar: [Jetzt herunterladen]($artifactLink)"
+            } | ConvertTo-Json
+          
+            # Post comment
+            $commentUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/issues/$env:PR_NUMBER/comments"
+            Invoke-RestMethod -Uri $commentUrl -Method Post -Headers $headers -Body $body -ContentType "application/json"
+          } else {
+            Write-Host "Artifact 'DHBW Game' wurde nicht gefunden."
+          }
         shell: pwsh
