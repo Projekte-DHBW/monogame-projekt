@@ -82,6 +82,13 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           SERVER_URL: ${{ github.server_url }}
         run: |
+<<<<<<< HEAD
+=======
+          $body = @{
+            body = "Das Build-Artefakt ‚DHBW Game‘ steht zum Download im [workflow run]($env:SERVER_URL/$env:REPO/actions/runs/$env:RUN_ID) tab bereit."
+          } | ConvertTo-Json
+
+>>>>>>> 2ccb6439e5eb48b769921d42948f365adee2e791
           $headers = @{
             Authorization = "token $env:GH_TOKEN"
             Accept = "application/vnd.github.v3+json"
