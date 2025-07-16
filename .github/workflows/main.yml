@@ -68,9 +68,40 @@ jobs:
           name: DHBW Game
           path: filtered/net8.0
 
-      - name: List filtered/net8.0 folder
+      - name: Comment artifact link on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
         run: |
-          Get-ChildItem -Recurse filtered/net8.0 | ForEach-Object { Write-Output $_.FullName }
+          $headers = @{
+            Authorization = "token $env:GH_TOKEN"
+            Accept = "application/vnd.github.v3+json"
+          }
+      
+          # Get list of artifacts for this run
+          $artifactsUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/actions/runs/$env:RUN_ID/artifacts"
+          $artifacts = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers
+      
+          # Find our artifact by name
+          $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "DHBW Game" }
+      
+          if ($artifact -ne $null) {
+            $artifactLink = "$env:SERVER_URL/$env:REPO/actions/artifacts/$($artifact.id)/zip"
+            $body = @{
+              body = "📦 Das Build-Artifact **DHBW Game** ist verfügbar: [Jetzt herunterladen]($artifactLink)"
+            } | ConvertTo-Json
+      
+            # Post comment
+            $commentUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/issues/$env:PR_NUMBER/comments"
+            Invoke-RestMethod -Uri $commentUrl -Method Post -Headers $headers -Body $body -ContentType "application/json"
+          } else {
+            Write-Host "Artifact 'DHBW Game' wurde nicht gefunden."
+          }
         shell: pwsh
+
 
 
