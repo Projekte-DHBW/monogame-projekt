@@ -67,3 +67,34 @@ jobs:
         with:
           name: DHBW Game
           path: filtered/net8.0
+
+      - name: Comment artifact link on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+        run: |
+          $body = @{
+            body = "The build artifact 'DHBW Game' is available for download from the [workflow run]($SERVER_URL/$REPO/actions/runs/$RUN_ID)."
+          } | ConvertTo-Json
+
+          $headers = @{
+            Authorization = "token $env:GH_TOKEN"
+            Accept = "application/vnd.github.v3+json"
+          }
+
+          Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/issues/$env:PR_NUMBER/comments" `
+            -Method Post `
+            -Headers $headers `
+            -Body $body `
+            -ContentType "application/json"
+        shell: pwsh
+
+      - name: Upload filtered artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: DHBW Game
+          path: filtered/net8.0
