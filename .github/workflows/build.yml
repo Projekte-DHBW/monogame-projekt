@@ -25,46 +25,46 @@ jobs:
 
       - name: Prepare filtered net8.0 output
         run: |
-            $source = "bin/Release/net8.0"
-            $destination = "filtered/net8.0"
+          $source = "bin/Release/net8.0"
+          $destination = "filtered/net8.0"
             
-            # Resolve full path of source folder
-            $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
+          # Resolve full path of source folder
+          $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
             
-            # Remove previous filtered folder if exists
-            if (Test-Path "filtered") {
-              Remove-Item -Recurse -Force "filtered"
-            }
+          # Remove previous filtered folder if exists
+          if (Test-Path "filtered") {
+            Remove-Item -Recurse -Force "filtered"
+          }
             
-            # Create destination directory
-            New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          # Create destination directory
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
             
-            # Copy everything except runtimes
-            Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
-              $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
+          # Copy everything except runtimes
+          Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
+            $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
             
-              # Skip runtimes folder here
-              if ($relativePath -like "runtimes*") { return }
+            # Skip runtimes folder here
+            if ($relativePath -like "runtimes*") { return }
             
-              $targetPath = Join-Path $destination $relativePath
+            $targetPath = Join-Path $destination $relativePath
             
-              if ($_.PSIsContainer) {
-                New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
-              } else {
-                $targetDir = Split-Path $targetPath
-                if (-not (Test-Path $targetDir)) {
-                  New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
-                }
-                Copy-Item -Path $_.FullName -Destination $targetPath -Force
+            if ($_.PSIsContainer) {
+              New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+            } else {
+              $targetDir = Split-Path $targetPath
+              if (-not (Test-Path $targetDir)) {
+                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
               }
+              Copy-Item -Path $_.FullName -Destination $targetPath -Force
             }
+          }
             
-            # Copy runtimes/win-x64 specifically
-            $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
-            $runtimeDest = Join-Path $destination "runtimes\win-x64"
-            if (Test-Path $runtimeSrc) {
-              Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
-            }
+          # Copy runtimes/win-x64 specifically
+          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
+          $runtimeDest = Join-Path $destination "runtimes\win-x64"
+          if (Test-Path $runtimeSrc) {
+            Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
+          }
         shell: pwsh
 
       - name: Upload filtered artifact
@@ -86,20 +86,20 @@ jobs:
             Authorization = "token $env:GH_TOKEN"
             Accept = "application/vnd.github.v3+json"
           }
-            
+      
           # Get list of artifacts for this run
           $artifactsUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/actions/runs/$env:RUN_ID/artifacts"
           $artifacts = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers
-            
+      
           # Find our artifact by name
           $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "DHBW Game" }
-            
+      
           if ($artifact -ne $null) {
             $artifactLink = "$env:SERVER_URL/$env:REPO/actions/artifacts/$($artifact.id)/zip"
             $body = @{
               body = "📦 Das Build-Artifact **DHBW Game** ist verfügbar: [Jetzt herunterladen]($artifactLink)"
             } | ConvertTo-Json
-            
+      
             # Post comment
             $commentUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/issues/$env:PR_NUMBER/comments"
             Invoke-RestMethod -Uri $commentUrl -Method Post -Headers $headers -Body $body -ContentType "application/json"
