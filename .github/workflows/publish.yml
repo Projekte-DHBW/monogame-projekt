@@ -2,8 +2,9 @@ name: Release Build
 
 on:
   schedule:
-    # Alle 12 Stunden
     - cron: '0 */12 * * *'
+  pull_request:
+    types: [opened, synchronize]
   workflow_dispatch:
 
 jobs:
