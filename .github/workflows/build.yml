@@ -1,4 +1,4 @@
-﻿name: .NET
+name: .NET
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-        
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -27,27 +27,27 @@ jobs:
         run: |
           $source = "bin/Release/net8.0"
           $destination = "filtered/net8.0"
-            
+      
           # Resolve full path of source folder
           $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
-            
+      
           # Remove previous filtered folder if exists
           if (Test-Path "filtered") {
             Remove-Item -Recurse -Force "filtered"
           }
-            
+      
           # Create destination directory
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
-            
+      
           # Copy everything except runtimes
           Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
             $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
-            
+      
             # Skip runtimes folder here
             if ($relativePath -like "runtimes*") { return }
-            
+      
             $targetPath = Join-Path $destination $relativePath
-            
+      
             if ($_.PSIsContainer) {
               New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
             } else {
@@ -58,7 +58,7 @@ jobs:
               Copy-Item -Path $_.FullName -Destination $targetPath -Force
             }
           }
-            
+      
           # Copy runtimes/win-x64 specifically
           $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
           $runtimeDest = Join-Path $destination "runtimes\win-x64"
@@ -107,3 +107,5 @@ jobs:
             Write-Host "Artifact 'DHBW Game' wurde nicht gefunden."
           }
         shell: pwsh
+
+
