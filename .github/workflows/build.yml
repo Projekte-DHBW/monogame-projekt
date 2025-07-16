@@ -82,35 +82,28 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           SERVER_URL: ${{ github.server_url }}
         run: |
-<<<<<<< HEAD
-=======
-          $body = @{
-            body = "Das Build-Artefakt ‚DHBW Game‘ steht zum Download im [workflow run]($env:SERVER_URL/$env:REPO/actions/runs/$env:RUN_ID) tab bereit."
-          } | ConvertTo-Json
-
->>>>>>> 2ccb6439e5eb48b769921d42948f365adee2e791
-          $headers = @{
-            Authorization = "token $env:GH_TOKEN"
-            Accept = "application/vnd.github.v3+json"
-          }
-          
-          # Get list of artifacts for this run
-          $artifactsUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/actions/runs/$env:RUN_ID/artifacts"
-          $artifacts = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers
-          
-          # Find our artifact by name
-          $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "DHBW Game" }
-          
-          if ($artifact -ne $null) {
-            $artifactLink = "$env:SERVER_URL/$env:REPO/actions/artifacts/$($artifact.id)/zip"
-            $body = @{
-              body = "📦 Das Build-Artifact **DHBW Game** ist verfügbar: [Jetzt herunterladen]($artifactLink)"
-            } | ConvertTo-Json
-          
-            # Post comment
-            $commentUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/issues/$env:PR_NUMBER/comments"
-            Invoke-RestMethod -Uri $commentUrl -Method Post -Headers $headers -Body $body -ContentType "application/json"
-          } else {
-            Write-Host "Artifact 'DHBW Game' wurde nicht gefunden."
-          }
+            $headers = @{
+              Authorization = "token $env:GH_TOKEN"
+              Accept = "application/vnd.github.v3+json"
+            }
+            
+            # Get list of artifacts for this run
+            $artifactsUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/actions/runs/$env:RUN_ID/artifacts"
+            $artifacts = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers
+            
+            # Find our artifact by name
+            $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "DHBW Game" }
+            
+            if ($artifact -ne $null) {
+              $artifactLink = "$env:SERVER_URL/$env:REPO/actions/artifacts/$($artifact.id)/zip"
+              $body = @{
+                body = "📦 Das Build-Artifact **DHBW Game** ist verfügbar: [Jetzt herunterladen]($artifactLink)"
+              } | ConvertTo-Json
+            
+              # Post comment
+              $commentUrl = "$env:SERVER_URL/api/v3/repos/$env:REPO/issues/$env:PR_NUMBER/comments"
+              Invoke-RestMethod -Uri $commentUrl -Method Post -Headers $headers -Body $body -ContentType "application/json"
+            } else {
+              Write-Host "Artifact 'DHBW Game' wurde nicht gefunden."
+            }
         shell: pwsh
