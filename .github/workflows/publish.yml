@@ -2,9 +2,7 @@ name: Release Build
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
-  pull_request:
-    types: [opened, synchronize]
+    - cron: '0 16 * * *'
   workflow_dispatch:
 
 jobs:
