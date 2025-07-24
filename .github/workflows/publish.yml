@@ -19,7 +19,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Build project
-        run: dotnet build monogame-projekt.csproj --configuration Release
+        run: dotnet build DHBW-Game/DHBW-Game.csproj --configuration Release
 
       - name: Prepare filtered net8.0 output
         run: |

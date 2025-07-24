@@ -1,6 +1,8 @@
-bin/
-obj/
-/packages/
+DHBW-Game/bin/
+DHBW-Game/obj/
+DHBW-Game/packages/
+DHBW-Game/riderModule.iml
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
+.vs/
