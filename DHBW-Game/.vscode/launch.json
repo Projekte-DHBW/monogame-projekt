@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "C#: monogame_projekt Debug",
+        "name": "C#: DHBW_Game Debug",
         "type": "dotnet",
         "request": "launch",
-        "projectPath": "${workspaceFolder}/monogame_projekt.csproj"
+        "projectPath": "${workspaceFolder}/DHBW_Game.csproj"
       }
     ],
   }

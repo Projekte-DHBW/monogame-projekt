@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace monogame_projekt;
+namespace DHBW_Game;
 
 public class Game1 : Game
 {
