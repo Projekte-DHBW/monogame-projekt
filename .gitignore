@@ -2,6 +2,10 @@ DHBW-Game/bin/
 DHBW-Game/obj/
 DHBW-Game/packages/
 DHBW-Game/riderModule.iml
+Tests/bin/
+Tests/obj/
+Tests/packages/
+Tests/riderModule.iml
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
