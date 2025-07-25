@@ -1,10 +1,62 @@
-DHBW-Game/bin/
-DHBW-Game/obj/
-DHBW-Game/packages/
-DHBW-Game/riderModule.iml
-riderModule.iml
+# .NET / Visual Studio
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 /_ReSharper.Caches/
-.idea/
 .vs/
-.cursor/
 .vscode/
+
+# MonoGame Content Pipeline
+**/*.xnb
+**/*.mgcontent
+**/*.spritefont.cache
+**/Content/obj/
+**/Content/bin/
+
+# MonoGame Pipeline Tool temp files
+*.mgcb.tmp
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# Cursor
+.cursor/
+
+# System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build outputs
+*.exe
+*.dll
+*.pdb
+*.log
+
+# Publish folders
+**/publish/
+**/out/
+**/artifacts/
+
+# ReSharper / Analysis Tools
+_ReSharper*/
+*.DotSettings.user
+
+# Unit Test results
+**/TestResults/
+*.trx
+*.coverage
+
+# Backup / temp
+*.bak
+*.tmp
+*.swp
+*.orig
+
+# OS-specific
+ehthumbs.db
+Icon?
