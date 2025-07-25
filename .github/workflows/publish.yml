@@ -68,7 +68,7 @@ jobs:
 
       - name: Zip filtered output
         run: |
-          Compress-Archive -Path filtered/net8.0/* -DestinationPath DHBW-Game.zip
+          Compress-Archive -Path DHBW-Game/filtered/net8.0/* -DestinationPath DHBW-Game.zip
         shell: pwsh
 
       - name: Get current date in Germany
