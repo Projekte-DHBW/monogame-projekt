@@ -1,17 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGameLibrary;
 
-namespace DHBW_Game;
+namespace monogame_projekt;
 
-public class Game1 : Core
+public class Game1 : Game
 {
-    private Texture2D _logo;
+    private GraphicsDeviceManager _graphics;
+    private SpriteBatch _spriteBatch;
 
-    public Game1() : base("DHBW Game", 1280, 720, false)
+    public Game1()
     {
-
+        _graphics = new GraphicsDeviceManager(this);
+        Content.RootDirectory = "Content";
+        IsMouseVisible = true;
     }
 
     protected override void Initialize()
@@ -23,7 +25,9 @@ public class Game1 : Core
 
     protected override void LoadContent()
     {
-        _logo = Content.Load<Texture2D>("images/logo");
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // TODO: use this.Content to load your game content here
     }
 
     protected override void Update(GameTime gameTime)
@@ -41,11 +45,7 @@ public class Game1 : Core
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        SpriteBatch.Begin();
-
-        SpriteBatch.Draw(_logo, Vector2.Zero, Color.White);
-
-        SpriteBatch.End();
+        // TODO: Add your drawing code here
 
         base.Draw(gameTime);
     }
