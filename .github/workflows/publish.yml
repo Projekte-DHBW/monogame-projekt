@@ -59,10 +59,17 @@ jobs:
           }
 
           # Copy runtimes/win-x64 specifically
-          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
-          $runtimeDest = Join-Path $destination "runtimes\win-x64"
-          if (Test-Path $runtimeSrc) {
-            Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
+          $runtimeWinSrc = Join-Path $sourceFullPath "runtimes\win-x64"
+          $runtimeWinDest = Join-Path $destination "runtimes\win-x64"
+          if (Test-Path $runtimeWinSrc) {
+            Copy-Item -Path $runtimeWinSrc -Destination $runtimeWinDest -Recurse -Force
+          }
+
+          # Copy runtimes/osx specifically
+          $runtimeOsxSrc = Join-Path $sourceFullPath "runtimes\osx"
+          $runtimeOsxDest = Join-Path $destination "runtimes\osx"
+          if (Test-Path $runtimeOsxSrc) {
+            Copy-Item -Path $runtimeOsxSrc -Destination $runtimeOsxDest -Recurse -Force
           }
         shell: pwsh
 

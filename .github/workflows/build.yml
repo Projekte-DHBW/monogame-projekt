@@ -27,27 +27,27 @@ jobs:
           $projectDir = "DHBW-Game"
           $source = Join-Path $projectDir "bin/Release/net8.0"
           $destination = Join-Path $projectDir "filtered/net8.0"
- 
+
           # Resolve full path of source folder
           $sourceFullPath = (Resolve-Path $source).Path.TrimEnd('\')
- 
+
           # Remove previous filtered folder if exists
           if (Test-Path (Join-Path $projectDir "filtered")) {
             Remove-Item -Recurse -Force (Join-Path $projectDir "filtered")
           }
- 
+
           # Create destination directory
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
- 
+
           # Copy everything except runtimes
           Get-ChildItem -Path $sourceFullPath -Recurse -Force | ForEach-Object {
             $relativePath = $_.FullName.Substring($sourceFullPath.Length).TrimStart('\')
- 
+
             # Skip runtimes folder
             if ($relativePath -like "runtimes*") { return }
- 
+
             $targetPath = Join-Path $destination $relativePath
- 
+
             if ($_.PSIsContainer) {
               New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
             } else {
@@ -58,14 +58,22 @@ jobs:
               Copy-Item -Path $_.FullName -Destination $targetPath -Force
             }
           }
- 
+
           # Copy runtimes/win-x64 specifically
-          $runtimeSrc = Join-Path $sourceFullPath "runtimes\win-x64"
-          $runtimeDest = Join-Path $destination "runtimes\win-x64"
-          if (Test-Path $runtimeSrc) {
-            Copy-Item -Path $runtimeSrc -Destination $runtimeDest -Recurse -Force
+          $runtimeWinSrc = Join-Path $sourceFullPath "runtimes\win-x64"
+          $runtimeWinDest = Join-Path $destination "runtimes\win-x64"
+          if (Test-Path $runtimeWinSrc) {
+            Copy-Item -Path $runtimeWinSrc -Destination $runtimeWinDest -Recurse -Force
+          }
+
+          # Copy runtimes/osx specifically
+          $runtimeOsxSrc = Join-Path $sourceFullPath "runtimes\osx"
+          $runtimeOsxDest = Join-Path $destination "runtimes\osx"
+          if (Test-Path $runtimeOsxSrc) {
+            Copy-Item -Path $runtimeOsxSrc -Destination $runtimeOsxDest -Recurse -Force
           }
         shell: pwsh
+
  
       - name: Upload filtered artifact
         uses: actions/upload-artifact@v4.6.2
