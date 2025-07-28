@@ -2,72 +2,78 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
- 
+
 namespace DHBW_Game;
- 
+
 public class Game1 : Core
 {
     // The MonoGame logo texture
     private Texture2D _logo;
- 
+
+    // 🔹 Hintergrundbild
+    private Texture2D _background;
+
     public Game1() : base("DHBW", 1280, 720, false)
     {
- 
     }
- 
+
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
- 
         base.Initialize();
     }
- 
+
     protected override void LoadContent()
     {
-        // TODO: use this.Content to load your game content here
+        // 🔹 Lade das Logo
         _logo = Content.Load<Texture2D>("images/logo");
-       
+
+        // 🔹 Lade den Pixel-Art-Hintergrund
+        _background = Content.Load<Texture2D>("images/hintergrund");
     }
- 
+
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+            Keyboard.GetState().IsKeyDown(Keys.Escape))
+        {
             Exit();
- 
-        // TODO: Add your update logic here
- 
+        }
+
         base.Update(gameTime);
     }
- 
+
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.White);
- 
-        // Begin the sprite batch to prepare for rendering.
+        GraphicsDevice.Clear(Color.CornflowerBlue);
+
         SpriteBatch.Begin();
- 
-         // Set position to top-left corner with a small margin
+
+        // 🔹 Hintergrundbild zeichnen (exakte Fenstergröße, kein Zoom)
+        SpriteBatch.Draw(
+            _background,
+            destinationRectangle: new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height),
+            color: Color.White
+        );
+
+        // 🔹 Logo in der oberen linken Ecke zeichnen
         Vector2 position = new Vector2(10, 10);
- 
-        // Scale the logo (z. B. auf 25 % der Originalgröße)
-        float scale = 0.25f;
- 
-        // Draw the scaled logo in the top-left corner
+        float scale = 0.2f;
         SpriteBatch.Draw(
             _logo,
             position,
-            null,           // sourceRectangle
+            null,
             Color.White,
-            0f,             // rotation
-            Vector2.Zero,   // origin
-            scale,          // scale
+            0f,
+            Vector2.Zero,
+            scale,
             SpriteEffects.None,
-            0f              // layerDepth
+            0f
         );
- 
-        // Always end the sprite batch when finished.
+
         SpriteBatch.End();
- 
+
         base.Draw(gameTime);
     }
+
 }
