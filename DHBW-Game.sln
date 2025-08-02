@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DHBW-Game", "DHBW-Game\DHBW
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{41EDFF7C-A37D-4518-9111-F88EA354CBC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameLibrary", "MonoGameLibrary\MonoGameLibrary.csproj", "{B36139A1-F1CD-4422-B92E-7769D011D301}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{41EDFF7C-A37D-4518-9111-F88EA354CBC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41EDFF7C-A37D-4518-9111-F88EA354CBC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41EDFF7C-A37D-4518-9111-F88EA354CBC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36139A1-F1CD-4422-B92E-7769D011D301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36139A1-F1CD-4422-B92E-7769D011D301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36139A1-F1CD-4422-B92E-7769D011D301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36139A1-F1CD-4422-B92E-7769D011D301}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
