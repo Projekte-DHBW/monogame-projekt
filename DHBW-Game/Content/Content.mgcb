@@ -31,6 +31,13 @@
 /processorParam:Quality=Best
 /build:audio/theme.ogg
 
+#begin fonts/04B_30.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/04B_30.spritefont
+
 #begin images/atlas-definition.xml
 /copy:images/atlas-definition.xml
 
@@ -60,4 +67,11 @@
 
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
+
+#begin MonoGameFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:MonoGameFont.spritefont
 
