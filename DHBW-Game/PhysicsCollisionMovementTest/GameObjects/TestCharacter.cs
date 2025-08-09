@@ -1,0 +1,111 @@
+using System.Buffers.Text;
+using GameLibrary;
+using GameLibrary.Graphics;
+using GameLibrary.Physics;
+using GameLibrary.Physics.Colliders;
+using Microsoft.Xna.Framework;
+using MonoGameTutorial;
+
+namespace DHBW_Game.GameObjects;
+
+public class TestCharacter : PhysicsComponent
+{
+    // Because movement is done with forces and a jump is typically not continuous but a discrete event, a duration over which the jump force acts is needed.
+    private double _jumpDuration;
+
+    // The AnimatedSprite used as a test texture.
+    private readonly AnimatedSprite _sprite;
+
+    /// <summary>
+    /// Creates a new <see cref="TestCharacter"/> object.
+    /// </summary>
+    /// <param name="mass">The mass of the physics component.</param>
+    /// <param name="isElastic">Whether the collider is elastic.</param>
+    public TestCharacter(float mass, bool isElastic)
+    {
+        // Use circle collider
+        Collider = new CircleCollider((int)Position.X, (int)Position.Y, 30, this, isElastic);
+        
+        // Use rectangle collider
+        //Collider = new RectangleCollider((int)Position.X, (int)Position.Y, 50, 50, 0, this, isElastic);
+        
+        Mass = mass;
+    }
+    
+    /// <summary>
+    /// Creates a new <see cref="TestCharacter"/> object.
+    /// </summary>
+    /// <param name="mass">The mass of the physics component.</param>
+    /// <param name="isElastic">Whether the collider is elastic.</param>
+    /// <param name="sprite">The animated sprite to use.</param>
+    public TestCharacter(float mass, bool isElastic, AnimatedSprite sprite) : this(mass, isElastic)
+    {
+        _sprite = sprite;
+    }
+    
+    /// <summary>
+    /// Initializes the test character at the given starting position in the world.
+    /// </summary>
+    /// <param name="startingPosition">The position at which the test character should spawn.</param>
+    public void Initialize(Vector2 startingPosition)
+    {
+        Position = startingPosition;
+    }
+
+    /// <summary>
+    /// Handles the input of the <see cref="GameController"/> class to create forces which move the test character object.
+    /// </summary>
+    /// <param name="gameTime">The current time state of the game.</param>
+    private void HandleInput(GameTime gameTime)
+    {
+        Vector2 nextDirection = Vector2.Zero;
+        
+        // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
+        if (GameController.MoveUp())
+        {
+            _jumpDuration = 0.1;
+        }
+        if (GameController.MoveDown())
+        {
+            nextDirection += Vector2.UnitY * 4000;
+        }
+        if (GameController.MoveLeft())
+        {
+            nextDirection += -Vector2.UnitX * 4000;
+        }
+        if (GameController.MoveRight())
+        {
+            nextDirection += Vector2.UnitX * 4000;
+        }
+        
+        if (_jumpDuration > 0)
+        {
+            nextDirection += -Vector2.UnitY * 15000;
+        }
+        
+        _jumpDuration -= gameTime.ElapsedGameTime.TotalSeconds;
+        
+        Forces.Add(nextDirection);
+    }
+
+    /// <summary>
+    /// Updates the animated sprite which is set and also handles the input.
+    /// </summary>
+    /// <param name="gameTime">A snapshot of the timing values for the current update cycle.</param>
+    public void Update(GameTime gameTime)
+    {
+        // Update the animated sprite.
+        _sprite?.Update(gameTime);
+
+        // Handle any player input
+        HandleInput(gameTime);
+    }
+
+    /// <summary>
+    /// Draws the animated sprite which is set.
+    /// </summary>
+    public void Draw()
+    {
+        _sprite?.Draw(Core.SpriteBatch, Position);
+    }
+}

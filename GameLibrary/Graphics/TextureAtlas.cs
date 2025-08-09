@@ -241,6 +241,8 @@ public class TextureAtlas
     public AnimatedSprite CreateAnimatedSprite(string animationName)
     {
         Animation animation = GetAnimation(animationName);
-        return new AnimatedSprite(animation);
+        AnimatedSprite animatedSprite = new AnimatedSprite(animation);
+        animatedSprite.CenterOrigin();
+        return animatedSprite;
     }
 }
