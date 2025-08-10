@@ -1,6 +1,7 @@
 using GameLibrary.Graphics;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
+using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 
 namespace GameLibrary.Entities;
@@ -75,6 +76,6 @@ public abstract class GameObject
     /// </summary>
     public virtual void Draw()
     {
-        Sprite?.Draw(Core.SpriteBatch, Position);
+        ServiceLocator.Get<Camera>().Draw(Sprite, Position);
     }
 }
