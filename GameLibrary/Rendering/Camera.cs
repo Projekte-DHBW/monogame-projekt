@@ -106,6 +106,35 @@ public class Camera
             sprite.Draw(Core.SpriteBatch, position + Offset);
         }
     }
+    
+    /// <summary>
+    /// Draws a texture region at the specified world position, adjusted by the camera's offset.
+    /// </summary>
+    /// <param name="textureRegion">The TextureRegion to draw, containing the source texture and rectangle.</param>
+    /// <param name="spriteBatch">The SpriteBatch instance to use for drawing.</param>
+    /// <param name="position">The world-space position to draw the texture region at.</param>
+    /// <param name="color">The color tint to apply to the texture region.</param>
+    /// <param name="rotation">The rotation angle in radians to apply to the texture region.</param>
+    /// <param name="origin">The origin point for rotation and scaling, relative to the texture region's top-left corner.</param>
+    /// <param name="scale">The scale factor to apply to the x- and y-axes of the texture region.</param>
+    /// <param name="effects">Sprite effects such as flipping horizontally or vertically.</param>
+    /// <param name="layerDepth">The layer depth for sorting the texture region during rendering.</param>
+    public void Draw(
+        TextureRegion textureRegion,
+        SpriteBatch spriteBatch,
+        Vector2 position, 
+        Color color, 
+        float rotation, 
+        Vector2 origin, 
+        Vector2 scale, 
+        SpriteEffects effects, 
+        float layerDepth)
+    {
+        if (textureRegion != null)
+        {
+            textureRegion.Draw(spriteBatch, position + Offset, color, rotation, origin, scale, effects, layerDepth);
+        }
+    }
 
     /// <summary>
     /// Draws a texture at the specified world position using the provided SpriteBatch, 
