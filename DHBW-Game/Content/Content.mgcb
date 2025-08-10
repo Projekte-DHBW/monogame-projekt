@@ -13,3 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Maps/TestMap.xml
+/copy:Maps/TestMap.xml;Maps/test_map.xml
+
