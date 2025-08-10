@@ -32,7 +32,7 @@ public class Core : Game
     /// <summary>
     /// Gets the graphics device used to create graphical resources and perform primitive rendering.
     /// </summary>
-    public static new GraphicsDevice GraphicsDevice { get; private set; }
+    public new static GraphicsDevice GraphicsDevice { get; private set; }
     
     /// <summary>
     /// Gets the sprite batch used for all 2D rendering.
@@ -42,7 +42,7 @@ public class Core : Game
     /// <summary>
     /// Gets the content manager used to load global assets.
     /// </summary>
-    public static new ContentManager Content { get; private set; }
+    public new static ContentManager Content { get; private set; }
     
     /// <summary>
     /// Gets a reference to the input management system.
