@@ -1,20 +1,21 @@
 using System.Collections.Generic;
+using GameLibrary.Entities;
 using GameLibrary.Physics.Colliders;
 using Microsoft.Xna.Framework;
 
 namespace GameLibrary.Physics;
 
-public abstract class PhysicsComponent
+public class PhysicsComponent
 {
     /// <summary>
-    /// Gets or sets the position of the physics object.
+    /// Gets or sets the position of the physics object. The get and set requests are forwarded to the position of the game object to avoid redundancy and synchronization issues.
     /// </summary>
-    public Vector2 Position { get; set; } = Vector2.Zero;
-    
-    /// <summary>
-    /// Gets or sets the new position of the physics object. This new position is calculated by the physics engine and applied at the end of the physics loop.
-    /// </summary>
-    public Vector2 NewPosition { get; set; } = Vector2.Zero;
+    public Vector2 Position
+    {
+        get => GameObject.Position;
+        set => GameObject.Position = value;
+        
+    }
     
     /// <summary>
     /// Gets or sets the velocity of the physics object.
@@ -38,7 +39,23 @@ public abstract class PhysicsComponent
     public List<Vector2> Forces { get; } = new List<Vector2>();
 
     /// <summary>
-    /// Gets or sets the collider associated with this physics object. A collider is required for every physics object (set in "Initialize" method).
+    /// Gets or sets the game object which the physics component is attached to.
     /// </summary>
-    public Collider Collider { get; set; }
+    public GameObject GameObject { get; set; }
+    
+    /// <summary>
+    /// Gets the collider associated with this physics object.
+    /// </summary>
+    public Collider Collider => GameObject.Collider;
+
+    /// <summary>
+    /// Creates a new <see cref="PhysicsComponent"/>.
+    /// </summary>
+    /// <param name="gameObject">The game object which the physics component is attached to.</param>
+    /// <param name="mass">The mass of the physics component</param>
+    public PhysicsComponent(GameObject gameObject, float mass)
+    {
+        GameObject = gameObject;
+        Mass = mass;
+    }
 }

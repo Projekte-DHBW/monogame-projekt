@@ -49,8 +49,6 @@ namespace GameLibrary.Physics.Colliders
         /// </summary>
         public void CheckCollisions()
         {
-            Console.WriteLine();
-            
             // Reset IsOnGround
             foreach (var collider in _colliders)
             {
@@ -101,9 +99,8 @@ namespace GameLibrary.Physics.Colliders
                         
                         if (dynamicCollider != null)
                         {
-                            int originalX = dynamicCollider.X;
-                            int originalY = dynamicCollider.Y;
-                            dynamicCollider.Y += 1; // Shift slightly down so probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation)
+                            Vector2 originalPosition = dynamicCollider.GlobalPosition;
+                            dynamicCollider.GlobalPosition = originalPosition + new Vector2(0, 1); // Shift slightly down so probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation)
             
                             CollisionData groundData = GetCollisionData(dynamicCollider, staticCollider);
             
@@ -121,9 +118,8 @@ namespace GameLibrary.Physics.Colliders
                                     dynamicCollider.SlopeAngle = 0f;
                                 }
                             }
-            
-                            dynamicCollider.X = originalX;
-                            dynamicCollider.Y = originalY;
+                            
+                            dynamicCollider.GlobalPosition = originalPosition;
                         }
                     }
                 }
@@ -149,7 +145,10 @@ namespace GameLibrary.Physics.Colliders
             }
             else if (!isCollider1Static && isCollider2Static)
             {
-                Bounce(collider2, collider1, collisionData);
+                // Invert normal when swapping order (now points from static to dynamic)
+                CollisionData invertedData = collisionData;
+                invertedData.Normal = -collisionData.Normal;
+                Bounce(collider2, collider1, invertedData);
             }
             else if (!isCollider1Static && !isCollider2Static)
             {
@@ -304,7 +303,7 @@ namespace GameLibrary.Physics.Colliders
                 CircleCollider circle2 = (CircleCollider)collider2;
                 
                 // Calculate distance between circle centers
-                Vector2 delta = circle2.Location.ToVector2() - circle1.Location.ToVector2();
+                Vector2 delta = circle2.GlobalPosition - circle1.GlobalPosition;
                 float dist = delta.Length();
                 float sumRadii = circle1.Radius + circle2.Radius;
                 
@@ -325,8 +324,8 @@ namespace GameLibrary.Physics.Colliders
                 RectangleCollider rect2 = (RectangleCollider)collider2;
         
                 // Get rectangle centers and rotations (in radians for math)
-                Vector2 center1 = new Vector2(rect1.X, rect1.Y);
-                Vector2 center2 = new Vector2(rect2.X, rect2.Y);
+                Vector2 center1 = rect1.GlobalPosition;
+                Vector2 center2 = rect2.GlobalPosition;
                 float angle1 = MathHelper.ToRadians(rect1.Rotation);
                 float angle2 = MathHelper.ToRadians(rect2.Rotation);
         
@@ -388,8 +387,8 @@ namespace GameLibrary.Physics.Colliders
                 bool rectIsCollider1 = collider1 is RectangleCollider;
         
                 // Get centers and rectangle rotation
-                Vector2 rectCenter = new Vector2(rect.X, rect.Y);
-                Vector2 circleCenter = new Vector2(circle.X, circle.Y);
+                Vector2 rectCenter = rect.GlobalPosition;
+                Vector2 circleCenter = circle.GlobalPosition;
                 float angle = MathHelper.ToRadians(rect.Rotation);
                 float cos = (float)Math.Cos(angle);
                 float sin = (float)Math.Sin(angle);
@@ -483,13 +482,13 @@ namespace GameLibrary.Physics.Colliders
             // Move dynamic collider1 backward along the normal (if dynamic)
             if (collider1.PhysicsComponent != null)
             {
-                collider1.PhysicsComponent.NewPosition -= correction;
+                collider1.GlobalPosition -= correction;
             }
 
             // Move dynamic collider2 forward along the normal (if dynamic)
             if (collider2.PhysicsComponent != null)
             {
-                collider2.PhysicsComponent.NewPosition += correction;
+                collider2.GlobalPosition += correction;
             }
         }
 

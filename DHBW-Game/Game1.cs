@@ -15,7 +15,6 @@ public class Game1 : Core
 
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
-
     }
 
     protected override void Initialize()
@@ -24,9 +23,11 @@ public class Game1 : Core
         
         _physicsEngine = new PhysicsEngine(this);
         Components.Add(_physicsEngine);
+        ServiceLocator.Register(_physicsEngine);
+        ServiceLocator.Register(_physicsEngine.CollisionEngine);
         
 #if PhysicsCollisionMovementTest
-        TestScene testScene = new TestScene(_physicsEngine);
+        TestScene testScene = new TestScene();
         
         ChangeScene(testScene);
 #endif

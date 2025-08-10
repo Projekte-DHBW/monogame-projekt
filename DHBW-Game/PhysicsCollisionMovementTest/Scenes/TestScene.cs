@@ -19,9 +19,9 @@ public class TestScene : Scene
     private readonly PhysicsEngine _physicsEngine;
 
 
-    public TestScene(PhysicsEngine physicsEngine)
+    public TestScene()
     {
-        _physicsEngine = physicsEngine;
+        _physicsEngine = ServiceLocator.Get<PhysicsEngine>();
         _collisionEngine = _physicsEngine.CollisionEngine;
     }
     
@@ -38,39 +38,35 @@ public class TestScene : Scene
     
     private void InitializeNewGame()
     {
-        // Create rectangle colliders which are static and act as walls/platforms/ground.
-        RectangleCollider rectangleCollider1 = new RectangleCollider(400, 500, 400, 50, 25);
-        RectangleCollider rectangleCollider2 = new RectangleCollider(900, 600, 800, 50, 0);
-        RectangleCollider rectangleCollider3 = new RectangleCollider(50, 400, 800, 50, 90);
-        RectangleCollider rectangleCollider4 = new RectangleCollider(1200, 400, 800, 50, 90);
-        RectangleCollider rectangleCollider5 = new RectangleCollider(200, 400, 500, 50, 0);
-        RectangleCollider rectangleCollider6 = new RectangleCollider(200, 20, 500, 50, 0);
+        // Create segments which are static and act as walls/platforms/ground.
+        TestSegment testSegment1 = new TestSegment(400, 50, 25);
+        TestSegment testSegment2 = new TestSegment(800, 50, 0);
+        TestSegment testSegment3 = new TestSegment(800, 50, 90);
+        TestSegment testSegment4 = new TestSegment(800, 50, 90);
+        TestSegment testSegment5 = new TestSegment(500, 50, 0);
+        TestSegment testSegment6 = new TestSegment(500, 50, 0);
         
-        // Add these rectangle colliders to the collision engine. Note: they are not physics objects and thus don't have to be added to the physics engine.
-        _collisionEngine.Add(rectangleCollider1);
-        _collisionEngine.Add(rectangleCollider2);
-        _collisionEngine.Add(rectangleCollider3);
-        _collisionEngine.Add(rectangleCollider4);
-        _collisionEngine.Add(rectangleCollider5);
-        _collisionEngine.Add(rectangleCollider6);
+        // Initialize the segments at their starting position.
+        testSegment1.Initialize(new Vector2(400, 500));
+        testSegment2.Initialize(new Vector2(900, 600));
+        testSegment3.Initialize(new Vector2(50, 400));
+        testSegment4.Initialize(new Vector2(1200, 400));
+        testSegment5.Initialize(new Vector2(200, 400));
+        testSegment6.Initialize(new Vector2(200, 20));
         
-        // Initialize the game objects at their starting position.
-        _character.Initialize(startingPosition: new Vector2(500, 50));
+        // Create the dynamic game objects.
+        _character = new TestCharacter(mass: 2f, isElastic: false);
+        _circleColliderTest = new CircleColliderTest(mass: 1f, isElastic: true);
+        _rectangleColliderTest = new RectangleColliderTest(mass: 1f, isElastic: true);
+        
+        // Initialize the dynamic game objects at their starting position.
+        _character.Initialize(startingPosition: new Vector2(300, 200));
         _circleColliderTest.Initialize(startingPosition: new Vector2(400, 100));
         _rectangleColliderTest.Initialize(startingPosition: new Vector2(500, 200));
-        
-        // Add the game objects to the physics engine (and thereby also to the collision engine).
-        _physicsEngine.Add(_character);
-        _physicsEngine.Add(_circleColliderTest);
-        _physicsEngine.Add(_rectangleColliderTest);
     }
     
     public override void LoadContent()
     {
-        // Create the game objects. In LoadContent() because here we could pass an animated sprite into the constructor.
-        _character = new TestCharacter(mass: 2f, isElastic: false);
-        _circleColliderTest = new CircleColliderTest(mass: 1f, isElastic: true);
-        _rectangleColliderTest = new RectangleColliderTest(mass: 1f, isElastic: true);
     }
     
     public override void Update(GameTime gameTime)

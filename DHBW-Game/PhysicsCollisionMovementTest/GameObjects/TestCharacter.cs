@@ -1,6 +1,5 @@
-using System.Buffers.Text;
 using GameLibrary;
-using GameLibrary.Graphics;
+using GameLibrary.Entities;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
 using Microsoft.Xna.Framework;
@@ -8,14 +7,11 @@ using MonoGameTutorial;
 
 namespace DHBW_Game.GameObjects;
 
-public class TestCharacter : PhysicsComponent
+public class TestCharacter : GameObject
 {
     // Because movement is done with forces and a jump is typically not continuous but a discrete event, a duration over which the jump force acts is needed.
     private double _jumpDuration;
-
-    // The AnimatedSprite used as a test texture.
-    private readonly AnimatedSprite _sprite;
-
+    
     /// <summary>
     /// Creates a new <see cref="TestCharacter"/> object.
     /// </summary>
@@ -24,32 +20,23 @@ public class TestCharacter : PhysicsComponent
     public TestCharacter(float mass, bool isElastic)
     {
         // Use circle collider
-        Collider = new CircleCollider((int)Position.X, (int)Position.Y, 30, this, isElastic);
+        Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
         
         // Use rectangle collider
-        //Collider = new RectangleCollider((int)Position.X, (int)Position.Y, 50, 50, 0, this, isElastic);
+        //Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 50, 0, isElastic);
         
-        Mass = mass;
-    }
-    
-    /// <summary>
-    /// Creates a new <see cref="TestCharacter"/> object.
-    /// </summary>
-    /// <param name="mass">The mass of the physics component.</param>
-    /// <param name="isElastic">Whether the collider is elastic.</param>
-    /// <param name="sprite">The animated sprite to use.</param>
-    public TestCharacter(float mass, bool isElastic, AnimatedSprite sprite) : this(mass, isElastic)
-    {
-        _sprite = sprite;
+        PhysicsComponent = new PhysicsComponent(this, mass);
+        
+        ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
     }
     
     /// <summary>
     /// Initializes the test character at the given starting position in the world.
     /// </summary>
     /// <param name="startingPosition">The position at which the test character should spawn.</param>
-    public void Initialize(Vector2 startingPosition)
+    public override void Initialize(Vector2 startingPosition)
     {
-        Position = startingPosition;
+        base.Initialize(startingPosition);
     }
 
     /// <summary>
@@ -85,27 +72,26 @@ public class TestCharacter : PhysicsComponent
         
         _jumpDuration -= gameTime.ElapsedGameTime.TotalSeconds;
         
-        Forces.Add(nextDirection);
+        PhysicsComponent.Forces.Add(nextDirection);
     }
 
     /// <summary>
-    /// Updates the animated sprite which is set and also handles the input.
+    /// Updates the sprite which is set and also handles the input.
     /// </summary>
     /// <param name="gameTime">A snapshot of the timing values for the current update cycle.</param>
-    public void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime)
     {
-        // Update the animated sprite.
-        _sprite?.Update(gameTime);
+        base.Update(gameTime);
 
         // Handle any player input
         HandleInput(gameTime);
     }
 
     /// <summary>
-    /// Draws the animated sprite which is set.
+    /// Draws the sprite which is set.
     /// </summary>
-    public void Draw()
+    public override void Draw()
     {
-        _sprite?.Draw(Core.SpriteBatch, Position);
+        base.Draw();
     }
 }

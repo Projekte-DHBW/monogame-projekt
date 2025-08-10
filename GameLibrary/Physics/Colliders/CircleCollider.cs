@@ -1,3 +1,4 @@
+using GameLibrary.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,79 +12,44 @@ public class CircleCollider : Collider
     public int Radius { get; init; }
     
     /// <summary>
-    /// Gets the y-coordinate of the highest point on this circle collider.
-    /// </summary>
-    public int Top => Y - Radius;
-    
-    /// <summary>
-    /// Gets the y-coordinate of the lowest point on this circle collider.
-    /// </summary>
-    public int Bottom => Y + Radius;
-    
-    /// <summary>
-    /// Gets the x-coordinate of the leftmost point on this circle collider.
-    /// </summary>
-    public int Left => X - Radius;
-    
-    /// <summary>
-    /// Gets the x-coordinate of the rightmost point on this circle collider.
-    /// </summary>
-    public int Right => X + Radius;
-    
-    /// <summary>
     /// The texture used to visualize the circle collider.
     /// </summary>
     private static Texture2D _texture;
     
     /// <summary>
-    /// Creates a new circle collider located at the specified position.
+    /// Creates a new <see cref="CircleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="radius">The length from the center of the circle collider to the edge.</param>
-    public CircleCollider(int x, int y, int radius) : base(x, y)
+    public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius) : base(gameObject, localPosition)
     {
         Radius = radius;
         SetTexture();
     }
     
     /// <summary>
-    /// Creates a new circle collider located at the specified position.
+    /// Creates a new <see cref="CircleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="radius">The length from the center of the circle collider to the edge.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
-    public CircleCollider(int x, int y, int radius, PhysicsComponent physicsComponent) : base(x, y, physicsComponent)
-    {
-        Radius = radius;
-        SetTexture();
-    }
-    
-    /// <summary>
-    /// Creates a new circle collider located at the specified position.
-    /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    /// <param name="radius">The length from the center of the circle collider to the edge.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    public CircleCollider(int x, int y, int radius, PhysicsComponent physicsComponent, bool isElastic) : base(x, y, physicsComponent, isElastic)
+    public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius, bool isElastic) : base(gameObject, localPosition, isElastic)
     {
         Radius = radius;
         SetTexture();
     }
     
     /// <summary>
-    /// Creates a new circle collider located at the specified position.
+    /// Creates a new <see cref="CircleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="radius">The length from the center of the circle collider to the edge.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
     /// <param name="frictionCoefficient">The friction coefficient of the collider.</param>
-    public CircleCollider(int x, int y, int radius, PhysicsComponent physicsComponent, bool isElastic, float frictionCoefficient) : base(x, y, physicsComponent, isElastic, frictionCoefficient)
+    public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius, bool isElastic, float frictionCoefficient) : base(gameObject, localPosition, isElastic, frictionCoefficient)
     {
         Radius = radius;
         SetTexture();
@@ -127,7 +93,7 @@ public class CircleCollider : Collider
         // Draw the circle collider visualization
         spriteBatch.Draw(
             _texture, // The circle texture
-            new Vector2(X, Y), // Position (center of the circle)
+            GlobalPosition, // Position (center of the circle)
             null, // Source rectangle (null to use full texture)
             Color.Red, // Tint color
             0f, // Rotation

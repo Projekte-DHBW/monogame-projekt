@@ -1,3 +1,4 @@
+using GameLibrary.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -26,14 +27,14 @@ public class RectangleCollider : Collider
     private static Texture2D _texture;
     
     /// <summary>
-    /// Creates a new rectangle collider located at the specified position.
+    /// Creates a new <see cref="RectangleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
     /// <param name="rotation">The rotation of the rectangle.</param>
-    public RectangleCollider(int x, int y, int width, int height, float rotation) : base(x, y)
+    public RectangleCollider(GameObject gameObject, Vector2 localPosition, int width, int height, float rotation) : base(gameObject, localPosition)
     {
         Width = width;
         Height = height;
@@ -42,33 +43,15 @@ public class RectangleCollider : Collider
     }
     
     /// <summary>
-    /// Creates a new rectangle collider located at the specified position.
+    /// Creates a new <see cref="RectangleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
     /// <param name="rotation">The rotation of the rectangle.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
-    public RectangleCollider(int x, int y, int width, int height, float rotation, PhysicsComponent physicsComponent) : base(x, y, physicsComponent)
-    {
-        Width = width;
-        Height = height;
-        Rotation = rotation;
-        SetTexture();
-    }
-    
-    /// <summary>
-    /// Creates a new rectangle collider located at the specified position.
-    /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    /// <param name="width">The width of the rectangle.</param>
-    /// <param name="height">The height of the rectangle.</param>
-    /// <param name="rotation">The rotation of the rectangle.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    public RectangleCollider(int x, int y, int width, int height, float rotation, PhysicsComponent physicsComponent, bool isElastic) : base(x, y, physicsComponent, isElastic)
+    public RectangleCollider(GameObject gameObject, Vector2 localPosition, int width, int height, float rotation, bool isElastic) : base(gameObject, localPosition, isElastic)
     {
         Width = width;
         Height = height;
@@ -77,17 +60,16 @@ public class RectangleCollider : Collider
     }
     
     /// <summary>
-    /// Creates a new rectangle collider located at the specified position.
+    /// Creates a new <see cref="RectangleCollider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
     /// <param name="rotation">The rotation of the rectangle.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
     /// <param name="frictionCoefficient">The friction coefficient of the collider.</param>
-    public RectangleCollider(int x, int y, int width, int height, float rotation, PhysicsComponent physicsComponent, bool isElastic, float frictionCoefficient) : base(x, y, physicsComponent, isElastic, frictionCoefficient)
+    public RectangleCollider(GameObject gameObject, Vector2 localPosition, int width, int height, float rotation, bool isElastic, float frictionCoefficient) : base(gameObject, localPosition, isElastic, frictionCoefficient)
     {
         Width = width;
         Height = height;
@@ -113,7 +95,7 @@ public class RectangleCollider : Collider
         // Draw the rectangle collider visualization
         spriteBatch.Draw(
             _texture, // The 1x1 texture
-            new Vector2(X, Y), // Position (center of the rectangle)
+            GlobalPosition, // Position (center of the rectangle)
             null, // Source rectangle (null to use full texture)
             Color.Red, // Tint color
             rotation, // Rotation in radians

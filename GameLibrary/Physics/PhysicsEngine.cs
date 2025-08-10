@@ -101,7 +101,7 @@ namespace GameLibrary.Physics
                     physicsObject.Collider.SlopeAngle = 0f;
                     
                     // Apply vertical gravity when not on ground
-                    acceleration += Vector2.UnitY * g; // Todo: has to be made more realistic (pixel distance is a bad way to measure distance)
+                    acceleration += Vector2.UnitY * g; // TODO: has to be made more realistic (pixel distance is a bad way to measure distance)
                 }
 
                 // Calculate new velocity
@@ -114,22 +114,17 @@ namespace GameLibrary.Physics
                     physicsObject.NewVelocity = Vector2.Normalize(physicsObject.NewVelocity) * maxSpeed;
                 }
 
-                // Calculate new position
-                physicsObject.NewPosition = physicsObject.Position + physicsObject.Velocity * dt;
-                
-                // Apply the new position to the collider for the collision detection
-                physicsObject.Collider.X = Helper.RoundFloatToInt(physicsObject.NewPosition.X);
-                physicsObject.Collider.Y = Helper.RoundFloatToInt(physicsObject.NewPosition.Y);
+                // Update the position
+                physicsObject.Position += physicsObject.Velocity * dt;
             }
 
             // Collision detection and handling
             CollisionEngine.CheckCollisions();
 
-            // Now that the collisions are handled and the new positions and new velocities are correct, they can be applied
+            // Now that the collisions are handled and the new velocities are correct, they can be applied
             foreach (var physicsObject in _physicsObjects)
             {
                 physicsObject.Velocity = physicsObject.NewVelocity;
-                physicsObject.Position = physicsObject.NewPosition;
             }
         }
     }

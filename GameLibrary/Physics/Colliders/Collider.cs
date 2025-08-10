@@ -1,3 +1,4 @@
+using GameLibrary.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -6,19 +7,18 @@ namespace GameLibrary.Physics.Colliders;
 public abstract class Collider
 {
     /// <summary>
-    /// Gets or sets the x-coordinate of the collider center.
+    /// Gets or sets the local position of the collider center relative to the parent game object.
     /// </summary>
-    public int X { get; set; }
+    public Vector2 LocalPosition { get; set; }
     
     /// <summary>
-    /// Gets or sets the y-coordinate of the collider center.
+    /// Gets or sets the global position of the collider center. Takes local position into account and adjusts the position of the game object when setting a new value.
     /// </summary>
-    public int Y { get; set; }
-    
-    /// <summary>
-    /// Gets the location of the collider center as Point.
-    /// </summary>
-    public Point Location => new Point(X, Y);
+    public Vector2 GlobalPosition
+    {
+        get => GameObject.Position + LocalPosition;
+        set => GameObject.Position = value - LocalPosition;
+    }
     
     /// <summary>
     /// Gets or sets whether the collider is elastic.
@@ -49,56 +49,47 @@ public abstract class Collider
     public float FrictionCoefficient { get; set; } = 0f;
     
     /// <summary>
-    /// Gets or sets the physics component associated with this collider. Can be null as some game objects like walls don't have a physics component.
+    /// Gets or sets the game object which the collider is attached to.
     /// </summary>
-    public PhysicsComponent PhysicsComponent { get; init; }
+    public GameObject GameObject { get; set; }
+    
+    /// <summary>
+    /// Gets the physics component associated with this collider. Can be null as some static game objects like walls don't have a physics component.
+    /// </summary>
+    public PhysicsComponent PhysicsComponent => GameObject.PhysicsComponent;
 
     public abstract void Draw(SpriteBatch spriteBatch);
     
     /// <summary>
-    /// Creates a new collider located at the specified position.
+    /// Creates a new <see cref="Collider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    protected Collider(int x, int y)
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
+    protected Collider(GameObject gameObject, Vector2 localPosition)
     {
-        X = x;
-        Y = y;
-        PhysicsComponent = null;
+        GameObject = gameObject;
+        LocalPosition = localPosition;
     }
     
     /// <summary>
-    /// Creates a new collider located at the specified position.
+    /// Creates a new <see cref="Collider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
-    protected Collider(int x, int y, PhysicsComponent physicsComponent) : this(x, y)
-    {
-        PhysicsComponent = physicsComponent;
-    }
-    
-    /// <summary>
-    /// Creates a new collider located at the specified position.
-    /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    protected Collider(int x, int y, PhysicsComponent physicsComponent, bool isElastic) : this(x, y, physicsComponent)
+    protected Collider(GameObject gameObject, Vector2 localPosition, bool isElastic) : this(gameObject, localPosition)
     {
         IsElastic = isElastic;
     }
     
     /// <summary>
-    /// Creates a new collider located at the specified position.
+    /// Creates a new <see cref="Collider"/>.
     /// </summary>
-    /// <param name="x">The x-coordinate of the collider center.</param>
-    /// <param name="y">The x-coordinate of the collider center.</param>
-    /// <param name="physicsComponent">The physics component associated with this collider.</param>
+    /// <param name="gameObject">The game object which the collider is attached to.</param>
+    /// <param name="localPosition">The local position of the collider center relative to the parent game object.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
     /// <param name="frictionCoefficient">The friction coefficient of the collider.</param>
-    protected Collider(int x, int y, PhysicsComponent physicsComponent, bool isElastic, float frictionCoefficient) : this(x, y, physicsComponent, isElastic)
+    protected Collider(GameObject gameObject, Vector2 localPosition, bool isElastic, float frictionCoefficient) : this(gameObject, localPosition, isElastic)
     {
         FrictionCoefficient = frictionCoefficient;
     }
