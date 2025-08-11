@@ -1,0 +1,311 @@
+/******************************************************************************
+*** Section: Properties
+*** Defines the CSS properties used throughout the styling of this site.
+***
+*** :root contains standardized properties for colors, sizes, etc
+*** [data-bs-theme=*] contains the specific color styling for the theme.
+******************************************************************************/
+:root {
+  --mg-orange-dark-rgb: 231, 60, 0;
+  --mg-orange-light-rgb: 212, 93, 53;
+  --mg-orange-dark: rgba(var(--mg-orange-dark-rgb), 1);
+  --mg-orange-light: rgba(var(--mg-orange-light-rgb), 1);
+  --navbar-height: 62px;
+}
+
+[data-bs-theme="light"] {
+  --mg-orange-primary: var(--mg-orange-dark);
+  --mg-orange-secondary: var(--mg-orange-light);
+  --mg-logo: url('/images/logo_light.svg');
+
+  --bs-link-color-rgb: var(--mg-orange-dark-rgb);
+  --bs-link-hover-color-rgb: var(--mg-orange-light-rgb);
+}
+
+[data-bs-theme="dark"] {
+  --mg-orange-primary: var(--mg-orange-light);
+  --mg-orange-secondary: var(--mg-orange-dark);
+  --mg-logo: url('/images/logo_dark.svg');
+
+  --bs-link-color-rgb: var(--mg-orange-light-rgb);
+  --bs-link-hover-color-rgb: var(--mg-orange-dark-rgb);
+}
+
+/*******************************************************************************
+*** Section: General
+*** General styling across HTMLspecific elements
+*******************************************************************************/
+
+body {
+font-family: 'Inter', sans-serif;
+}
+
+body[data-layout="landing"] > main {
+  max-width: 1320px !important;
+}
+
+body[data-disable-toc="true" i] .toc-offcanvas {
+  visibility: hidden;
+}
+
+th:has(a img[alt^="Figure"]),
+td:has(a img[alt^="Figure"]) {
+  width: 50%;
+}
+
+th video,
+td video {
+  width: 100%;
+  height: 100%
+}
+
+
+/*******************************************************************************
+*** Section: Bootstrap Overrides
+*** Contains various overrides to the built-in bootstrap classes and properties
+*** at the class selector level
+*******************************************************************************/
+
+/*  Use MonoGame orange as the hover and active color for navbars */
+.navbar {
+--bs-navbar-hover-color: var(--mg-orange-secondary);
+--bs-navbar-active-color: var(--mg-orange-primary);
+}
+
+.nav {
+--bs-nav-link-color: var(--bs-body-color);
+--bs-nav-link-hover-color: var(--mg-orange-primary);
+}
+
+/*  Bootstrap doesn't provide an .active class for .nav by default so we have */
+/*  to create it ourselves.... */
+.nav .active {
+color: var(--mg-orange-primary)
+}
+
+/*******************************************************************************
+*** Section: Navbar Fixes
+*** The main monogame website uses bootstrap 5.3.2 while docfx is sitll on
+*** bootstrap 3.4.1.  The following are fixes for the top navbar specifically
+*** so that it looks the same as the main website
+*******************************************************************************/
+nav#autocollapse > div.container-xxl {
+  max-width: 1320px;
+}
+
+
+/*******************************************************************************
+*** Section: MonoGame Utility Classes
+*** Utility classes used throughout the site that provide some MonoGame specific
+*** styling.
+*** Classes begin with '.mg-'
+*******************************************************************************/
+.mg-color-orange {
+color: var(--mg-orange-primary);
+}
+
+.mg-logo {
+content: var(--mg-logo);
+}
+
+.mg-box-shadow {
+box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mg-box-shadow:hover,
+.mg-box-shadow:focus {
+box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mg-social-link {
+  text-decoration: none;
+  color: var(--bs-body-color);
+  font-size: 24px;
+  filter: brightness(100%);
+}
+
+.mg-social-link:hover,
+.mg-social-link:focus {
+  filter: brightness(120%);
+}
+
+.mg-card {
+  border: 1px solid;
+  border-color: var(--bs-body-color);
+  border-radius: .5rem;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.mg-card-thumbnail {
+  aspect-ratio: 16/9;
+  filter: brightness(100%);
+  border-radius: 7px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: var(--bs-body);
+  -webkit-transition: filter 0.1s ease-in-out, transform 0.25s ease-in-out;
+  -moz-transition: filter 0.1s ease-in-out, transform 0.25s ease-in-out;
+  -ms-transition: filter 0.1s ease-in-out, transform 0.25s ease-in-out;
+  -o-transition: filter 0.1s ease-in-out, transform 0.25s ease-in-out;
+  transition: filter 0.1s ease-in-out, transform 0.25s ease-in-out;
+
+}
+
+.mg-card-thumbnail-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background-repeat: no-repeat;
+  background-position: center center;
+  filter: drop-shadow(6px 6px 6px #000C);
+}
+
+.mg-card:hover .mg-card-thumbnail,
+.mg-card:focus .mg-card-thumbnail {
+  filter: brightness(110%);
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion) {
+    .mg-card:hover .mg-card-thumbnail,
+    .mg-card:focus .mg-card-thumbnail {
+        transform: none;
+    }
+}
+
+.mg-card-body {
+  padding-inline: 2rem;
+  padding-block: 1rem;
+}
+
+.mg-card-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.mg-card-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-style: italic;
+}
+
+.mg-no-link {
+  text-decoration: none;
+  color: var(--bs-body-color);
+}
+
+.mg-donate-button {
+  --bs-btn-bg: #F1465A;
+  --bs-btn-hover-bg: #F25265;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+}
+
+/*******************************************************************************
+*** Some adjustments to give the content some space.
+*******************************************************************************/
+
+h1 {
+  margin-top: 1.5em;
+}
+h2 {
+  margin-top: 1.25em;
+}
+h3 {
+  margin-top: 1em;
+}
+h4 {
+  margin-top: 0.75em;
+}
+h5 {
+  margin-top: 0.5em;
+}
+
+p img {
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
+
+.alert
+{
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+/* Resolves issue where xref links in table columns will break and wrap text in
+the middle of the word */
+td > .xref {
+  word-break: normal;
+}
+
+/*******************************************************************************
+*** Section: Question and Answer Sections
+*** Styling for the questions and answers sections in tutorials
+*******************************************************************************/
+.question-answer {
+  position: relative;
+  margin: 1rem 0 2rem 0;
+  padding: 0.75rem;
+  border: 2px solid var(--mg-orange-primary);
+  border-radius: 4px;
+  background-color: var(--bs-body-bg);
+  cursor: pointer;
+}
+
+/* Initial blacked-out state */
+.question-answer:not(.revealed) {
+  color: transparent;
+  background-color: var(--bs-body-bg);
+  user-select: none;
+}
+
+/* Show "Click to reveal" text when not revealed */
+.question-answer:not(.revealed)::before {
+  content: "Click to reveal answer";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-body-color);
+  font-weight: bold;
+  pointer-events: none;
+}
+
+/* Reveal on hover style (optional) */
+.question-answer:not(.revealed):hover {
+  background-color: var(--bs-secondary-bg);
+}
+
+/* Make it accessible */
+.question-answer:focus {
+  outline: 2px solid var(--mg-orange-secondary);
+}
+
+/* Hide all child elements when not revealed */
+.question-answer:not(.revealed) * {
+  opacity: 0;
+}
+
+/* When revealed, show content normally */
+.question-answer.revealed {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+}
+
+.question-answer.revealed * {
+  opacity: 1;
+}
