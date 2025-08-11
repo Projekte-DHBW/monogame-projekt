@@ -44,6 +44,9 @@
 /processorParam:TextureFormat=Compressed
 /build:fonts/04B_30_5x.spritefont
 
+#begin fonts/04b_30.fnt
+/copy:fonts/04b_30.fnt
+
 #begin fonts/04B_30.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
