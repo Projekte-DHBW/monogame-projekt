@@ -7,6 +7,49 @@
       "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:scenes\\gamescene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\sprite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\textureregion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\tilemap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\core.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\animation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\animatedsprite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\textureatlas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\circle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\images\\walking_student-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\images\\walking_student-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\images\\atlas-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\images\\atlas-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\images\\tilemap-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\images\\tilemap-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\scenes\\scene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\scenes\\titlescene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:scenes\\titlescene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -23,33 +66,12 @@
       "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:monogame-projekt.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\textureregion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\images\\tilemap-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\images\\tilemap-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\images\\atlas-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\images\\atlas-definition.xml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:game1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\fonts\\04b_30_5x.spritefont||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|solutionrelative:content\\fonts\\04b_30_5x.spritefont||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\core.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\scenes\\scene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A72BB2C9-7DB8-4898-9089-FFB8FE2BF282}|monogame-projekt.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogame-projekt\\content\\fonts\\04b_30.spritefont||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
@@ -59,13 +81,7 @@
       "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\audio\\audiocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\circle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\tileset.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\tilemap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\input\\inputmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -78,18 +94,6 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\input\\keyboardinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\textureatlas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\animatedsprite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\animation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{68DF9957-A699-4BE2-A146-4CA320BF9488}|..\\MonoGameLibrary\\MonoGameLibrary.csproj|c:\\work\\dhbw\\programmierprojekt_2\\monogamelibrary\\graphics\\sprite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -99,63 +103,15 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "OptionsSlider.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\OptionsSlider.cs",
-              "RelativeDocumentMoniker": "UI\\OptionsSlider.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\OptionsSlider.cs",
-              "RelativeToolTip": "UI\\OptionsSlider.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-11T06:21:45.323Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AnimatedButton.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\AnimatedButton.cs",
-              "RelativeDocumentMoniker": "UI\\AnimatedButton.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\AnimatedButton.cs",
-              "RelativeToolTip": "UI\\AnimatedButton.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-11T06:18:23.649Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "tilemap-definition.xml",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\tilemap-definition.xml",
-              "RelativeDocumentMoniker": "Content\\images\\tilemap-definition.xml",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\tilemap-definition.xml",
-              "RelativeToolTip": "Content\\images\\tilemap-definition.xml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAABUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
-              "WhenOpened": "2025-08-05T10:34:40.501Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TitleScene.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Scenes\\TitleScene.cs",
-              "RelativeDocumentMoniker": "Scenes\\TitleScene.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Scenes\\TitleScene.cs",
-              "RelativeToolTip": "Scenes\\TitleScene.cs",
-              "ViewState": "AgIAACIBAAAAAAAAAAAQwC8BAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T10:10:46.665Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             },
             {
               "$type": "Document",
@@ -165,53 +121,218 @@
               "RelativeDocumentMoniker": "Scenes\\GameScene.cs",
               "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Scenes\\GameScene.cs",
               "RelativeToolTip": "Scenes\\GameScene.cs",
-              "ViewState": "AgIAAI0AAAAAAAAAAAAAwMwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAO8BAAAAAAAAAAAwwAICAAAEAQAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-09T10:13:57.898Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Game1.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Game1.cs",
+              "RelativeDocumentMoniker": "Game1.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Game1.cs",
+              "RelativeToolTip": "Game1.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwBAAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-25T15:27:57.287Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Sprite.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Sprite.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Sprite.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Sprite.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Sprite.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAYwDIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T10:51:41.532Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Animation.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Animation.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Animation.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Animation.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Animation.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T12:15:04.501Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "atlas-definition.xml",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\atlas-definition.xml",
-              "RelativeDocumentMoniker": "Content\\images\\atlas-definition.xml",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\atlas-definition.xml",
-              "RelativeToolTip": "Content\\images\\atlas-definition.xml",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAmwB8AAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
-              "WhenOpened": "2025-07-30T08:49:14.449Z",
-              "EditorCaption": ""
+              "Title": "AnimatedSprite.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T12:24:56.988Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "TextureAtlas.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-28T09:04:34.477Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "Core.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Core.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Core.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Core.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Core.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAQwN8AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-25T15:32:35.083Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Circle.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Circle.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Circle.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Circle.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Circle.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T08:59:23.673Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Tilemap.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Tilemap.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Tilemap.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Tilemap.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Tilemap.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T15:49:21.871Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "TextureRegion.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureRegion.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\TextureRegion.cs",
               "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureRegion.cs",
               "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\TextureRegion.cs",
-              "ViewState": "AgIAADsAAAAAAAAAAAAuwEsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAcwIkAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T06:34:54.553Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-28T06:34:54.553Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 11,
+              "Title": "atlas-definition.xml",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\atlas-definition.xml",
+              "RelativeDocumentMoniker": "Content\\images\\atlas-definition.xml",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\atlas-definition.xml",
+              "RelativeToolTip": "Content\\images\\atlas-definition.xml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
+              "WhenOpened": "2025-07-30T08:49:14.449Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "walking_student-definition.xml",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\walking_student-definition.xml",
+              "RelativeDocumentMoniker": "Content\\images\\walking_student-definition.xml",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\walking_student-definition.xml",
+              "RelativeToolTip": "Content\\images\\walking_student-definition.xml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
+              "WhenOpened": "2025-08-11T15:12:07.682Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "tilemap-definition.xml",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\tilemap-definition.xml",
+              "RelativeDocumentMoniker": "Content\\images\\tilemap-definition.xml",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\images\\tilemap-definition.xml",
+              "RelativeToolTip": "Content\\images\\tilemap-definition.xml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003576|",
+              "WhenOpened": "2025-08-05T10:34:40.501Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Scene.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Scenes\\Scene.cs",
+              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Scenes\\Scene.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Scenes\\Scene.cs",
+              "RelativeToolTip": "..\\MonoGameLibrary\\Scenes\\Scene.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-09T10:01:00.794Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "TitleScene.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Scenes\\TitleScene.cs",
+              "RelativeDocumentMoniker": "Scenes\\TitleScene.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Scenes\\TitleScene.cs",
+              "RelativeToolTip": "Scenes\\TitleScene.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAIwC8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-09T10:10:46.665Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "AnimatedButton.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\AnimatedButton.cs",
+              "RelativeDocumentMoniker": "UI\\AnimatedButton.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\AnimatedButton.cs",
+              "RelativeToolTip": "UI\\AnimatedButton.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-11T06:18:23.649Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "OptionsSlider.cs",
+              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\OptionsSlider.cs",
+              "RelativeDocumentMoniker": "UI\\OptionsSlider.cs",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\UI\\OptionsSlider.cs",
+              "RelativeToolTip": "UI\\OptionsSlider.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-11T06:21:45.323Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "monogame-projekt.csproj",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\monogame-projekt.csproj",
               "RelativeDocumentMoniker": "monogame-projekt.csproj",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\monogame-projekt.csproj*",
-              "RelativeToolTip": "monogame-projekt.csproj*",
+              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\monogame-projekt.csproj",
+              "RelativeToolTip": "monogame-projekt.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-08-09T11:16:35.071Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-09T11:16:35.071Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 18,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -223,36 +344,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Game1.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Game1.cs",
-              "RelativeDocumentMoniker": "Game1.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Game1.cs",
-              "RelativeToolTip": "Game1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-25T15:27:57.287Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "Scene.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Scenes\\Scene.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Scenes\\Scene.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Scenes\\Scene.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Scenes\\Scene.cs",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAYwEwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-09T10:01:00.794Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 19,
               "Title": "04B_30_5x.spritefont",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\fonts\\04B_30_5x.spritefont",
               "RelativeDocumentMoniker": "Content\\fonts\\04B_30_5x.spritefont",
@@ -264,19 +356,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Tilemap.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Tilemap.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Tilemap.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Tilemap.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Tilemap.cs",
-              "ViewState": "AgIAAIAAAAAAAAAAAAAowOgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-04T15:49:21.871Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 22,
               "Title": "Tileset.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Tileset.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Tileset.cs",
@@ -288,31 +368,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "Circle.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Circle.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Circle.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Circle.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Circle.cs",
-              "ViewState": "AgIAAHUAAAAAAAAAAAAuwIsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-04T08:59:23.673Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Core.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Core.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Core.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Core.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Core.cs",
-              "ViewState": "AgIAALUAAAAAAAAAAAAYwN8AAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-25T15:32:35.083Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 20,
               "Title": "04B_30.spritefont",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\monogame-projekt\\Content\\fonts\\04B_30.spritefont",
               "RelativeDocumentMoniker": "Content\\fonts\\04B_30.spritefont",
@@ -324,7 +380,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 21,
               "Title": "AudioController.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Audio\\AudioController.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Audio\\AudioController.cs",
@@ -337,18 +393,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 25,
-              "Title": "Sprite.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Sprite.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Sprite.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Sprite.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Sprite.cs",
-              "ViewState": "AgIAADQAAAAAAAAAAAAgwCwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-30T10:51:41.532Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
               "Title": "MouseButton.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Input\\MouseButton.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Input\\MouseButton.cs",
@@ -360,7 +404,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 24,
               "Title": "MouseInfo.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Input\\MouseInfo.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Input\\MouseInfo.cs",
@@ -372,7 +416,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 26,
               "Title": "KeyboardInfo.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Input\\KeyboardInfo.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Input\\KeyboardInfo.cs",
@@ -384,7 +428,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 23,
               "Title": "InputManager.cs",
               "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Input\\InputManager.cs",
               "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Input\\InputManager.cs",
@@ -393,42 +437,6 @@
               "ViewState": "AgIAAB8AAAAAAAAAAAAQwCUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-30T13:52:32.535Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
-              "Title": "Animation.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Animation.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\Animation.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\Animation.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\Animation.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAQwB0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-30T12:15:04.501Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
-              "Title": "TextureAtlas.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\TextureAtlas.cs",
-              "ViewState": "AgIAAOYAAAAAAAAAAAAkwPUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T09:04:34.477Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "AnimatedSprite.cs",
-              "DocumentMoniker": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
-              "RelativeDocumentMoniker": "..\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
-              "ToolTip": "C:\\Work\\DHBW\\Programmierprojekt_2\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
-              "RelativeToolTip": "..\\MonoGameLibrary\\Graphics\\AnimatedSprite.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAIBJwD0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-30T12:24:56.988Z"
             }
           ]
         }
