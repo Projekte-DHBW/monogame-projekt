@@ -86,6 +86,7 @@ public class Sprite
     public Sprite(TextureRegion region)
     {
         Region = region;
+        CenterOrigin();
     }
     
     /// <summary>

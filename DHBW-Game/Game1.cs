@@ -1,53 +1,50 @@
-﻿using Microsoft.Xna.Framework;
+﻿#define PhysicsCollisionMovementTest
+
+using DHBW_Game.Scenes;
+using GameLibrary;
+using GameLibrary.Physics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace DHBW_Game;
 
-public class Game1 : Game
+public class Game1 : Core
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private PhysicsEngine _physicsEngine;
 
-    public Game1()
+    public Game1() : base("DHBW Game", 1280, 720, false)
     {
-        _graphics = new GraphicsDeviceManager(this);
-        Window.Title = "DHBW Game";
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
         base.Initialize();
+        
+        _physicsEngine = new PhysicsEngine(this);
+        Components.Add(_physicsEngine);
+        ServiceLocator.Register(_physicsEngine);
+        ServiceLocator.Register(_physicsEngine.CollisionEngine);
+        
+#if PhysicsCollisionMovementTest
+        TestScene testScene = new TestScene();
+        
+        ChangeScene(testScene);
+#endif
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
-        // TODO: Add your update logic here
-
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        // TODO: Add your drawing code here
-
         base.Draw(gameTime);
     }
 }
