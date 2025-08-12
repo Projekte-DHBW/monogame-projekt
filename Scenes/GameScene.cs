@@ -21,13 +21,19 @@ namespace monogame_projekt.Scenes;
 public class GameScene : Scene
 {
     // Defines the slime animated sprite.
-    private AnimatedSprite _slime;
+    //private AnimatedSprite _slime;
+
+    private AnimatedSprite _studentPlayer;
+
+    private AnimatedSprite _studentPlayerStanding;
 
     // Defines the bat animated sprite.
     private AnimatedSprite _bat;
 
     // Tracks the position of the slime.
-    private Vector2 _slimePosition;
+    //private Vector2 _slimePosition;
+
+    private Vector2 _studentPlayerPosition;
 
     // Speed multiplier when moving.
     private const float MOVEMENT_SPEED = 5.0f;
@@ -78,6 +84,17 @@ public class GameScene : Scene
     // are created.
     private TextureAtlas _atlas;
 
+    private TextureAtlas _student_atlas;
+
+    private SpriteEffects _spriteEffects = SpriteEffects.None;
+
+    private enum PlayerState
+    {
+        Standing,
+        Walking
+    }
+
+    private PlayerState _currentPlayerState = PlayerState.Standing;
 
     public override void Initialize()
     {
@@ -100,7 +117,7 @@ public class GameScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        _slimePosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
+        _studentPlayerPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
 
         // Initial bat position will the in the top left corner of the room.
         _batPosition = new Vector2(_roomBounds.Left, _roomBounds.Top);
@@ -126,9 +143,18 @@ public class GameScene : Scene
         // Create the texture atlas from the XML configuration file
         _atlas = TextureAtlas.FromFile(Core.Content, "images/atlas-definition.xml");
 
+        _student_atlas = TextureAtlas.FromFile(Core.Content, "images/walking_student-definition.xml");
+
         // Create the slime animated sprite from the atlas.
-        _slime = _atlas.CreateAnimatedSprite("slime-animation");
-        _slime.Scale = new Vector2(4.0f, 4.0f);
+        //_slime = _atlas.CreateAnimatedSprite("slime-animation");
+        //_slime.Scale = new Vector2(4.0f, 4.0f);
+
+        _studentPlayer = _student_atlas.CreateAnimatedSprite("walking-animation");
+        _studentPlayer.Scale = new Vector2(4.0f, 4.0f);
+
+        _studentPlayerStanding = _student_atlas.CreateAnimatedSprite("standing-animation");
+        _studentPlayerStanding.Scale = new Vector2(4.0f, 4.0f);
+
 
         // Create the bat animated sprite from the atlas.
         _bat = _atlas.CreateAnimatedSprite("bat-animation");
@@ -248,7 +274,9 @@ public class GameScene : Scene
 
 
         // Update the slime animated sprite.
-        _slime.Update(gameTime);
+        //_slime.Update(gameTime);
+
+        _studentPlayer.Update(gameTime);
 
         // Update the bat animated sprite.
         _bat.Update(gameTime);
@@ -258,15 +286,25 @@ public class GameScene : Scene
 
 
         // Creating a bounding circle for the slime.
+        /*
         Circle slimeBounds = new Circle(
             (int)(_slimePosition.X + (_slime.Width * 0.5f)),
             (int)(_slimePosition.Y + (_slime.Height * 0.5f)),
             (int)(_slime.Width * 0.5f)
+        );*/
+
+        Circle studentPlayerBounds = new Circle(
+            (int)(_studentPlayerPosition.X + (_studentPlayer.Width * 0.5f)),
+            (int)(_studentPlayerPosition.Y + (_studentPlayer.Height * 0.5f)),
+            (int)(_studentPlayer.Width * 0.5f)
         );
+
+
 
         // Use distance based checks to determine if the slime is within the
         // bounds of the game screen, and if it is outside that screen edge,
         // move it back inside.
+        /*
         if (slimeBounds.Left < _roomBounds.Left)
         {
             _slimePosition.X = _roomBounds.Left;
@@ -283,7 +321,28 @@ public class GameScene : Scene
         else if (slimeBounds.Bottom > _roomBounds.Bottom)
         {
             _slimePosition.Y = _roomBounds.Bottom - _slime.Height;
+        }*/
+
+        if (studentPlayerBounds.Left < _roomBounds.Left)
+        {
+            _studentPlayerPosition.X = _roomBounds.Left;
         }
+        else if (studentPlayerBounds.Right > _roomBounds.Right)
+        {
+            _studentPlayerPosition.X = _roomBounds.Right - _studentPlayer.Width;
+        }
+
+        if (studentPlayerBounds.Top < _roomBounds.Top)
+        {
+            _studentPlayerPosition.Y = _roomBounds.Top;
+        }
+        else if (studentPlayerBounds.Bottom > _roomBounds.Bottom)
+        {
+            _studentPlayerPosition.Y = _roomBounds.Bottom - _studentPlayer.Height;
+        }
+
+
+
 
         // Calculate the new position of the bat based on the velocity.
         Vector2 newBatPosition = _batPosition + _batVelocity;
@@ -335,7 +394,9 @@ public class GameScene : Scene
 
         _batPosition = newBatPosition;
 
-        if (slimeBounds.Intersects(batBounds))
+        //if (slimeBounds.Intersects(batBounds))
+
+        if (studentPlayerBounds.Intersects(batBounds))
         {
             // Choose a random row and column based on the total number of each
             int column = Random.Shared.Next(1, _tilemap.Columns - 1);
@@ -400,25 +461,35 @@ public class GameScene : Scene
         // If the W or Up keys are down, move the slime up on the screen.
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {
-            _slimePosition.Y -= speed;
+            //_slimePosition.Y -= speed;
+            _studentPlayerPosition.Y -= speed;
+            _currentPlayerState = PlayerState.Walking;
         }
 
         // if the S or Down keys are down, move the slime down on the screen.
         if (keyboard.IsKeyDown(Keys.S) || keyboard.IsKeyDown(Keys.Down))
         {
-            _slimePosition.Y += speed;
+            //_slimePosition.Y += speed;
+            _studentPlayerPosition.Y += speed;
+            _currentPlayerState = PlayerState.Walking;
         }
 
         // If the A or Left keys are down, move the slime left on the screen.
         if (keyboard.IsKeyDown(Keys.A) || keyboard.IsKeyDown(Keys.Left))
         {
-            _slimePosition.X -= speed;
+            //_slimePosition.X -= speed;
+            _studentPlayerPosition.X -= speed;
+            _spriteEffects = SpriteEffects.FlipHorizontally; // Spiegeln des Sprites
+            _currentPlayerState = PlayerState.Walking;
         }
 
         // If the D or Right keys are down, move the slime right on the screen.
         if (keyboard.IsKeyDown(Keys.D) || keyboard.IsKeyDown(Keys.Right))
         {
-            _slimePosition.X += speed;
+            //_slimePosition.X += speed;
+            _studentPlayerPosition.X += speed;
+            _spriteEffects = SpriteEffects.None; // Normaler Sprite
+            _currentPlayerState = PlayerState.Walking;
         }
 
         // If the M key is pressed, toggle mute state for audio.
@@ -439,6 +510,11 @@ public class GameScene : Scene
         {
             Core.Audio.SongVolume -= 0.1f;
             Core.Audio.SoundEffectVolume -= 0.1f;
+        }
+
+        if ((keyboard.IsKeyUp(Keys.A)) && (keyboard.IsKeyUp(Keys.Left)) && (keyboard.IsKeyUp(Keys.Right)) && (keyboard.IsKeyUp(Keys.D)) && (keyboard.IsKeyUp(Keys.S)) && (keyboard.IsKeyUp(Keys.Down)) && (keyboard.IsKeyUp(Keys.W)) && (keyboard.IsKeyUp(Keys.Up)))
+        {
+            _currentPlayerState = PlayerState.Standing;
         }
     }
 
@@ -466,7 +542,18 @@ public class GameScene : Scene
         _tilemap.Draw(Core.SpriteBatch);
 
         // Draw the slime sprite.
-        _slime.Draw(Core.SpriteBatch, _slimePosition);
+        //_slime.Draw(Core.SpriteBatch, _slimePosition);
+
+        //_studentPlayer.Draw(Core.SpriteBatch, _studentPlayerPosition, _spriteEffects);
+
+        if (_currentPlayerState == PlayerState.Walking)
+        {
+            _studentPlayer.Draw(Core.SpriteBatch, _studentPlayerPosition, _spriteEffects);
+        }
+        else
+        {
+            _studentPlayerStanding.Draw(Core.SpriteBatch, _studentPlayerPosition, _spriteEffects);
+        }
 
         // Draw the bat sprite.
         _bat.Draw(Core.SpriteBatch, _batPosition);

@@ -96,3 +96,18 @@
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 
+#begin images/walking_student-definition.xml
+/copy:images/walking_student-definition.xml
+
+#begin images/walking_student.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:images/walking_student.png
+
