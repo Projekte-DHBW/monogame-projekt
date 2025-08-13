@@ -1,4 +1,5 @@
 using GameLibrary.Entities;
+using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -93,7 +94,8 @@ public class RectangleCollider : Collider
         float rotation = MathHelper.ToRadians(Rotation);
         
         // Draw the rectangle collider visualization
-        spriteBatch.Draw(
+        ServiceLocator.Get<Camera>().Draw(
+            spriteBatch,
             _texture, // The 1x1 texture
             GlobalPosition, // Position (center of the rectangle)
             null, // Source rectangle (null to use full texture)

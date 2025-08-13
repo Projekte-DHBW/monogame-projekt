@@ -1,4 +1,5 @@
 using GameLibrary.Entities;
+using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -91,14 +92,15 @@ public class CircleCollider : Collider
     public override void Draw(SpriteBatch spriteBatch)
     {
         // Draw the circle collider visualization
-        spriteBatch.Draw(
+        ServiceLocator.Get<Camera>().Draw(
+            spriteBatch,
             _texture, // The circle texture
             GlobalPosition, // Position (center of the circle)
             null, // Source rectangle (null to use full texture)
             Color.Red, // Tint color
             0f, // Rotation
             new Vector2(Radius, Radius), // Origin (center of the texture)
-            1, // Scale
+            new Vector2(1, 1), // Scale
             SpriteEffects.None,
             0f // Layer depth
         );

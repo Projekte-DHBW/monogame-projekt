@@ -2,6 +2,7 @@ using GameLibrary;
 using GameLibrary.Entities;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
+using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using MonoGameTutorial;
 
@@ -37,6 +38,9 @@ public class TestCharacter : GameObject
     public override void Initialize(Vector2 startingPosition)
     {
         base.Initialize(startingPosition);
+        
+        // Make the camera follow the test character
+        ServiceLocator.Get<Camera>().Follow(this);
     }
 
     /// <summary>
