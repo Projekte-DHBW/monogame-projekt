@@ -169,8 +169,8 @@ public class AudioController : IDisposable
             MediaPlayer.Stop();
         }
     
-        MediaPlayer.Play(song);
-        MediaPlayer.IsRepeating = isRepeating;
+        //MediaPlayer.Play(song);
+        //MediaPlayer.IsRepeating = isRepeating;
     }
     
     /// <summary>
