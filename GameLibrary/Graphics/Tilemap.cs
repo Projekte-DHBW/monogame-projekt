@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -122,7 +123,7 @@ public class Tilemap
             int y = i / Columns;
 
             Vector2 position = new Vector2(x * TileWidth, y * TileHeight);
-            tile.Draw(spriteBatch, position, Color.White, 0.0f, Vector2.Zero, Scale, SpriteEffects.None, 1.0f);
+            ServiceLocator.Get<Camera>().Draw(tile, spriteBatch, position, Color.White, 0.0f, Vector2.Zero, Scale, SpriteEffects.None, 1.0f);
         }
     }
     
@@ -254,6 +255,119 @@ public class Tilemap
                     throw new XmlSchemaException("Missing root element!");
                 }
             }
+        }
+    }
+    
+    /// <summary>
+    /// Creates a new tilemap based on a tilemap XML element.
+    /// </summary>
+    /// <param name="content">The content manager used to load the texture for the tileset.</param>
+    /// <param name="tilemapElement">The XML element containing the tilemap configuration.</param>
+    /// <returns>The tilemap created by this method.</returns>
+    public static Tilemap FromXmlElement(ContentManager content, XElement tilemapElement)
+    {
+        // The <Tileset> element contains the information about the tileset
+        // used by the tilemap.
+        //
+        // Example
+        // <Tileset region="0 0 100 100" tileWidth="10" tileHeight="10">contentPath</Tileset>
+        //
+        // The region attribute represents the x, y, width, and height
+        // components of the boundary for the texture region within the
+        // texture at the contentPath specified.
+        //
+        // The tileWidth and tileHeight attributes specify the width and
+        // height of each tile in the tileset.
+        //
+        // The contentPath value is the contentPath to the texture to
+        // load that contains the tileset
+        XElement tilesetElement = tilemapElement.Element("Tileset");
+
+        if (tilesetElement != null)
+        {
+            string regionAttribute = tilesetElement.Attribute("region")?.Value;
+
+            if (regionAttribute != null)
+            {
+                string[] split = regionAttribute.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                int x = int.Parse(split[0]);
+                int y = int.Parse(split[1]);
+                int width = int.Parse(split[2]);
+                int height = int.Parse(split[3]);
+                int tileWidth = int.TryParse(tilesetElement.Attribute("tileWidth")?.Value, out int parsedValueTileWidth) ? parsedValueTileWidth : 0;
+                int tileHeight = int.TryParse(tilesetElement.Attribute("tileHeight")?.Value, out int parsedValueTileHeight) ? parsedValueTileHeight : 0;
+                string contentPath = tilesetElement.Value;
+                
+                // Load the texture 2d at the content path
+                Texture2D texture = content.Load<Texture2D>(contentPath);
+                
+                // Create the texture region from the texture
+                TextureRegion textureRegion = new TextureRegion(texture, x, y, width, height);
+                
+                // Create the tileset using the texture region
+                Tileset tileset = new Tileset(textureRegion, tileWidth, tileHeight);
+                
+                // The <Tiles> element contains lines of strings where each line
+                // represents a row in the tilemap.  Each line is a space
+                // separated string where each element represents a column in that
+                // row. The value of the column is the id of the tile in the
+                // tileset to draw for that location.
+                //
+                // Example:
+                // <Tiles>
+                //      00 01 01 02
+                //      03 04 04 05
+                //      03 04 04 05
+                //      06 07 07 08
+                // </Tiles>
+                XElement tilesElement = tilemapElement.Element("Tiles");
+
+                if (tilesElement != null)
+                {
+                    // Split the value of the tile data into rows by splitting on
+                    // the new line character
+                    string[] rows = tilesElement.Value.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                    
+                    // Split the value of the first row to determine the total number of columns
+                    int columnCount = rows[0].Split(" ", StringSplitOptions.RemoveEmptyEntries).Length;
+                    
+                    // Create the tilemap
+                    Tilemap tilemap = new Tilemap(tileset, columnCount, rows.Length);
+                    
+                    // Process each row
+                    for (int row = 0; row < rows.Length; row++)
+                    {
+                        // Split the row into individual columns
+                        string[] columns = rows[row].Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                        // Process each column of the current row
+                        for (int column = 0; column < columnCount; column++)
+                        {
+                            // Get the tileset index for this location
+                            int tilesetIndex = int.Parse(columns[column]);
+                            
+                            // Get the texture region of that tile from the tileset
+                            // TextureRegion region = tileset.GetTile(tilesetIndex);
+                            
+                            // Add that region to the tilemap at the row and column location
+                            tilemap.SetTile(column, row, tilesetIndex);
+                        }
+                    }
+                    
+                    return tilemap;
+                }
+                else
+                {
+                    throw new XmlSchemaException("Missing tiles element!");
+                }
+            }
+            else
+            {
+                throw new XmlSchemaException("Missing region attribute!");
+            }
+        }
+        else
+        {
+            throw new XmlSchemaException("Missing tileset element!");
         }
     }
 }

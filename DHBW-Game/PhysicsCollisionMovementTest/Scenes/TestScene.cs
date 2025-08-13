@@ -1,4 +1,5 @@
 using DHBW_Game.GameObjects;
+using DHBW_Game.Maps;
 using GameLibrary;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
@@ -10,10 +11,11 @@ namespace DHBW_Game.Scenes;
 
 public class TestScene : Scene
 {
-    // Game objects
+    // Player character
     private TestCharacter _character;
-    private CircleColliderTest _circleColliderTest;
-    private RectangleColliderTest _rectangleColliderTest;
+
+    // The map instance
+    private Map _map;
     
     private readonly CollisionEngine _collisionEngine;
     private readonly PhysicsEngine _physicsEngine;
@@ -38,31 +40,12 @@ public class TestScene : Scene
     
     private void InitializeNewGame()
     {
-        // Create segments which are static and act as walls/platforms/ground.
-        TestSegment testSegment1 = new TestSegment(400, 50, 25);
-        TestSegment testSegment2 = new TestSegment(800, 50, 0);
-        TestSegment testSegment3 = new TestSegment(800, 50, 90);
-        TestSegment testSegment4 = new TestSegment(800, 50, 90);
-        TestSegment testSegment5 = new TestSegment(500, 50, 0);
-        TestSegment testSegment6 = new TestSegment(500, 50, 0);
+        // Load the map from an XML configuration file using the content manager.
+        _map = Map.FromFile(Core.Content, "Maps/test_map.xml");
         
-        // Initialize the segments at their starting position.
-        testSegment1.Initialize(new Vector2(400, 500));
-        testSegment2.Initialize(new Vector2(900, 600));
-        testSegment3.Initialize(new Vector2(50, 400));
-        testSegment4.Initialize(new Vector2(1200, 400));
-        testSegment5.Initialize(new Vector2(200, 400));
-        testSegment6.Initialize(new Vector2(200, 20));
-        
-        // Create the dynamic game objects.
+        // Create the player character separately, using the start position from the map.
         _character = new TestCharacter(mass: 2f, isElastic: false);
-        _circleColliderTest = new CircleColliderTest(mass: 1f, isElastic: true);
-        _rectangleColliderTest = new RectangleColliderTest(mass: 1f, isElastic: true);
-        
-        // Initialize the dynamic game objects at their starting position.
-        _character.Initialize(startingPosition: new Vector2(300, 200));
-        _circleColliderTest.Initialize(startingPosition: new Vector2(400, 100));
-        _rectangleColliderTest.Initialize(startingPosition: new Vector2(500, 200));
+        _character.Initialize(_map.StartPosition);
     }
     
     public override void LoadContent()
@@ -71,10 +54,11 @@ public class TestScene : Scene
     
     public override void Update(GameTime gameTime)
     {
-        // Update the game objects.
+        // Update the map (which updates all placed game objects).
+        _map.Update(gameTime);
+        
+        // Update the player character.
         _character.Update(gameTime);
-        _circleColliderTest.Update(gameTime);
-        _rectangleColliderTest.Update(gameTime);
     }
     
     public override void Draw(GameTime gameTime)
@@ -85,10 +69,11 @@ public class TestScene : Scene
         // Begin the sprite batch.
         Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        // Draw the game objects.
+        // Draw the map (which draws the background tilemap and all placed game objects).
+        _map.Draw(Core.SpriteBatch);
+        
+        // Draw the player character.
         _character.Draw();
-        _circleColliderTest.Draw();
-        _rectangleColliderTest.Draw();
         
         // Visualize the colliders. This enables debugging the colliders without relying on sprites which don't exactly depict the colliders.
         _collisionEngine.VisualizeColliders();
