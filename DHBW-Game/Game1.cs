@@ -1,17 +1,17 @@
-﻿using DungeonSlime.Scenes;
+﻿using DHBW_Game.Scenes;
 using Microsoft.Xna.Framework.Media;
 using MonoGameLibrary;
 using MonoGameGum;
 using MonoGameGum.Forms.Controls;
 
-namespace DungeonSlime;
+namespace DHBW_Game;
 
 public class Game1 : Core
 {
     // The background theme song.
     private Song _themeSong;
 
-    public Game1() : base("Dungeon Slime", 1280, 720, false)
+    public Game1() : base("DHBW Game", 1280, 720, false)
     {
 
     }

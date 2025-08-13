@@ -8,7 +8,7 @@ using MonoGameGum.Forms.Controls;
 using MonoGameGum.GueDeriving;
 using MonoGameLibrary.Graphics;
 
-namespace DungeonSlime.UI;
+namespace DHBW_Game.UI;
 
 /// <summary>
 /// A custom button implementation that inherits from Gum's Button class to provide

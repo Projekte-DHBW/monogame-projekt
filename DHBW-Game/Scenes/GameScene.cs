@@ -1,5 +1,5 @@
 using System;
-using DungeonSlime.UI;
+using DHBW_Game.UI;
 using Gum.DataTypes;
 using Gum.Managers;
 using Gum.Wireframe;
@@ -15,7 +15,7 @@ using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
 
-namespace DungeonSlime.Scenes;
+namespace DHBW_Game.Scenes;
 
 public class GameScene : Scene
 {

@@ -1,5 +1,5 @@
 using System;
-using DungeonSlime.UI;
+using DHBW_Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,7 +8,7 @@ using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
-namespace DungeonSlime.Scenes;
+namespace DHBW_Game.Scenes;
 using MonoGameGum;
 using MonoGameGum.Forms.Controls;
 using MonoGameLibrary.Graphics;

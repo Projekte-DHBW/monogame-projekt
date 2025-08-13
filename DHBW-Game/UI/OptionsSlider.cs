@@ -7,7 +7,7 @@ using MonoGameGum.Forms.Controls;
 using MonoGameGum.GueDeriving;
 using MonoGameLibrary.Graphics;
 
-namespace DungeonSlime.UI;
+namespace DHBW_Game.UI;
 
 /// <summary>
 /// A custom slider control that inherits from Gum's Slider class.
