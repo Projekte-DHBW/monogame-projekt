@@ -56,6 +56,11 @@ public abstract class GameObject
     public virtual void Initialize(Vector2 startingPosition)
     {
         Position = startingPosition;
+        LoadContent();
+    }
+    
+    public virtual void LoadContent()
+    {
     }
 
     /// <summary>
