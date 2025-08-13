@@ -92,7 +92,7 @@ namespace GameLibrary.Physics
                         Vector2 velocityDirection = Vector2.Normalize(physicsObject.Velocity);
                         frictionForce = -physicsObject.Collider.GroundCollider.FrictionCoefficient * normalForceMagnitude * velocityDirection;
                     }
-                    acceleration += frictionForce / physicsObject.Mass;
+                    acceleration -= frictionForce / physicsObject.Mass;
                 }
                 else
                 {
