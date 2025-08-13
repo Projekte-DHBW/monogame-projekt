@@ -19,8 +19,7 @@ public class TestScene : Scene
     
     private readonly CollisionEngine _collisionEngine;
     private readonly PhysicsEngine _physicsEngine;
-
-
+    
     public TestScene()
     {
         _physicsEngine = ServiceLocator.Get<PhysicsEngine>();
@@ -60,7 +59,7 @@ public class TestScene : Scene
         // Update the player character.
         _character.Update(gameTime);
     }
-    
+
     public override void Draw(GameTime gameTime)
     {
         // Clear the back buffer.
@@ -68,15 +67,15 @@ public class TestScene : Scene
         
         // Begin the sprite batch.
         Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
+        
+        // Visualize the colliders. This enables debugging the colliders without relying on sprites which don't exactly depict the colliders.
+        _collisionEngine.VisualizeColliders();
+        
         // Draw the map (which draws the background tilemap and all placed game objects).
         _map.Draw(Core.SpriteBatch);
         
         // Draw the player character.
         _character.Draw();
-        
-        // Visualize the colliders. This enables debugging the colliders without relying on sprites which don't exactly depict the colliders.
-        _collisionEngine.VisualizeColliders();
 
         // End the sprite batch when finished.
         Core.SpriteBatch.End();

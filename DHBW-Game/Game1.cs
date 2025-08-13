@@ -41,7 +41,6 @@ public class Game1 : Core
 
         // Initialize the Gum UI service
         InitializeGum();
-
     }
 
     protected override void LoadContent()

@@ -13,6 +13,10 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Animated_Sprites/Player/Idle-definition.xml
+/copy:Animated_Sprites/Player/Idle-definition.xml
+
+#begin Animated_Sprites/Player/Idle.png
 #begin audio/bounce.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -67,6 +71,12 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Idle.png
+
+#begin Animated_Sprites/Player/Run-definition.xml
+/copy:Animated_Sprites/Player/Run-definition.xml
+
+#begin Animated_Sprites/Player/Run.png
 /build:images/atlas.png
 
 #begin images/background-pattern.png
@@ -103,6 +113,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Run.png
 /build:images/logo.jpg
 
 #begin images/tilemap-definition.xml
