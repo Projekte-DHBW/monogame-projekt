@@ -11,7 +11,7 @@
         <Object type="TestSegment" x="200" y="20" width="500" height="50" rotation="0" />
         
         <!-- Dynamic test objects -->
-        <Object type="CircleColliderTest" x="400" y="100" mass="1" elastic="true" />
-        <Object type="RectangleColliderTest" x="500" y="200" mass="1" elastic="true" />
+        <Object type="CircleColliderTest" x="400" y="100" mass="1" elastic="false" />
+        <Object type="RectangleColliderTest" x="500" y="200" mass="1" elastic="false" />
     </Objects>
 </Map>

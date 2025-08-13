@@ -67,7 +67,7 @@ public class TestScene : Scene
         
         // Begin the sprite batch.
         Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
+        
         // Visualize the colliders. This enables debugging the colliders without relying on sprites which don't exactly depict the colliders.
         _collisionEngine.VisualizeColliders();
         
