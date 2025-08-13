@@ -107,13 +107,6 @@ namespace GameLibrary.Physics
                 // Calculate new velocity
                 physicsObject.NewVelocity = physicsObject.Velocity + acceleration * dt;
 
-                // Speed cap
-                float maxSpeed = 800f;
-                if (physicsObject.NewVelocity.Length() > maxSpeed)
-                {
-                    physicsObject.NewVelocity = Vector2.Normalize(physicsObject.NewVelocity) * maxSpeed;
-                }
-
                 // Update the position
                 physicsObject.Position += physicsObject.Velocity * dt;
             }
@@ -124,6 +117,19 @@ namespace GameLibrary.Physics
             // Now that the collisions are handled and the new velocities are correct, they can be applied
             foreach (var physicsObject in _physicsObjects)
             {
+                Console.WriteLine(physicsObject.GameObject.ToString());
+                Console.WriteLine(physicsObject.NewVelocity.Length());
+                // Speed cap
+                float maxSpeed = 800f;
+                float minSpeed = 8f;
+                if (physicsObject.NewVelocity.Length() > maxSpeed)
+                {
+                    physicsObject.NewVelocity = Vector2.Normalize(physicsObject.NewVelocity) * maxSpeed;
+                }
+                if (Math.Abs(physicsObject.NewVelocity.X) < minSpeed)
+                {
+                    physicsObject.NewVelocity = new Vector2(0, physicsObject.NewVelocity.Y);
+                }
                 physicsObject.Velocity = physicsObject.NewVelocity;
             }
         }
