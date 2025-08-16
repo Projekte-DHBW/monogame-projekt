@@ -112,7 +112,7 @@ namespace GameLibrary.Physics.Colliders
                             if (dynamicCollider != null)
                             {
                                 Vector2 originalPosition = dynamicCollider.GlobalPosition;
-                                float probeDistance = 1f; // Shift slightly down to probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation; problem: surface normal isn't known at the time of probing)
+                                float probeDistance = 2f; // Shift slightly down to probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation; problem: surface normal isn't known at the time of probing)
                                 dynamicCollider.GlobalPosition = originalPosition + Vector2.UnitY * probeDistance; // Gravity direction
                                 
                                 CollisionData groundData = GetCollisionData(dynamicCollider, staticCollider);
@@ -283,7 +283,7 @@ namespace GameLibrary.Physics.Colliders
             Separate(staticCollider, dynamicCollider, unitNormal, collisionData.Depth);
             
             // If the deflection speed of the dynamic collider is low enough, we can set IsOnGround to True to mitigate an infinite bounce
-            CheckDeflectionSpeed(dynamicCollider);
+            CheckDeflectionSpeed(dynamicCollider, unitNormal);
             if (dynamicCollider.IsOnGround)
             {
                 dynamicCollider.GroundCollider = staticCollider;
@@ -512,19 +512,23 @@ namespace GameLibrary.Physics.Colliders
         }
 
         /// <summary>
-        /// Checks if a dynamic collider's vertical velocity is low enough to consider it grounded.
+        /// Checks if a dynamic collider's velocity along the surface normal is low enough to consider it grounded.
         /// Sets IsOnGround and zeros out vertical velocity to prevent small bounces.
         /// </summary>
         /// <param name="collider">The dynamic collider to check.</param>
-        private void CheckDeflectionSpeed(Collider collider)
+        /// <param name="unitNormal">The unit surface normal of the ground.</param>
+        private void CheckDeflectionSpeed(Collider collider, Vector2 unitNormal)
         {
-            // If vertical velocity is below threshold, treat as grounded
-            if (Math.Abs(collider.PhysicsComponent.NewVelocity.Y) < 60f)
+            // Calculate the component of velocity normal to the surface
+            float normalSpeed = Math.Abs(Vector2.Dot(collider.PhysicsComponent.NewVelocity, unitNormal));
+            float deflectionThreshold = 60f;
+            
+            if (normalSpeed < deflectionThreshold)
             {
                 collider.IsOnGround = true;
-                
-                // Zero vertical velocity to stop bouncing, keep horizontal velocity
-                collider.PhysicsComponent.NewVelocity = new Vector2(collider.PhysicsComponent.NewVelocity.X, 0);
+            
+                // Zero the normal component
+                collider.PhysicsComponent.NewVelocity -= Vector2.Dot(collider.PhysicsComponent.NewVelocity, unitNormal) * unitNormal;
             }
         }
         
