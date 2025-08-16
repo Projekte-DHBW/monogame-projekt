@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using Microsoft.Xna.Framework;
 
 namespace GameLibrary.Physics.Colliders
@@ -47,7 +46,12 @@ namespace GameLibrary.Physics.Colliders
         /// <summary>
         /// Checks all colliders managed by this collision engine for collisions and handles them if there are some.
         /// </summary>
-        public void CheckCollisions()
+        /// <param name="maxIterations">
+        /// Determines how many iterations of collision checks should be executed at a maximum.
+        /// The iterations aim to resolve all collisions, even secondary, tertiary etc. ones, which can't be resolved with a single pass.
+        /// A higher number is better for more complex scenes but impacts performance. The default number is 10.
+        /// </param>
+        public void CheckCollisions(int maxIterations = 10)
         {
             // Reset IsOnGround
             foreach (var collider in _colliders)
@@ -59,70 +63,85 @@ namespace GameLibrary.Physics.Colliders
                 }
             }
             
-            // Iterate over all unique pairs of colliders
-            for (int i = 0; i < _colliders.Count; i++)
+            int iteration = 0;
+            bool hadIntersections;
+            
+            do
             {
-                Collider collider1 = _colliders[i];
+                hadIntersections = false;
                 
-                for (int j = i + 1; j < _colliders.Count; j++)
+                // Iterate over all unique pairs of colliders
+                for (int i = 0; i < _colliders.Count; i++)
                 {
-                    Collider collider2 = _colliders[j];
+                    Collider collider1 = _colliders[i];
                     
-                    // Skip if both are static because static colliders can't move – even if a collision between them occurs
-                    if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
-                        continue;
-                    
-                    // Get collision data for current positions
-                    CollisionData data = GetCollisionData(collider1, collider2);
-                    
-                    if (data.Intersects)
+                    for (int j = i + 1; j < _colliders.Count; j++)
                     {
-                        Console.WriteLine($"Collision detected between {collider1} and {collider2}");
-                        HandleCollision(collider1, collider2, data);
-                    }
-                    else
-                    {
-                        // Integrated on-ground check (only for dynamic-static pairs where no current intersection)
-                        Collider dynamicCollider = null;
-                        Collider staticCollider = null;
+                        Collider collider2 = _colliders[j];
                         
-                        if (collider1.PhysicsComponent != null && collider2.PhysicsComponent == null)
-                        {
-                            dynamicCollider = collider1;
-                            staticCollider = collider2;
-                        }
-                        else if (collider1.PhysicsComponent == null && collider2.PhysicsComponent != null)
-                        {
-                            dynamicCollider = collider2;
-                            staticCollider = collider1;
-                        }
+                        // Skip if both are static because static colliders can't move – even if a collision between them occurs
+                        if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
+                            continue;
                         
-                        if (dynamicCollider != null)
+                        // Get collision data for current positions
+                        CollisionData data = GetCollisionData(collider1, collider2);
+                        
+                        if (data.Intersects)
                         {
-                            Vector2 originalPosition = dynamicCollider.GlobalPosition;
-                            dynamicCollider.GlobalPosition = originalPosition + new Vector2(0, 1); // Shift slightly down so probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation)
-            
-                            CollisionData groundData = GetCollisionData(dynamicCollider, staticCollider);
-            
-                            if (groundData.Intersects)
+                            hadIntersections = true;
+                            Console.WriteLine($"Collision detected between {collider1} and {collider2}");
+                            HandleCollision(collider1, collider2, data);
+                        }
+                        else
+                        {
+                            // Integrated on-ground check (only for dynamic-static pairs where no current intersection)
+                            Collider dynamicCollider = null;
+                            Collider staticCollider = null;
+                            
+                            if (collider1.PhysicsComponent != null && collider2.PhysicsComponent == null)
                             {
-                                dynamicCollider.IsOnGround = true;
-                                dynamicCollider.GroundCollider = staticCollider;
-                                if (groundData.Normal.Length() > 0f)
-                                {
-                                    Vector2 unitNormal = groundData.Normal / groundData.Normal.Length();
-                                    SetSlopeFromNormal(dynamicCollider, unitNormal);
-                                }
-                                else
-                                {
-                                    dynamicCollider.SlopeAngle = 0f;
-                                }
+                                dynamicCollider = collider1;
+                                staticCollider = collider2;
+                            }
+                            else if (collider1.PhysicsComponent == null && collider2.PhysicsComponent != null)
+                            {
+                                dynamicCollider = collider2;
+                                staticCollider = collider1;
                             }
                             
-                            dynamicCollider.GlobalPosition = originalPosition;
+                            if (dynamicCollider != null)
+                            {
+                                Vector2 originalPosition = dynamicCollider.GlobalPosition;
+                                float probeDistance = 1f; // Shift slightly down to probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation; problem: surface normal isn't known at the time of probing)
+                                dynamicCollider.GlobalPosition = originalPosition + Vector2.UnitY * probeDistance; // Gravity direction
+                                
+                                CollisionData groundData = GetCollisionData(dynamicCollider, staticCollider);
+                                
+                                if (groundData.Intersects)
+                                {
+                                    dynamicCollider.IsOnGround = true;
+                                    dynamicCollider.GroundCollider = staticCollider;
+                                    if (groundData.Normal.LengthSquared() > 0f)
+                                    {
+                                        Vector2 unitNormal = groundData.Normal / groundData.Normal.Length();
+                                        SetSlopeFromNormal(dynamicCollider, unitNormal);
+                                    }
+                                    else
+                                    {
+                                        dynamicCollider.SlopeAngle = 0f;
+                                    }
+                                }
+                                
+                                dynamicCollider.GlobalPosition = originalPosition;
+                            }
                         }
                     }
                 }
+            } while (hadIntersections && ++iteration < maxIterations);
+
+            if (hadIntersections)
+            {
+                Console.WriteLine("Last iteration still had intersections! The allowed number of iterations was too small.");
             }
         }
 
