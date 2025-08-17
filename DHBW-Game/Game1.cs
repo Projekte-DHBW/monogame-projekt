@@ -7,6 +7,7 @@ using Gum.Forms.Controls;
 using GameLibrary.Physics;
 using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace DHBW_Game;
 
@@ -14,8 +15,15 @@ public class Game1 : Core
 {
     // The background theme song.
     private Song _themeSong;
+    
     private PhysicsEngine _physicsEngine;
     private Camera _camera;
+    
+    // The font to use to render normal text.
+    private SpriteFont _font;
+
+    // The font used to render the title text.
+    private SpriteFont _font5x;
 
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
@@ -30,6 +38,8 @@ public class Game1 : Core
         Components.Add(_physicsEngine);
         ServiceLocator.Register(_physicsEngine);
         ServiceLocator.Register(_physicsEngine.CollisionEngine);
+        ServiceLocator.Register(_font5x, "Font5x");
+        ServiceLocator.Register(_font, "Font");
 
         _camera = new Camera();
         ServiceLocator.Register(_camera);
@@ -52,6 +62,12 @@ public class Game1 : Core
 
     protected override void LoadContent()
     {
+        // Load the font for the standard text.
+        _font = Content.Load<SpriteFont>("fonts/04B_30");
+
+        // Load the font for the title text.
+        _font5x = Content.Load<SpriteFont>("fonts/04B_30_5x");
+        
         // Load the background theme music.
         _themeSong = Content.Load<Song>("audio/theme");
     }
