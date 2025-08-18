@@ -57,7 +57,7 @@ public class TestScene : Scene
         _map.Update(gameTime);
         
         // Update the player character.
-        _character.Update(gameTime);
+        //_character.Update(gameTime);
     }
 
     public override void Draw(GameTime gameTime)
@@ -75,7 +75,7 @@ public class TestScene : Scene
         _map.Draw(Core.SpriteBatch);
         
         // Draw the player character.
-        _character.Draw();
+        //_character.Draw();
 
         // End the sprite batch when finished.
         Core.SpriteBatch.End();
