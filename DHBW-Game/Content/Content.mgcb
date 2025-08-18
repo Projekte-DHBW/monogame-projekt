@@ -17,6 +17,32 @@
 /copy:Animated_Sprites/Player/Idle-definition.xml
 
 #begin Animated_Sprites/Player/Idle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Idle.png
+
+#begin Animated_Sprites/Player/Run-definition.xml
+/copy:Animated_Sprites/Player/Run-definition.xml
+
+#begin Animated_Sprites/Player/Run.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Run.png
+
 #begin audio/bounce.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -71,12 +97,6 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Animated_Sprites/Player/Idle.png
-
-#begin Animated_Sprites/Player/Run-definition.xml
-/copy:Animated_Sprites/Player/Run-definition.xml
-
-#begin Animated_Sprites/Player/Run.png
 /build:images/atlas.png
 
 #begin images/background-pattern.png
@@ -113,12 +133,26 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Animated_Sprites/Player/Run.png
 /build:images/logo.jpg
 
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 
+#begin Levels/00.txt
+/copy:Levels/00.txt
+
 #begin Maps/TestMap.xml
 /copy:Maps/TestMap.xml;Maps/test_map.xml
+
+#begin Tiles/BlockA1.png
+/copy:Tiles/BlockA1.png
+
+#begin Tiles/BlockA2.png
+/copy:Tiles/BlockA2.png
+
+#begin Tiles/BlockA3.png
+/copy:Tiles/BlockA3.png
+
+#begin Tiles/Exit.png
+/copy:Tiles/Exit.png
 
