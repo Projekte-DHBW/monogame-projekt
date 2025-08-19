@@ -245,4 +245,11 @@ public class TextureAtlas
         animatedSprite.CenterOrigin();
         return animatedSprite;
     }
+    public AnimatedSpriteOnce CreateAnimatedSpriteOnce(string animationName)
+    {
+        Animation animation = GetAnimation(animationName);
+        var animatedSprite = new AnimatedSpriteOnce(animation);
+        animatedSprite.CenterOrigin();
+        return animatedSprite;
+    }
 }
