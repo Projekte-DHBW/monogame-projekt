@@ -18,13 +18,12 @@ public class Player : GameObject
 
     private AnimatedSprite _playerRunning;
     private Sprite _playerStanding;
-    private PlayerState _currentPlayerState = PlayerState.Standing;
-
-    private enum PlayerState
-    {
-        Standing,
-        Running
-    }
+    private AnimatePlayer _animatePlayer;
+    private PlayerAnimationReturn _playerAnimationReturn;
+    private bool _moveUp;
+    private bool _moveDown;
+    private bool _moveLeft;
+    private bool _moveRight;
 
     /// <summary>
     /// Creates a new <see cref="Player"/> object.
@@ -70,6 +69,13 @@ public class Player : GameObject
         var standingRegion = playerStandingAtlas.GetRegion("standing");
         _playerStanding = new Sprite(standingRegion);
         _playerStanding.Scale = new Vector2(4.0f, 4.0f);
+
+        _animatePlayer = new AnimatePlayer();
+
+        _moveUp = false;
+        _moveDown = false;
+        _moveLeft = false;
+        _moveRight = false;
     }
 
     /// <summary>
@@ -80,41 +86,28 @@ public class Player : GameObject
     {
         // The current player state is initially set to standing so that when no input is registered, the Update Loop can assign the correct state.
         // This avoids unexpected animations on the ground, for instance, when the player runs down a slope without any input.
-        _currentPlayerState = PlayerState.Standing;
         Vector2 nextDirection = Vector2.Zero;
 
+        _moveUp = GameController.MoveUp();
+        _moveDown = GameController.MoveDown();
+        _moveLeft = GameController.MoveLeft();
+        _moveRight = GameController.MoveRight();
+
         // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
-        if (GameController.MoveUp())
+        if (_moveUp)
         {
             _jumpDuration = 0.1;
         }
-        if (GameController.MoveDown())
+        if (_moveDown)
         {
             nextDirection += Vector2.UnitY * 4000;
         }
-        if (GameController.MoveLeft())
+        if (_moveLeft)
         {
-            Sprite = _playerRunning;
-            Sprite.Effects = SpriteEffects.FlipHorizontally;
-            _currentPlayerState = PlayerState.Running;
-
             nextDirection += -Vector2.UnitX * 4000;
         }
-        if (GameController.MoveRight())
+        if (_moveRight)
         {
-            // If the player is already running, that would mean that the user input is both MoveLeft and MoveRight, which results in no movement, so the Update Loop can assign the correct state.
-            if (_currentPlayerState == PlayerState.Running)
-            {
-                Sprite = _playerStanding;
-                _currentPlayerState = PlayerState.Standing;
-            }
-            else
-            {
-                Sprite = _playerRunning;
-                Sprite.Effects = SpriteEffects.None;
-                _currentPlayerState = PlayerState.Running;
-            }
-
             nextDirection += Vector2.UnitX * 4000;
         }
 
@@ -139,25 +132,26 @@ public class Player : GameObject
         // Handle any player input
         HandleInput(gameTime);
 
-        // If the absolute velocity in x direction is high enough and there is no Input, the direction of the running animation is chosen based on the direction of the x velocity
-        if (Math.Abs(PhysicsComponent.Velocity.X) > 10 && _currentPlayerState == PlayerState.Standing)
-        {
-            Sprite = _playerRunning;
-            _currentPlayerState = PlayerState.Running;
+        _playerAnimationReturn = _animatePlayer.GetAnimation(_moveUp, _moveDown, _moveLeft, _moveRight, PhysicsComponent);
 
-            if (PhysicsComponent.Velocity.X < 0)
-            {
-                Sprite.Effects = SpriteEffects.FlipHorizontally;
-            }
-            else
-            {
-                Sprite.Effects = SpriteEffects.None;
-            }
-        }
-        else
+        switch (_playerAnimationReturn.State)
         {
-            _currentPlayerState = PlayerState.Standing;
-            Sprite = _playerStanding;
+            case PlayerState.Idle:
+                Sprite = _playerStanding;
+                break;
+            case PlayerState.Run:
+                Sprite = _playerRunning;
+                break;  
+        }
+
+        switch (_playerAnimationReturn.Facing)
+        {
+            case PlayerFacing.Left:
+                Sprite.Effects = SpriteEffects.FlipHorizontally;
+                break;
+            case PlayerFacing.Right:
+                Sprite.Effects = SpriteEffects.None;
+                break;
         }
     }
 
