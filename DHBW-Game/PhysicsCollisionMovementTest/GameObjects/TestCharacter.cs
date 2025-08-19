@@ -17,13 +17,16 @@ public class TestCharacter : GameObject
     private double _jumpDuration;
     
     private AnimatedSprite _playerRunning;
+    private AnimatedSprite _playerJumping;
     private Sprite _playerStanding;
     private PlayerState _currentPlayerState = PlayerState.Standing;
-    
+    private bool _hasJumped = false;
+
     private enum PlayerState
     {
         Standing,
-        Running
+        Running,
+        Jumping
     }
     
     /// <summary>
@@ -61,6 +64,7 @@ public class TestCharacter : GameObject
         // Load the player texture atlases
         TextureAtlas playerRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Run-definition.xml");
         TextureAtlas playerStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Idle-definition.xml");
+        TextureAtlas playerJumpingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Jump-definition.xml");
 
         // Create the player sprite for running
         _playerRunning = playerRunningAtlas.CreateAnimatedSprite("running-animation");
@@ -70,6 +74,10 @@ public class TestCharacter : GameObject
         var standingRegion = playerStandingAtlas.GetRegion("standing");
         _playerStanding = new Sprite(standingRegion);
         _playerStanding.Scale = new Vector2(4.0f, 4.0f);
+
+        // Create the player sprite for jumping
+        _playerJumping = playerJumpingAtlas.CreateAnimatedSprite("jumping-animation");
+        _playerJumping.Scale = new Vector2(4.0f, 4.0f);
     }
 
     /// <summary>
@@ -82,11 +90,14 @@ public class TestCharacter : GameObject
         // This avoids unexpected animations on the ground, for instance, when the player runs down a slope without any input.
         _currentPlayerState = PlayerState.Standing;
         Vector2 nextDirection = Vector2.Zero;
-        
+
         // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
-        if (GameController.MoveUp())
+        if (GameController.MoveUp() && !_hasJumped) // Überprüfen, ob der Spieler noch nicht gesprungen ist
         {
             _jumpDuration = 0.1;
+            Sprite = _playerJumping;
+            _currentPlayerState = PlayerState.Jumping;
+            _hasJumped = true; // Setzen Sie die Sprung-Flagge
         }
         if (GameController.MoveDown())
         {
@@ -139,6 +150,30 @@ public class TestCharacter : GameObject
         // Handle any player input
         HandleInput(gameTime);
 
+        // Wenn der Spieler springt, aktualisieren Sie die Sprunganimation
+        if (_currentPlayerState == PlayerState.Jumping)
+        {
+            _playerJumping.Update(gameTime);
+            if (_jumpDuration <= 0)
+            {
+                // Wenn die Sprungdauer abgelaufen ist, setzen Sie den Zustand auf Stehen
+                _currentPlayerState = PlayerState.Standing;
+                _hasJumped = false;
+                Sprite = _playerStanding;
+            }
+        }
+        else if (_currentPlayerState == PlayerState.Running)
+        {
+            _playerRunning.Update(gameTime);
+        }
+        else
+        {
+            // Wenn der Spieler steht, setzen Sie die Sprites zurück
+            Sprite = _playerStanding;
+            _hasJumped = false;
+        }
+
+
         // If the absolute velocity in x direction is high enough and there is no Input, the direction of the running animation is chosen based on the direction of the x velocity
         if (Math.Abs(PhysicsComponent.Velocity.X) > 10 && _currentPlayerState == PlayerState.Standing)
         {
@@ -154,11 +189,7 @@ public class TestCharacter : GameObject
                 Sprite.Effects = SpriteEffects.None;
             }
         }
-        else
-        {
-            _currentPlayerState = PlayerState.Standing;
-            Sprite = _playerStanding;
-        }
+       
     }
 
     /// <summary>
