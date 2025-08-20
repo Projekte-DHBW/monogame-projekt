@@ -1,4 +1,5 @@
-﻿using DHBW_Game.Scenes;
+﻿using System.Globalization;
+using DHBW_Game.Scenes;
 using Microsoft.Xna.Framework.Media;
 using GameLibrary;
 using MonoGameGum;
@@ -32,6 +33,9 @@ public class Game1 : Core
 
         _camera = new Camera();
         ServiceLocator.Register(_camera);
+        
+        CultureInfo cultureInfo = new CultureInfo("en-US");
+        ServiceLocator.Register(cultureInfo);
 
         // Start playing the background music.
         Audio.PlaySong(_themeSong);
