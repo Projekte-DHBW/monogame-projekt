@@ -54,16 +54,13 @@ public class Map
             Vector2 startPos = Vector2.Zero;
             Tilemap background = null;
             List<GameObject> objects = new List<GameObject>();
-            
-            // Get culture info for the Game. This is needed to have a unified XML float parsing as floats use a comma or period as decimal separator depending on the culture. If not a predefined culture is used, the parsing depends on the culture of the host PC which leads to unpredictable behavior.
-            CultureInfo cultureInfo = ServiceLocator.Get<CultureInfo>();
 
             // Parse StartPosition
             XElement startElem = root.Element("StartPosition");
             if (startElem != null)
             {
-                float x = float.TryParse(startElem.Attribute("x")?.Value, cultureInfo, out float parsedX) ? parsedX : 0f;
-                float y = float.TryParse(startElem.Attribute("y")?.Value, cultureInfo, out float parsedY) ? parsedY : 0f;
+                float x = float.TryParse(startElem.Attribute("x")?.Value, out float parsedX) ? parsedX : 0f;
+                float y = float.TryParse(startElem.Attribute("y")?.Value, out float parsedY) ? parsedY : 0f;
                 startPos = new Vector2(x, y);
             }
 
@@ -83,34 +80,34 @@ public class Map
                     string type = objElem.Attribute("type")?.Value;
                     if (string.IsNullOrEmpty(type)) continue;
 
-                    float ox = float.TryParse(objElem.Attribute("x")?.Value, cultureInfo, out float parsedOx) ? parsedOx : 0f;
-                    float oy = float.TryParse(objElem.Attribute("y")?.Value, cultureInfo, out float parsedOy) ? parsedOy : 0f;
+                    float ox = float.TryParse(objElem.Attribute("x")?.Value, out float parsedOx) ? parsedOx : 0f;
+                    float oy = float.TryParse(objElem.Attribute("y")?.Value, out float parsedOy) ? parsedOy : 0f;
                     Vector2 pos = new Vector2(ox, oy);
 
                     GameObject obj = null;
                     switch (type)
                     {
                         case "TestCharacter":
-                            float tcMass = float.TryParse(objElem.Attribute("mass")?.Value, cultureInfo, out float parsedTcMass) ? parsedTcMass : 1f;
+                            float tcMass = float.TryParse(objElem.Attribute("mass")?.Value, out float parsedTcMass) ? parsedTcMass : 1f;
                             bool tcElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedTcElastic) && parsedTcElastic;
                             obj = new TestCharacter(tcMass, tcElastic);
                             break;
                         case "CircleColliderTest":
-                            float ccMass = float.TryParse(objElem.Attribute("mass")?.Value, cultureInfo, out float parsedCcMass) ? parsedCcMass : 1f;
+                            float ccMass = float.TryParse(objElem.Attribute("mass")?.Value, out float parsedCcMass) ? parsedCcMass : 1f;
                             bool ccElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedCcElastic) && parsedCcElastic;
                             obj = new CircleColliderTest(ccMass, ccElastic);
                             break;
                         case "RectangleColliderTest":
-                            float rcMass = float.TryParse(objElem.Attribute("mass")?.Value, cultureInfo, out float parsedRcMass) ? parsedRcMass : 1f;
+                            float rcMass = float.TryParse(objElem.Attribute("mass")?.Value, out float parsedRcMass) ? parsedRcMass : 1f;
                             bool rcElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedRcElastic) && parsedRcElastic;
                             obj = new RectangleColliderTest(rcMass, rcElastic);
                             break;
                         case "TestSegment":
                             int tsWidth = int.TryParse(objElem.Attribute("width")?.Value, out int parsedTsWidth) ? parsedTsWidth : 0;
                             int tsHeight = int.TryParse(objElem.Attribute("height")?.Value, out int parsedTsHeight) ? parsedTsHeight : 0;
-                            float tsRotation = float.TryParse(objElem.Attribute("rotation")?.Value, cultureInfo, out float parsedTsRotation) ? parsedTsRotation : 0f;
+                            float tsRotation = float.TryParse(objElem.Attribute("rotation")?.Value, out float parsedTsRotation) ? parsedTsRotation : 0f;
                             bool tsElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedTsElastic) && parsedTsElastic;
-                            float tsFrictionCoefficient = float.TryParse(objElem.Attribute("frictionCoefficient")?.Value, cultureInfo, out float parsedTsFrictionCoefficient) ? parsedTsFrictionCoefficient : 1f;
+                            float tsFrictionCoefficient = float.TryParse(objElem.Attribute("frictionCoefficient")?.Value, out float parsedTsFrictionCoefficient) ? parsedTsFrictionCoefficient : 1f;
                             obj = new TestSegment(tsWidth, tsHeight, tsRotation, tsElastic, tsFrictionCoefficient);
                             break;
                         default:
