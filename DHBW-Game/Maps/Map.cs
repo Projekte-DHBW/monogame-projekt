@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using DHBW_Game.GameObjects;
+using GameObjects.Player;
 
 namespace DHBW_Game.Maps;
 
@@ -105,6 +106,11 @@ public class Map
                             int tsHeight = int.TryParse(objElem.Attribute("height")?.Value, out int parsedTsHeight) ? parsedTsHeight : 0;
                             int tsRotation = int.TryParse(objElem.Attribute("rotation")?.Value, out int parsedTsRotation) ? parsedTsRotation : 0;
                             obj = new TestSegment(tsWidth, tsHeight, tsRotation);
+                            break;
+                        case "Player":
+                            float pMass = float.TryParse(objElem.Attribute("mass")?.Value, out float parsedPMass) ? parsedPMass : 1f;
+                            bool pElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedPElastic) && parsedPElastic;
+                            obj = new Player(pMass, pElastic);
                             break;
                         default:
                             // Unknown type;

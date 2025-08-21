@@ -1,9 +1,9 @@
-using DHBW_Game.GameObjects;
 using DHBW_Game.Maps;
 using GameLibrary;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
 using GameLibrary.Scenes;
+using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,7 +12,7 @@ namespace DHBW_Game.Scenes;
 public class TestScene : Scene
 {
     // Player character
-    private TestCharacter _character;
+    private Player _character;
 
     // The map instance
     private Map _map;
@@ -43,7 +43,7 @@ public class TestScene : Scene
         _map = Map.FromFile(Core.Content, "Maps/test_map.xml");
         
         // Create the player character separately, using the start position from the map.
-        _character = new TestCharacter(mass: 2f, isElastic: false);
+        _character = new Player(mass: 2f, isElastic: false);
         _character.Initialize(_map.StartPosition);
     }
     

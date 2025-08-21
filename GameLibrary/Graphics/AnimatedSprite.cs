@@ -5,9 +5,9 @@ namespace GameLibrary.Graphics;
 
 public class AnimatedSprite : Sprite 
 {
-    private int _currentFrame;
-    private TimeSpan _elapsed;
-    private Animation _animation;
+    protected int _currentFrame;
+    protected TimeSpan _elapsed;
+    protected Animation _animation;
     
     /// <summary>
     /// Gets or Sets the animation for this animated sprite.
@@ -40,7 +40,7 @@ public class AnimatedSprite : Sprite
     /// Updates this animated sprite.
     /// </summary>
     /// <param name="gameTime">A snapshot of the game timing values provided by the framework.</param>
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
         _elapsed += gameTime.ElapsedGameTime;
 
@@ -56,5 +56,40 @@ public class AnimatedSprite : Sprite
 
             Region = _animation.Frames[_currentFrame];
         }
+    }
+}
+
+public class AnimatedSpriteOnce : AnimatedSprite
+{
+    
+    public bool IsFinished { get; private set; }
+
+    public AnimatedSpriteOnce(Animation animation) : base(animation) {}
+
+    public override void Update(GameTime gameTime)
+    {
+        _elapsed += gameTime.ElapsedGameTime;
+
+        if (_elapsed >= _animation.Delay)
+        {
+            _elapsed -= _animation.Delay;
+            if (!IsFinished)
+                {
+                _currentFrame++;
+
+                if (_currentFrame >= _animation.Frames.Count)
+                {
+                    _currentFrame = _animation.Frames.Count-1;
+                    IsFinished = true;
+                }
+            }
+            Region = _animation.Frames[_currentFrame];
+        }
+    }
+
+    public void ResetAnimation()
+    {
+        _currentFrame = 0;
+        IsFinished = false;
     }
 }
