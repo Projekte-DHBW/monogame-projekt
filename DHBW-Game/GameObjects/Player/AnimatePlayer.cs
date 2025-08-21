@@ -22,7 +22,6 @@ public class AnimatePlayer
     private bool _playerOnGround;
     private PlayerFacing _playerFacingUserInput;
     private PlayerFacing _playerFacingPhysics;
-    private PlayerFacing _playerFacing;
     private PlayerState _playerState;
     private bool _userDirectionInput;
     private PlayerAnimationReturn _playerAnimationReturn;
@@ -30,7 +29,6 @@ public class AnimatePlayer
     public AnimatePlayer()
     {
         _playerOnGround = false;
-        _playerFacing = PlayerFacing.Right;
         _playerState = PlayerState.Idle;
     }
 
@@ -93,4 +91,3 @@ public class AnimatePlayer
         return new PlayerAnimationReturn(_playerFacingPhysics, _playerState);
     }
 }
-
