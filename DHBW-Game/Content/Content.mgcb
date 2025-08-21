@@ -17,6 +17,47 @@
 /copy:Animated_Sprites/Player/Idle-definition.xml
 
 #begin Animated_Sprites/Player/Idle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Idle.png
+
+#begin Animated_Sprites/Player/Jump-definition.xml
+/copy:Animated_Sprites/Player/Jump-definition.xml
+
+#begin Animated_Sprites/Player/Jump.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Jump.png
+
+#begin Animated_Sprites/Player/Run-definition.xml
+/copy:Animated_Sprites/Player/Run-definition.xml
+
+#begin Animated_Sprites/Player/Run.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Run.png
+
 #begin audio/bounce.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -71,12 +112,6 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Animated_Sprites/Player/Idle.png
-
-#begin Animated_Sprites/Player/Run-definition.xml
-/copy:Animated_Sprites/Player/Run-definition.xml
-
-#begin Animated_Sprites/Player/Run.png
 /build:images/atlas.png
 
 #begin images/background-pattern.png
@@ -113,7 +148,6 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Animated_Sprites/Player/Run.png
 /build:images/logo.jpg
 
 #begin images/tilemap-definition.xml
