@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -9,7 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using DHBW_Game.GameObjects;
-using GameLibrary;
 
 namespace DHBW_Game.Maps;
 
