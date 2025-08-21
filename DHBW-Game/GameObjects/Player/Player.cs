@@ -18,6 +18,8 @@ public class Player : GameObject
 
     private AnimatedSprite _playerRunning;
     private AnimatedSpriteOnce _playerJumping;
+    private AnimatedSpriteOnce _playerTransitionJ2F;
+    private AnimatedSprite _playerFalling; 
     private Sprite _playerStanding;
     private AnimatePlayer _animatePlayer;
     private PlayerAnimationReturn _playerAnimationReturn;
@@ -62,6 +64,8 @@ public class Player : GameObject
         TextureAtlas playerRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Run-definition.xml");
         TextureAtlas playerStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Idle-definition.xml");
         TextureAtlas playerJumpingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Jump-definition.xml");
+        TextureAtlas playerTransitionJ2FAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Transition_Jump2Fall-definition.xml");
+        TextureAtlas playerFallingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Fall-definition.xml");
 
         // Create the player sprite for running
         _playerRunning = playerRunningAtlas.CreateAnimatedSprite("running-animation");
@@ -75,6 +79,14 @@ public class Player : GameObject
         // Create the player sprite for jumping
         _playerJumping = playerJumpingAtlas.CreateAnimatedSpriteOnce("jumping-animation");
         _playerJumping.Scale = new Vector2(4.0f, 4.0f);
+
+        // Create the player sprite for the transition between jumping and falling
+        _playerTransitionJ2F = playerTransitionJ2FAtlas.CreateAnimatedSpriteOnce("transitionJ2F-animation");
+        _playerTransitionJ2F.Scale = new Vector2(4.0f, 4.0f);
+
+        // Create the player sprite for falling
+        _playerFalling = playerFallingAtlas.CreateAnimatedSprite("falling-animation");
+        _playerFalling.Scale = new Vector2(4.0f, 4.0f);
 
         _animatePlayer = new AnimatePlayer();
 
@@ -95,7 +107,7 @@ public class Player : GameObject
         Vector2 nextDirection = Vector2.Zero;
 
         _moveUp = GameController.MoveUp();
-        _moveDown = GameController.MoveDown();
+        _moveDown = GameController.MoveDown() && !Collider.IsOnGround;
         _moveLeft = GameController.MoveLeft();
         _moveRight = GameController.MoveRight();
 
@@ -152,6 +164,18 @@ public class Player : GameObject
                 if (Sprite != _playerJumping)
                     _playerJumping.ResetAnimation();
                 Sprite = _playerJumping;
+                break;
+            case PlayerState.Fall:
+                if ((Sprite == _playerTransitionJ2F) && (_playerTransitionJ2F.IsFinished))
+                {
+                    Sprite = _playerFalling;
+                    _playerTransitionJ2F.ResetAnimation();
+                }
+                else
+                    if (Sprite != _playerFalling)
+                {
+                    Sprite = _playerTransitionJ2F;
+                }
                 break;
         }
 
