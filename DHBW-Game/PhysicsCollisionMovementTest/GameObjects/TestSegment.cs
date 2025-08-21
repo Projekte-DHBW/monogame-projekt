@@ -13,9 +13,11 @@ public class TestSegment : GameObject
     /// <param name="width">The width of the test segment.</param>
     /// <param name="height">The height of the test segment.</param>
     /// <param name="rotation">The rotation of the test segment.</param>
-    public TestSegment(int width, int height, int rotation)
+    /// <param name="isElastic">Whether the test segment is elastic. If either the segment or the game object colliding with it is elastic, the collision is elastic.</param>
+    /// <param name="frictionCoefficient">The friction coefficient of this segment. A higher value leads to higher friction and decelerates game objects on the surface if there is no force accelerating them.</param>
+    public TestSegment(int width, int height, float rotation, bool isElastic, float frictionCoefficient)
     {
-        Collider = new RectangleCollider(this, Vector2.Zero, width, height, rotation);
+        Collider = new RectangleCollider(this, Vector2.Zero, width, height, rotation, isElastic, frictionCoefficient);
         
         ServiceLocator.Get<CollisionEngine>().Add(Collider);
     }

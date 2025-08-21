@@ -1,4 +1,5 @@
-﻿using DHBW_Game.Scenes;
+﻿using System.Globalization;
+using DHBW_Game.Scenes;
 using Microsoft.Xna.Framework.Media;
 using GameLibrary;
 using MonoGameGum;
@@ -32,7 +33,13 @@ public class Game1 : Core
 
         _camera = new Camera();
         ServiceLocator.Register(_camera);
-
+        
+        // Set a culture invariant CultureInfo for the Game. This is needed to have a unified XML float parsing as floats use a comma or period as decimal separator depending on the culture.
+        // Without this universal CultureInfo, the parsing depends on the culture of the host PC which leads to unpredictable behavior.
+        CultureInfo cultureInfo = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+        
         // Start playing the background music.
         Audio.PlaySong(_themeSong);
 

@@ -104,8 +104,10 @@ public class Map
                         case "TestSegment":
                             int tsWidth = int.TryParse(objElem.Attribute("width")?.Value, out int parsedTsWidth) ? parsedTsWidth : 0;
                             int tsHeight = int.TryParse(objElem.Attribute("height")?.Value, out int parsedTsHeight) ? parsedTsHeight : 0;
-                            int tsRotation = int.TryParse(objElem.Attribute("rotation")?.Value, out int parsedTsRotation) ? parsedTsRotation : 0;
-                            obj = new TestSegment(tsWidth, tsHeight, tsRotation);
+                            float tsRotation = float.TryParse(objElem.Attribute("rotation")?.Value, out float parsedTsRotation) ? parsedTsRotation : 0f;
+                            bool tsElastic = bool.TryParse(objElem.Attribute("elastic")?.Value, out bool parsedTsElastic) && parsedTsElastic;
+                            float tsFrictionCoefficient = float.TryParse(objElem.Attribute("frictionCoefficient")?.Value, out float parsedTsFrictionCoefficient) ? parsedTsFrictionCoefficient : 1f;
+                            obj = new TestSegment(tsWidth, tsHeight, tsRotation, tsElastic, tsFrictionCoefficient);
                             break;
                         case "Player":
                             float pMass = float.TryParse(objElem.Attribute("mass")?.Value, out float parsedPMass) ? parsedPMass : 1f;

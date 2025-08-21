@@ -3,7 +3,7 @@
     
     <Objects>
         <!-- Static segments acting as walls/platforms/ground -->
-        <Object type="TestSegment" x="400" y="500" width="400" height="50" rotation="25" />
+        <Object type="TestSegment" x="400" y="500" width="400" height="50" rotation="25" frictionCoefficient="0.1" />
         <Object type="TestSegment" x="900" y="600" width="800" height="50" rotation="0" />
         <Object type="TestSegment" x="50" y="400" width="800" height="50" rotation="90" />
         <Object type="TestSegment" x="1200" y="400" width="800" height="50" rotation="90" />

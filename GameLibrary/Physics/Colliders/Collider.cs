@@ -46,8 +46,8 @@ public abstract class Collider
     /// This is not strictly physically correct as it's not really possible to specify the friction coefficient for one material without knowing the other material.
     /// For the time being, the friction coefficient is only used for movement when <see cref="IsOnGround"/> is True and in that case, the friction coefficient of the <see cref="GroundCollider"/> is used.
     /// </summary>
-
     public float FrictionCoefficient { get; set; } = 1f;
+    
     /// <summary>
     /// Gets or sets the game object which the collider is attached to.
     /// </summary>

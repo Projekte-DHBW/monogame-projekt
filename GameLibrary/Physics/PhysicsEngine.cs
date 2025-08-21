@@ -87,7 +87,7 @@ namespace GameLibrary.Physics
                     float normalForceMagnitude = physicsObject.Mass * g * (float)Math.Cos(slopeAngle);
                     // Calculate friction force: F_friction = -μ * N * normalized_velocity
                     Vector2 frictionForce = Vector2.Zero;
-                    if (physicsObject.Velocity.Length() > 0) // Only apply friction if there's movement
+                    if (physicsObject.Velocity.LengthSquared() > 0f) // Only apply friction if there's movement
                     {
                         Vector2 velocityDirection = Vector2.Normalize(physicsObject.Velocity);
                         frictionForce = -physicsObject.Collider.GroundCollider.FrictionCoefficient * normalForceMagnitude * velocityDirection;
@@ -103,10 +103,10 @@ namespace GameLibrary.Physics
                     // Apply vertical gravity when not on ground
                     acceleration += Vector2.UnitY * g; // TODO: has to be made more realistic (pixel distance is a bad way to measure distance)
                 }
-
+                
                 // Calculate new velocity
                 physicsObject.NewVelocity = physicsObject.Velocity + acceleration * dt;
-
+                
                 // Update the position
                 physicsObject.Position += physicsObject.Velocity * dt;
             }
@@ -117,8 +117,6 @@ namespace GameLibrary.Physics
             // Now that the collisions are handled and the new velocities are correct, they can be applied
             foreach (var physicsObject in _physicsObjects)
             {
-                Console.WriteLine(physicsObject.GameObject.ToString());
-                Console.WriteLine(physicsObject.NewVelocity.Length());
                 // Speed cap
                 float maxSpeed = 800f;
                 float minSpeed = 8f;
@@ -126,7 +124,24 @@ namespace GameLibrary.Physics
                 {
                     physicsObject.NewVelocity = Vector2.Normalize(physicsObject.NewVelocity) * maxSpeed;
                 }
-                if (Math.Abs(physicsObject.NewVelocity.X) < minSpeed)
+                
+                float angle = physicsObject.Collider.SlopeAngle;
+
+                // Normalize to [0, 2π)
+                float twoPi = 2f * (float)Math.PI;
+                angle = angle % twoPi;
+                if (angle < 0f) angle += twoPi;
+                
+                // Compute modulo π
+                float modPi = angle % (float)Math.PI;
+
+                // Effective absolute deviation from flat
+                float effective = Math.Min(modPi, (float)Math.PI - modPi);
+
+                float toleranceInRadians = 1f * (float)Math.PI / 180f; // ~0.01745f
+                
+                // Only use min speed when not on a slope because the slope friction logic needs the velocity vector to point along the slope. This is not the case when the x component is zeroed when it is below the min speed (such as when changing directions from sliding uphill, due to momentum, to sliding downhill).
+                if (Math.Abs(physicsObject.NewVelocity.X) < minSpeed && effective < toleranceInRadians)
                 {
                     physicsObject.NewVelocity = new Vector2(0, physicsObject.NewVelocity.Y);
                 }
