@@ -13,6 +13,21 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Animated_Sprites/Player/Fall-definition.xml
+/copy:Animated_Sprites/Player/Fall-definition.xml
+
+#begin Animated_Sprites/Player/Fall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Fall.png
+
 #begin Animated_Sprites/Player/Idle-definition.xml
 /copy:Animated_Sprites/Player/Idle-definition.xml
 
@@ -57,6 +72,21 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Animated_Sprites/Player/Run.png
+
+#begin Animated_Sprites/Player/Transition_Jump2Fall-definition.xml
+/copy:Animated_Sprites/Player/Transition_Jump2Fall-definition.xml
+
+#begin Animated_Sprites/Player/Transition_Jump2Fall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Player/Transition_Jump2Fall.png
 
 #begin audio/bounce.wav
 /importer:WavImporter
