@@ -144,11 +144,17 @@ public class TitleScene : Scene
         optionsText.CustomFontFile = @"fonts/04b_30.fnt";
         _optionsPanel.AddChild(optionsText);
 
+        // Layout-Parameter
+        const float sliderBaseY   = 55f; // Startpoint first slider
+        const float sliderSpacing = 42f; // Distance between Music and SFX slider
+
+
+        // MUSIC
         OptionsSlider musicSlider = new OptionsSlider(_atlas);
         musicSlider.Name = "MusicSlider";
         musicSlider.Text = "MUSIC";
-        musicSlider.Anchor(Gum.Wireframe.Anchor.Top);
-        musicSlider.Visual.Y = 30f;
+        musicSlider.Anchor(Gum.Wireframe.Anchor.Top); // centered horizontal
+        musicSlider.Visual.Y = sliderBaseY;
         musicSlider.Minimum = 0;
         musicSlider.Maximum = 1;
         musicSlider.Value = Core.Audio.SongVolume;
@@ -158,11 +164,12 @@ public class TitleScene : Scene
         musicSlider.ValueChangeCompleted += HandleMusicSliderValueChangeCompleted;
         _optionsPanel.AddChild(musicSlider);
 
+        // SFX
         OptionsSlider sfxSlider = new OptionsSlider(_atlas);
         sfxSlider.Name = "SfxSlider";
         sfxSlider.Text = "SFX";
-        sfxSlider.Anchor(Gum.Wireframe.Anchor.Top);
-        sfxSlider.Visual.Y = 93;
+        sfxSlider.Anchor(Gum.Wireframe.Anchor.Top); //centered horizontal
+        sfxSlider.Visual.Y = sliderBaseY + sliderSpacing;
         sfxSlider.Minimum = 0;
         sfxSlider.Maximum = 1;
         sfxSlider.Value = Core.Audio.SoundEffectVolume;
@@ -179,7 +186,6 @@ public class TitleScene : Scene
         _optionsBackButton.Y = -10f;
         _optionsBackButton.Click += HandleOptionsButtonBack;
         _optionsPanel.AddChild(_optionsBackButton);
-
     }
 
     private void HandleSfxSliderChanged(object sender, EventArgs args)
