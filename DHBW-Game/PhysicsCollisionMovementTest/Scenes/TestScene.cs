@@ -7,6 +7,7 @@ using GameLibrary.Scenes;
 using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameTutorial;
 
 namespace DHBW_Game.Scenes;
 
@@ -30,7 +31,7 @@ public class TestScene : Scene
         // LoadContent is called during base.Initialize().
         base.Initialize();
         
-        Core.ExitOnEscape = true;
+        Core.ExitOnEscape = false;
         
         // Initialize a new game to be played.
         InitializeNewGame();
@@ -47,6 +48,24 @@ public class TestScene : Scene
     
     public override void Update(GameTime gameTime)
     {
+        // Check whether to pause the game. Currently works like a toggle.
+        if (GameController.Pause())
+        {
+            if (IsPaused)
+            {
+                ServiceLocator.Get<Game1>().Resume();
+            }
+            else
+            {
+                ServiceLocator.Get<Game1>().Pause();
+            }
+        }
+
+        if (IsPaused)
+        {
+            return;
+        }
+        
         // Update the map (which updates all placed game objects).
         _level.Update(gameTime);
     }

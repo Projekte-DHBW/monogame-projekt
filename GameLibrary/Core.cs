@@ -14,7 +14,7 @@ public class Core : Game
     internal static Core s_instance;
     
     // The scene that is currently active.
-    private static Scene s_activeScene;
+    protected static Scene s_activeScene;
     
     // The next scene to switch to, if there is one.
     private static Scene s_nextScene;
