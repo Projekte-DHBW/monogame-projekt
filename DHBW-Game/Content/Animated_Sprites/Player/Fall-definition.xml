@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Player/Fall</Texture>
+	<Regions>
+		<Region name="falling-1" x="0" y="0" width="32" height="32" />
+		<Region name="falling-2" x="32" y="0" width="32" height="32" />
+	</Regions>
+	<Animations>
+		<Animation name="falling-animation" delay="300" >
+			<Frame region="falling-1" />
+			<Frame region="falling-2" />
+		</Animation>
+	</Animations>
+</TextureAtlas>
