@@ -16,6 +16,11 @@ namespace GameLibrary.Physics
         /// Gets the collision engine associated with this physics engine. A collision engine is needed because a physics object implicitly requires collision handling to behave physically correct.
         /// </summary>
         public CollisionEngine CollisionEngine { get; init; }
+        
+        /// <summary>
+        /// Gets whether the physics engine is paused.
+        /// </summary>
+        public bool IsPaused { get; private set; }
 
         /// <summary>
         /// Creates a new physics engine.
@@ -29,6 +34,28 @@ namespace GameLibrary.Physics
         public override void Initialize()
         {
             base.Initialize();
+        }
+
+        /// <summary>
+        /// Pause the physics engine.
+        /// </summary>
+        public void Pause()
+        {
+            if (!IsPaused)
+            {
+                IsPaused = true;
+            }
+        }
+
+        /// <summary>
+        /// Resume the physics engine.
+        /// </summary>
+        public void Resume()
+        {
+            if (IsPaused)
+            {
+                IsPaused = false;
+            }
         }
 
         /// <summary>
@@ -47,6 +74,11 @@ namespace GameLibrary.Physics
         /// <param name="gameTime">The current time state of the game.</param>
         public override void Update(GameTime gameTime)
         {
+            if (IsPaused)
+            {
+                return;
+            }
+            
             // Calculate the elapsed time since the last update
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
