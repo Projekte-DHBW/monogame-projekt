@@ -74,7 +74,7 @@ public class AnimatedSpriteOnce : AnimatedSprite
         {
             _elapsed -= _animation.Delay;
             if (!IsFinished)
-                {
+            {
                 _currentFrame++;
 
                 if (_currentFrame >= _animation.Frames.Count)
@@ -89,7 +89,8 @@ public class AnimatedSpriteOnce : AnimatedSprite
 
     public void ResetAnimation()
     {
-        _currentFrame = 0;
+        _currentFrame = -1;
         IsFinished = false;
+        Region = _animation.Frames[0];
     }
 }
