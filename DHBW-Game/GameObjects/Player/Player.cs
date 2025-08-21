@@ -17,6 +17,7 @@ public class Player : GameObject
     private double _jumpDuration;
 
     private AnimatedSprite _playerRunning;
+    private AnimatedSpriteOnce _playerJumping;
     private Sprite _playerStanding;
     private AnimatePlayer _animatePlayer;
     private PlayerAnimationReturn _playerAnimationReturn;
@@ -60,6 +61,7 @@ public class Player : GameObject
         // Load the player texture atlases
         TextureAtlas playerRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Run-definition.xml");
         TextureAtlas playerStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Idle-definition.xml");
+        TextureAtlas playerJumpingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Jump-definition.xml");
 
         // Create the player sprite for running
         _playerRunning = playerRunningAtlas.CreateAnimatedSprite("running-animation");
@@ -69,6 +71,10 @@ public class Player : GameObject
         var standingRegion = playerStandingAtlas.GetRegion("standing");
         _playerStanding = new Sprite(standingRegion);
         _playerStanding.Scale = new Vector2(4.0f, 4.0f);
+
+        // Create the player sprite for jumping
+        _playerJumping = playerJumpingAtlas.CreateAnimatedSpriteOnce("jumping-animation");
+        _playerJumping.Scale = new Vector2(4.0f, 4.0f);
 
         _animatePlayer = new AnimatePlayer();
 
@@ -141,7 +147,12 @@ public class Player : GameObject
                 break;
             case PlayerState.Run:
                 Sprite = _playerRunning;
-                break;  
+                break;
+            case PlayerState.Jump:
+                if (Sprite != _playerJumping)
+                    _playerJumping.ResetAnimation();
+                Sprite = _playerJumping;
+                break;
         }
 
         switch (_playerAnimationReturn.Facing)
