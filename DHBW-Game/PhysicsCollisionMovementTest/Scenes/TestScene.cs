@@ -1,5 +1,6 @@
 using DHBW_Game.GameObjects;
 using DHBW_Game.Levels;
+using DHBW_Game.Question_System;
 using GameLibrary;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
@@ -7,7 +8,10 @@ using GameLibrary.Scenes;
 using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using MonoGameGum;
 using MonoGameTutorial;
+using MonoGameTutorial.UI;
 
 namespace DHBW_Game.Scenes;
 
@@ -19,6 +23,10 @@ public class TestScene : Scene
     
     private readonly CollisionEngine _collisionEngine;
     private readonly PhysicsEngine _physicsEngine;
+    
+    private GameSceneUI _ui;
+    
+    private QuestionPool _questionPool;
     
     public TestScene()
     {
@@ -33,8 +41,23 @@ public class TestScene : Scene
         
         Core.ExitOnEscape = false;
         
+        // Initialize the user interface for the game scene.
+        InitializeUI();
+        
         // Initialize a new game to be played.
         InitializeNewGame();
+        
+        _questionPool = ServiceLocator.Get<QuestionPool>();
+    }
+    
+    private void InitializeUI()
+    {
+        // Clear out any previous UI element in case we came here
+        // from a different scene.
+        GumService.Default.Root.Children.Clear();
+
+        // Create the game scene ui instance.
+        _ui = new GameSceneUI();
     }
     
     private void InitializeNewGame()
@@ -48,6 +71,20 @@ public class TestScene : Scene
     
     public override void Update(GameTime gameTime)
     {
+        // Ensure the UI is always updated.
+        _ui.Update(gameTime);
+        
+        // Temporary demonstration code for the question display system
+        if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
+        {
+            var (q, idx) = _questionPool.GetNextQuestion();
+            if (q != null)
+            {
+                ServiceLocator.Get<Game1>().Pause();
+                _ui.ShowQuestion(q, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume() );
+            }
+        }
+        
         // Check whether to pause the game. Currently works like a toggle.
         if (GameController.Pause())
         {
@@ -86,5 +123,8 @@ public class TestScene : Scene
 
         // End the sprite batch when finished.
         Core.SpriteBatch.End();
+        
+        // Draw the UI last (overlays everything else).
+        _ui.Draw();
     }
 }
