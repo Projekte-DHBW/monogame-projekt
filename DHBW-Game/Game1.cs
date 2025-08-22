@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using DHBW_Game.Question_System;
 using DHBW_Game.Scenes;
 using Microsoft.Xna.Framework.Media;
 using GameLibrary;
@@ -32,7 +33,7 @@ public class Game1 : Core
 
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
-
+        
     }
 
     protected override void Initialize()
@@ -45,6 +46,9 @@ public class Game1 : Core
         ServiceLocator.Register(_physicsEngine.CollisionEngine);
         ServiceLocator.Register(_font5x, "Font5x");
         ServiceLocator.Register(_font, "Font");
+        
+        QuestionPool questionPool = new QuestionPool();
+        ServiceLocator.Register(questionPool);
 
         _camera = new Camera();
         ServiceLocator.Register(_camera);
@@ -57,7 +61,7 @@ public class Game1 : Core
         
         // Start playing the background music.
         Audio.PlaySong(_themeSong);
-
+        
         // Start the game with the title scene.
         ChangeScene(new TitleScene());
 

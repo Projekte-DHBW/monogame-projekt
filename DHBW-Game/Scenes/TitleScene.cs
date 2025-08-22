@@ -37,11 +37,11 @@ public class TitleScene : Scene
     private SoundEffect _uiSoundEffect;
     private TitlePanel _titlePanel;
     private OptionsPanel _optionsPanel;
+    private QuestionSystemPanel _questionSystemPanel;
     
     // Reference to the texture atlas that we can pass to UI elements when they
     // are created.
     private TextureAtlas _atlas;
-    
     
     public override void Initialize()
     {
@@ -86,11 +86,25 @@ public class TitleScene : Scene
         // Create options panel
         _optionsPanel = new OptionsPanel(_atlas, _uiSoundEffect, 
             () =>
-        {
-            _optionsPanel.Hide();
-            _titlePanel.Show();
-        });
+            {
+                _optionsPanel.Hide();
+                _titlePanel.Show();
+            },
+            () =>
+            {
+                _optionsPanel.Hide();
+                _questionSystemPanel.Show();
+            });
         _optionsPanel.AddToRoot();
+
+        // Create question system panel
+        _questionSystemPanel = new QuestionSystemPanel(_atlas, _uiSoundEffect,
+            () =>
+            {
+                _questionSystemPanel.Hide();
+                _optionsPanel.Show();
+            });
+        _questionSystemPanel.AddToRoot();
     }
     
     public override void LoadContent()
@@ -104,7 +118,7 @@ public class TitleScene : Scene
         // Load the sound effect to play when ui actions occur.
         _uiSoundEffect = Core.Content.Load<SoundEffect>("audio/ui");
         
-            // Load the texture atlas from the xml configuration file.
+        // Load the texture atlas from the xml configuration file.
         _atlas = TextureAtlas.FromFile(Core.Content, "images/atlas-definition.xml");
     }
     
@@ -117,6 +131,7 @@ public class TitleScene : Scene
         }
     
         GumService.Default.Update(gameTime);
+        _questionSystemPanel.Activity();
     }
     
     public override void Draw(GameTime gameTime)
