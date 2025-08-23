@@ -85,11 +85,12 @@ namespace DHBW_Game.Scenes
 
             Core.SpriteBatch.Begin(SpriteSortMode.Deferred,
                                     BlendState.AlphaBlend,
-                                    SamplerState.PointClamp,    // Use point sampling for crisp pixel art
+                                    SamplerState.PointClamp,
                                     null,
                                     null,
                                     null,
                                     null);
+            _collisionEngine.VisualizeColliders();
             _currentLevel?.Draw(Core.SpriteBatch);
             Core.SpriteBatch.End();
 
