@@ -103,16 +103,6 @@ namespace DHBW_Game.Levels
                 for (int x = 0; x < width; x++)
                 {
                     char tileChar = lines[y][x];
-                    int tileId = GetTileIdFromChar(tileChar);
-                    _tilemap.SetTile(x, y, tileId);
-                    if(tileId == 1)
-                    {
-                        TestSegment obj = new TestSegment(Tiles.TILE_SIZE, Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
-                        obj.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
-                        Objects.Add(obj);
-                    }
-                    
-
                     // Handle special tiles
                     switch (tileChar)
                     {
@@ -123,7 +113,20 @@ namespace DHBW_Game.Levels
                         case 'X': // Exit
                             exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
-                    }                   
+                    }
+                    int tileId = GetTileIdFromChar(tileChar);
+                    _tilemap.SetTile(x, y, tileId);
+
+                    //Add Colliders for Solid Objects
+                    if(tileId == Tiles.SOLID_TILE)
+                    {
+                        TestSegment obj = new TestSegment(Tiles.TILE_SIZE, Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
+                        obj.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                        Objects.Add(obj);
+                    }
+                    
+
+                                    
                 }
             }
 
