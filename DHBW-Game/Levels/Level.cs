@@ -217,4 +217,52 @@ namespace DHBW_Game.Levels
             _player?.Draw();
         }
     }
-}
+
+        /// <summary>
+        /// The purpose of this class is to optimize the creation of solid obstacles
+        /// like ground or platforms.
+        ///</summary>
+        public class ColissionSegmentCalculator
+        {
+            private Vector2 _positionStart;
+            private Vector2 _positionEnd;
+            public ColissionSegmentCalculator()
+            {
+                // Initialize collision segment calculator with the given position
+                // This could be used to calculate segments based on the tile positions
+            }
+            public ColissionSegmentCalculator(Vector2 position)
+            {
+                // Initialize collision segment calculator with the given position
+                // This could be used to calculate segments based on the tile positions
+                _positionStart = position;
+                _positionEnd = _positionStart;
+            }
+            public void SetStartPosition(Vector2 position)
+            {
+                _positionStart = position;
+            }
+            public void SetEndPosition(Vector2 position)
+            {
+                _positionEnd = position;
+            }
+            public Vector2 GetStartPosition()
+            {
+                return _positionStart;
+            }
+            public Vector2 GetEndPosition()
+            {
+                return _positionEnd;
+            }
+            public int GetSegmentWidth()
+            {
+                // Calculate the width of the segment based on start and end positions
+                return (int)Math.Abs(_positionEnd.X - _positionStart.X);
+            }
+            public void AddPosition(Vector2 position)
+            {
+                // Add a new position to the segment
+                _positionEnd = position;
+            }
+        }
+    }
