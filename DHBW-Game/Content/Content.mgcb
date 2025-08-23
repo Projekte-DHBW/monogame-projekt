@@ -207,3 +207,6 @@
 #begin Tiles/Exit.png
 /copy:Tiles/Exit.png
 
+#begin Tiles/TilesetA.png
+/copy:Tiles/TilesetA.png
+

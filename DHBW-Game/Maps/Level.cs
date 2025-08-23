@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using GameObjects.Player;
+using GameLibrary.Graphics;
 
 namespace DHBW_Game.Levels
 {
@@ -13,29 +14,16 @@ namespace DHBW_Game.Levels
     /// </summary>
     public class Level
     {
-        // Tile system
-        private LevelTile[,] tiles;
-        private readonly Random random = new Random();
-
-        // Game objects
+        private Tilemap _tilemap;
+        private Tileset _tileset; // Add this field
         private Player _player;
         private List<Vector2> exitPositions = new List<Vector2>();
-
-        // Content and graphics
         private ContentManager content;
-        private Texture2D[] blockTextures;
-        private Texture2D exitTexture;
-
-        // Level dimensions
-        public int Width => tiles?.GetLength(0) ?? 0;
-        public int Height => tiles?.GetLength(1) ?? 0;
-
-        // Tile size (adjust based on your tile dimensions)
+        
+        public int Width => _tilemap?.Columns ?? 0;
+        public int Height => _tilemap?.Rows ?? 0;
         public const int TILE_SIZE = 32;
-
         public bool IsCompleted { get; private set; }
-
-        // Neue Property für die Startposition
         public Vector2 StartPosition { get; private set; }
 
         /// <summary>
@@ -45,7 +33,7 @@ namespace DHBW_Game.Levels
         {
             content = contentManager;
             LoadContent();
-            LoadLevelFromText(Path.Combine(contentManager.RootDirectory, "Levels", levelName));
+            LoadLevel(Path.Combine(contentManager.RootDirectory, "Levels", levelName));
         }
 
         /// <summary>
@@ -53,20 +41,21 @@ namespace DHBW_Game.Levels
         /// </summary>
         private void LoadContent()
         {
-            // Load the three block textures
-            blockTextures = new Texture2D[3];
-            blockTextures[0] = content.Load<Texture2D>("Tiles/BlockA1");
-            blockTextures[1] = content.Load<Texture2D>("Tiles/BlockA2");
-            blockTextures[2] = content.Load<Texture2D>("Tiles/BlockA3");
-
-            // Load exit texture
-            exitTexture = content.Load<Texture2D>("Tiles/Exit");
+            // Load tileset texture
+            Texture2D tilesetTexture = content.Load<Texture2D>("Tiles/TilesetA");
+            // Create texture region for the entire tileset
+            TextureRegion tilesetRegion = new TextureRegion(tilesetTexture, 0, 0, tilesetTexture.Width, tilesetTexture.Height);
+            // Create tileset with 32x32 tiles
+            _tileset = new Tileset(tilesetRegion, TILE_SIZE, TILE_SIZE);
+            
+            // Initialize empty tilemap (will be populated in LoadLevel)
+            _tilemap = new Tilemap(_tileset, 0, 0);
         }
 
         /// <summary>
         /// Load level from text file
         /// </summary>
-        private void LoadLevelFromText(string levelPath)
+        private void LoadLevel(string levelPath)
         {
             List<string> lines = new List<string>();
 
@@ -87,26 +76,30 @@ namespace DHBW_Game.Levels
             int width = lines[0].Length;
             int height = lines.Count;
 
-            // Validate all lines are same length
-            foreach (var line in lines)
-            {
-                if (line.Length != width)
-                    throw new Exception("All level lines must be the same length!");
-            }
+                // Create new tilemap with correct dimensions using the stored tileset
+            _tilemap = new Tilemap(_tileset, width, height);
 
-            // Initialize tile array
-            tiles = new LevelTile[width, height];
-
-            // Parse each character in the level
-            Vector2 playerStartPos = Vector2.Zero;
+            // Parse level data and set tiles
             bool foundPlayer = false;
-
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     char tileChar = lines[y][x];
-                    tiles[x, y] = CreateTileFromChar(tileChar, x, y, ref playerStartPos, ref foundPlayer);
+                    int tileId = GetTileIdFromChar(tileChar);
+                    _tilemap.SetTile(x, y, tileId);
+
+                    // Handle special tiles
+                    switch (tileChar)
+                    {
+                        case 'P': // Player start
+                            StartPosition = new Vector2(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+                            foundPlayer = true;
+                            break;
+                        case 'X': // Exit
+                            exitPositions.Add(new Vector2(x * TILE_SIZE, y * TILE_SIZE));
+                            break;
+                    }
                 }
             }
 
@@ -114,7 +107,7 @@ namespace DHBW_Game.Levels
             if (foundPlayer)
             {
                 _player = new Player(mass: 2f, isElastic: false);
-                _player.Initialize(StartPosition); // Hier die StartPosition verwenden
+                _player.Initialize(StartPosition);
             }
             else
             {
@@ -128,34 +121,18 @@ namespace DHBW_Game.Levels
         }
 
         /// <summary>
-        /// Create a tile based on the character from the level file
+        /// Get the tile ID corresponding to a character in the level file
         /// </summary>
-        private LevelTile CreateTileFromChar(char tileChar, int x, int y, ref Vector2 playerStart, ref bool foundPlayer)
+        private int GetTileIdFromChar(char tileChar)
         {
-            switch (tileChar)
+            return tileChar switch
             {
-                case '.': // Empty space
-                    return new LevelTile(null, TileCollisionType.Empty);
-                
-                case '#': // Wall/Floor (solid block)
-                    // Randomly select one of the three block textures
-                    int randomIndex = random.Next(3);
-                    return new LevelTile(blockTextures[randomIndex], TileCollisionType.Solid);
-               
-                case 'P': // Player start
-                    playerStart = new Vector2(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
-                    StartPosition = playerStart; // Hier setzen wir die öffentliche StartPosition
-                    foundPlayer = true;
-                    return new LevelTile(null, TileCollisionType.Empty);
-                
-                case 'X': // Exit
-                    exitPositions.Add(new Vector2(x * TILE_SIZE, y * TILE_SIZE));
-                    return new LevelTile(exitTexture, TileCollisionType.Exit);
-                
-                default:
-                    // Unknown character, treat as empty
-                    return new LevelTile(null, TileCollisionType.Empty);
-            }
+                '.' => 0,  // Empty space
+                '#' => 1,  // Wall/Floor
+                'P' => 0,  // Player start (empty tile)
+                'X' => 2,  // Exit
+                _ => 0     // Default to empty
+            };
         }
 
         /// <summary>
@@ -185,9 +162,9 @@ namespace DHBW_Game.Levels
 
                     Vector2 playerPos = _player.Position;
                     bool playerInExitX = playerPos.X + PLAYER_COLLISION_RADIUS > exitBounds.Left &&
-                                        playerPos.X - PLAYER_COLLISION_RADIUS < exitBounds.Right;
+                                      playerPos.X - PLAYER_COLLISION_RADIUS < exitBounds.Right;
                     bool playerInExitY = playerPos.Y + PLAYER_COLLISION_RADIUS > exitBounds.Top &&
-                                        playerPos.Y - PLAYER_COLLISION_RADIUS < exitBounds.Bottom;
+                                      playerPos.Y - PLAYER_COLLISION_RADIUS < exitBounds.Bottom;
 
                     if (playerInExitX && playerInExitY)
                     {
@@ -203,48 +180,8 @@ namespace DHBW_Game.Levels
         /// </summary>
         public void Draw(SpriteBatch spriteBatch)
         {
-            // Draw tiles
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    LevelTile tile = tiles[x, y];
-                    if (tile.Texture != null)
-                    {
-                        Vector2 position = new Vector2(x * TILE_SIZE, y * TILE_SIZE);
-                        spriteBatch.Draw(tile.Texture, position, Color.White);
-                    }
-                }
-            }
-
-            // Draw player
+            _tilemap.Draw(spriteBatch);
             _player?.Draw();
         }
-
-    }
-
-    /// <summary>
-    /// Represents a single tile in the level
-    /// </summary>
-    public class LevelTile
-    {
-        public Texture2D Texture { get; }
-        public TileCollisionType CollisionType { get; }
-
-        public LevelTile(Texture2D texture, TileCollisionType collisionType)
-        {
-            Texture = texture;
-            CollisionType = collisionType;
-        }
-    }
-
-    /// <summary>
-    /// Types of tiles for collision detection
-    /// </summary>
-    public enum TileCollisionType
-    {
-        Empty,    // Player can move through
-        Solid,    // Blocks player movement
-        Exit      // Level completion trigger
     }
 }
