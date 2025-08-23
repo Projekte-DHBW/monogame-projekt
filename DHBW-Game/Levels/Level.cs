@@ -1,6 +1,9 @@
 using DHBW_Game.GameObjects;
+using GameLibrary;
 using GameLibrary.Entities;
 using GameLibrary.Graphics;
+using GameLibrary.Physics;
+using GameLibrary.Physics.Colliders;
 using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -25,7 +28,6 @@ namespace DHBW_Game.Levels
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
-        public const int TILE_SIZE = 32;
         public bool IsCompleted { get; private set; }
         public Vector2 StartPosition { get; private set; }
 
@@ -49,7 +51,7 @@ namespace DHBW_Game.Levels
             // Create texture region for the entire tileset
             TextureRegion tilesetRegion = new TextureRegion(tilesetTexture, 0, 0, tilesetTexture.Width, tilesetTexture.Height);
             // Create tileset with 32x32 tiles
-            _tileset = new Tileset(tilesetRegion, TILE_SIZE, TILE_SIZE);
+            _tileset = new Tileset(tilesetRegion, Tiles.TILE_SIZE, Tiles.TILE_SIZE);
             
             // Initialize empty tilemap (will be populated in LoadLevel)
             _tilemap = new Tilemap(_tileset, 0, 0);
@@ -60,6 +62,18 @@ namespace DHBW_Game.Levels
         /// </summary>
         private void LoadLevel(string levelPath)
         {
+            // Get physics engine once
+            var physicsEngine = ServiceLocator.Get<PhysicsEngine>();
+
+            // Clear all physics components and colliders
+            physicsEngine.ClearComponents();  // You'll need to add this method to PhysicsEngine
+            physicsEngine.CollisionEngine.ClearColliders();
+            
+            // Clear lists and references
+            Objects.Clear();
+            exitPositions.Clear();
+            _player = null;
+
             List<string> lines = new List<string>();
 
             // Read the level file
@@ -93,8 +107,8 @@ namespace DHBW_Game.Levels
                     _tilemap.SetTile(x, y, tileId);
                     if(tileId == 1)
                     {
-                        TestSegment obj = new TestSegment(TILE_SIZE, TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
-                        obj.Initialize(new Vector2(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2));
+                        TestSegment obj = new TestSegment(Tiles.TILE_SIZE, Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
+                        obj.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                         Objects.Add(obj);
                     }
                     
@@ -103,11 +117,11 @@ namespace DHBW_Game.Levels
                     switch (tileChar)
                     {
                         case 'P': // Player start
-                            StartPosition = new Vector2(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+                            StartPosition = new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2);
                             foundPlayer = true;
                             break;
                         case 'X': // Exit
-                            exitPositions.Add(new Vector2(x * TILE_SIZE, y * TILE_SIZE));
+                            exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
                     }                   
                 }
@@ -138,11 +152,11 @@ namespace DHBW_Game.Levels
         {
             return tileChar switch
             {
-                '.' => 0,  // Empty space
-                '#' => 1,  // Wall/Floor
-                'P' => 0,  // Player start (empty tile)
-                'X' => 2,  // Exit
-                _ => 0     // Default to empty
+                '.' => Tiles.EMPTY_TILE,  // Empty space
+                '#' => Tiles.SOLID_TILE,  // Wall/Floor
+                'P' => Tiles.PLAYER_START,  // Player start (empty tile)
+                'X' => Tiles.EXIT_TILE,  // Exit
+                _ => Tiles.EMPTY_TILE     // Default to empty
             };
         }
 
@@ -172,8 +186,8 @@ namespace DHBW_Game.Levels
                     Rectangle exitBounds = new Rectangle(
                         (int)exitPos.X,
                         (int)exitPos.Y,
-                        TILE_SIZE,
-                        TILE_SIZE
+                        Tiles.TILE_SIZE,
+                        Tiles.TILE_SIZE
                     );
 
                     Vector2 playerPos = _player.Position;
