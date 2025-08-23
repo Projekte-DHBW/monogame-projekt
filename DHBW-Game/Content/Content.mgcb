@@ -195,18 +195,6 @@
 #begin Maps/TestMap.xml
 /copy:Maps/TestMap.xml;Maps/test_map.xml
 
-#begin Tiles/BlockA1.png
-/copy:Tiles/BlockA1.png
-
-#begin Tiles/BlockA2.png
-/copy:Tiles/BlockA2.png
-
-#begin Tiles/BlockA3.png
-/copy:Tiles/BlockA3.png
-
-#begin Tiles/Exit.png
-/copy:Tiles/Exit.png
-
 #begin Tiles/TilesetA.png
 /copy:Tiles/TilesetA.png
 
