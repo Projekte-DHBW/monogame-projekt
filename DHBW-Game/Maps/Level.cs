@@ -1,11 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
+using DHBW_Game.GameObjects;
+using GameLibrary.Entities;
+using GameLibrary.Graphics;
+using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using GameObjects.Player;
-using GameLibrary.Graphics;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace DHBW_Game.Levels
 {
@@ -19,7 +21,8 @@ namespace DHBW_Game.Levels
         private Player _player;
         private List<Vector2> exitPositions = new List<Vector2>();
         private ContentManager content;
-        
+        public List<GameObject> Objects { get; private set; } = new List<GameObject>();
+
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
         public const int TILE_SIZE = 32;
@@ -88,6 +91,13 @@ namespace DHBW_Game.Levels
                     char tileChar = lines[y][x];
                     int tileId = GetTileIdFromChar(tileChar);
                     _tilemap.SetTile(x, y, tileId);
+                    if(tileId == 1)
+                    {
+                        TestSegment obj = new TestSegment(TILE_SIZE, TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
+                        obj.Initialize(new Vector2(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2));
+                        Objects.Add(obj);
+                    }
+                    
 
                     // Handle special tiles
                     switch (tileChar)
@@ -99,9 +109,10 @@ namespace DHBW_Game.Levels
                         case 'X': // Exit
                             exitPositions.Add(new Vector2(x * TILE_SIZE, y * TILE_SIZE));
                             break;
-                    }
+                    }                   
                 }
             }
+
 
             // Create player if start position was found
             if (foundPlayer)
@@ -142,6 +153,11 @@ namespace DHBW_Game.Levels
         {
             if (IsCompleted)
                 return;
+
+            foreach (var obj in Objects)
+            {
+                obj.Update(gameTime);
+            }
 
             // Update player
             _player?.Update(gameTime);
