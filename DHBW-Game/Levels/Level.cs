@@ -98,6 +98,8 @@ namespace DHBW_Game.Levels
 
             // Parse level data and set tiles
             bool foundPlayer = false;
+            int oldTileId = GetTileIdFromChar(lines[0][0]);
+            var objPosition = new ColissionSegmentCalculator();
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -117,16 +119,22 @@ namespace DHBW_Game.Levels
                     int tileId = GetTileIdFromChar(tileChar);
                     _tilemap.SetTile(x, y, tileId);
 
-                    //Add Colliders for Solid Objects
-                    if(tileId == Tiles.SOLID_TILE)
+                    if ((tileId == Tiles.SOLID_TILE) && (oldTileId != tileId))
                     {
-                        TestSegment obj = new TestSegment(Tiles.TILE_SIZE, Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
-                        obj.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                        objPosition = new ColissionSegmentCalculator(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                    }
+                    if ((tileId == Tiles.SOLID_TILE) && (oldTileId == tileId))
+                    {
+                        objPosition.AddPosition(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                    }
+                    if (((tileId != Tiles.SOLID_TILE) && (oldTileId == Tiles.SOLID_TILE)) || ((x == width - 1) && (y == height - 1) && (tileId == 1)))
+                    {
+                        objPosition.AddPosition(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                        TestSegment obj = new TestSegment(objPosition.GetSegmentWidth(), Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
+                        obj.Initialize(new Vector2(objPosition.GetStartPosition().X + objPosition.GetSegmentWidth() / 2, objPosition.GetStartPosition().Y));
                         Objects.Add(obj);
                     }
-                    
-
-                                    
+                    oldTileId = tileId;
                 }
             }
 
