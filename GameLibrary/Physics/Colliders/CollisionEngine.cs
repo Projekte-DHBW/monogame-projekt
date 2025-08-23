@@ -665,5 +665,14 @@ namespace GameLibrary.Physics.Colliders
         {
             return (collider1 is RectangleCollider && collider2 is CircleCollider) || (collider1 is CircleCollider && collider2 is RectangleCollider);
         }
+
+        /// <summary>
+        /// Removes all colliders from the collision engine.
+        /// </summary>
+        /// <param name="collider">The collider to remove.</param>
+        public void ClearColliders()
+        {
+            _colliders.Clear();
+        }
     }
 }
