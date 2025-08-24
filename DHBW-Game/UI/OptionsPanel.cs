@@ -75,12 +75,16 @@ namespace DHBW_Game.UI
             optionsText.CustomFontFile = OptionsFont; // Set custom font file
             AddChild(optionsText); // Add to panel
 
+            // Layout-Parameter
+            const float sliderBaseY   = 55f; // Start point first slider
+            const float sliderSpacing = 42f; // Distance between Music and SFX slider
+            
             // Music slider
             MusicSlider = new OptionsSlider(atlas);
             MusicSlider.Name = "MusicSlider"; // Unique identifier
             MusicSlider.Text = "MUSIC"; // Label text
             MusicSlider.Anchor(Gum.Wireframe.Anchor.Top); // Anchor to top
-            MusicSlider.Visual.Y = 30f; // Vertical position
+            MusicSlider.Visual.Y = sliderBaseY; // Vertical position
             MusicSlider.Minimum = 0; // Minimum slider value
             MusicSlider.Maximum = 1; // Maximum slider value
             MusicSlider.Value = Core.Audio.SongVolume; // Initial value from audio settings
@@ -95,7 +99,7 @@ namespace DHBW_Game.UI
             SfxSlider.Name = "SfxSlider"; // Unique identifier
             SfxSlider.Text = "SFX"; // Label text
             SfxSlider.Anchor(Gum.Wireframe.Anchor.Top); // Anchor to top
-            SfxSlider.Visual.Y = 93; // Vertical position
+            SfxSlider.Visual.Y =  sliderBaseY + sliderSpacing;; // Vertical position
             SfxSlider.Minimum = 0; // Minimum slider value
             SfxSlider.Maximum = 1; // Maximum slider value
             SfxSlider.Value = Core.Audio.SoundEffectVolume; // Initial value from audio settings
