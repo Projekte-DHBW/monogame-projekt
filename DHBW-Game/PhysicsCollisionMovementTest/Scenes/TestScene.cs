@@ -91,10 +91,12 @@ public class TestScene : Scene
             if (IsPaused)
             {
                 ServiceLocator.Get<Game1>().Resume();
+                _ui.HidePausePanel();
             }
             else
             {
                 ServiceLocator.Get<Game1>().Pause();
+                _ui.ShowPausePanel();
             }
         }
 
