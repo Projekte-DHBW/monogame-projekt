@@ -46,6 +46,10 @@ public class GameSceneUI : ContainerRuntime
         // Initialize question panel
         _questionPanel = new QuestionPanel(atlas, _uiSoundEffect);
         _questionPanel.AddToRoot();
+        
+        // Initialize pause panel
+        _pausePanel = new PausePanel(atlas, _uiSoundEffect);
+        _pausePanel.AddToRoot();
     }
 
     /// <summary>
@@ -79,7 +83,7 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public void ShowPausePanel()
     {
-        _pausePanel.IsVisible = true;
+        _pausePanel.Show();
     }
 
     /// <summary>
@@ -87,7 +91,7 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public void HidePausePanel()
     {
-        _pausePanel.IsVisible = false;
+        _pausePanel.Hide();
     }
 
     /// <summary>
