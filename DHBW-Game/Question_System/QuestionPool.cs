@@ -24,7 +24,7 @@ public class QuestionPool
     private readonly QuestionXmlSerializer _xmlSerializer;
     
     // Generator for creating new questions via API
-    private readonly QuestionGenerator _questionGenerator;
+    private QuestionGenerator _questionGenerator;
     
     // Random number generator for selecting a random question from the pool
     private readonly Random _randomNumberGenerator;
@@ -44,12 +44,12 @@ public class QuestionPool
 
         // Load the API key from secure storage
         var apiKey = SecureApiKeyStorage.LoadApiKey();
-        if (string.IsNullOrEmpty(apiKey))
+        
+        if (!string.IsNullOrEmpty(apiKey))
         {
-            throw new InvalidOperationException("API key not found. Save it using SecureApiKeyStorage.SaveApiKey().");
+            // Initialize the question generator with the API key
+            _questionGenerator = new QuestionGenerator(apiKey);
         }
-        // Initialize the question generator with the API key
-        _questionGenerator = new QuestionGenerator(apiKey);
         
         // Initialize the random number generator
         _randomNumberGenerator = new Random();
@@ -79,6 +79,11 @@ public class QuestionPool
     /// <exception cref="Exception">Thrown if the API fails to generate questions or returns no questions.</exception>
     public async Task GenerateNewQuestions(int numberOfQuestions, bool keepExisting)
     {
+        if (_questionGenerator == null)
+        {
+            throw new InvalidOperationException("API key not set. Please provide a valid API key to generate questions."); 
+        }
+        
         // Generate and parse questions via the API
         var newQuestions = await _questionGenerator.GenerateQuestions(numberOfQuestions);
 
@@ -98,6 +103,15 @@ public class QuestionPool
         
         // Save the updated question list to the XML file
         _xmlSerializer.SaveToFile(_questions);
+    }
+    
+    /// <summary>
+    /// Refreshes the question generator by reloading the API key from storage.
+    /// </summary>
+    public void RefreshQuestionGenerator()
+    {
+        var apiKey = SecureApiKeyStorage.LoadApiKey();
+        _questionGenerator = string.IsNullOrEmpty(apiKey) ? null : new QuestionGenerator(apiKey);
     }
 
     /// <summary>

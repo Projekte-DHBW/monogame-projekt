@@ -47,15 +47,22 @@ public static class SecureApiKeyStorage
 
     /// <summary>
     /// Securely saves the API key to a protected file.
+    /// Deletes the file if the key parameter is null or empty.
     /// </summary>
     /// <param name="apiKey">The API key to save.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="apiKey"/> is null or empty.</exception>
     public static void SaveApiKey(string apiKey)
     {
-        // Validate the API key
+        var filePath = Path.Combine(GetStorageDirectory(), KeyFileName);
+    
+        // Delete file if the key parameter is null or empty
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new ArgumentNullException(nameof(apiKey), "API key cannot be null or empty.");
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            return;
         }
 
         // Get the data protector and encrypt the API key
@@ -63,7 +70,6 @@ public static class SecureApiKeyStorage
         var protectedKey = protector.Protect(apiKey);
 
         // Write the encrypted key to the file
-        var filePath = Path.Combine(GetStorageDirectory(), KeyFileName);
         File.WriteAllText(filePath, protectedKey);
     }
 

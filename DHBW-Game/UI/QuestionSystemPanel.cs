@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DHBW_Game.Question_System;
 using GameLibrary;
 using GameLibrary.Graphics;
+using Gum.DataTypes;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -139,9 +140,12 @@ public class QuestionSystemPanel : Panel
         _statusText.Anchor(Gum.Wireframe.Anchor.Top); // Anchor to the top
         _statusText.HorizontalAlignment = HorizontalAlignment.Center; // Center text horizontally
         _statusText.X = 0; // No offset in x direction
-        _statusText.Y = 138f; // Below regenerate button
+        _statusText.Y = 135f; // Below regenerate button
         _statusText.CustomFontFile = OptionsFont;
         _statusText.Color = Color.Yellow; // Default color for status messages
+        _statusText.WidthUnits = DimensionUnitType.Absolute;
+        _statusText.Width = background.GetAbsoluteWidth() - 20;
+        _statusText.Wrap = true;
         AddChild(_statusText);
 
         // Back button
@@ -163,6 +167,7 @@ public class QuestionSystemPanel : Panel
     {
         // Save the API key to secure storage immediately
         SecureApiKeyStorage.SaveApiKey(_apiKeyTextBox.Text);
+        _questionPool.RefreshQuestionGenerator(); // Refresh the generator after saving
     }
 
     /// <summary>
