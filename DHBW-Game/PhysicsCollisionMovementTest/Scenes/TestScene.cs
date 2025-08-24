@@ -49,7 +49,7 @@ public class TestScene : Scene
         
         _questionPool = ServiceLocator.Get<QuestionPool>();
     }
-    
+
     private void InitializeUI()
     {
         // Clear out any previous UI element in case we came here
@@ -58,6 +58,7 @@ public class TestScene : Scene
 
         // Create the game scene ui instance.
         _ui = new GameSceneUI();
+        
     }
     
     private void InitializeNewGame()

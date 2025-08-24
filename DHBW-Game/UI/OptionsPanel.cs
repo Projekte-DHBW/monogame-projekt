@@ -223,5 +223,10 @@ namespace DHBW_Game.UI
         {
             IsVisible = false; // Hide the panel
         }
+
+        public static implicit operator OptionsPanel(PausePanel v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
