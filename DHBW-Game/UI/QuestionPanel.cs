@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using DHBW_Game.Question_System;
 using GameLibrary;
 using GameLibrary.Graphics;
+using Gum.Converters;
 using Gum.DataTypes;
+using Gum.Managers;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using MonoGameGum;
 using MonoGameGum.Forms.Controls;
@@ -22,18 +25,24 @@ public class QuestionPanel : Panel
     
     // Sound effect for UI interactions
     private readonly SoundEffect _uiSoundEffect;
-
-    // UI element for displaying the question text
-    private TextRuntime _questionText;
+    
+    // Container for question texture and nineslice background
+    private ContainerRuntime _questionContainer;
+    
+    // Background for question container
+    private NineSliceRuntime _questionBackground;
+    
+    // UI element for displaying the question as texture
+    private SpriteRuntime _questionSprite;
     
     // List of buttons for answer options
-    private List<AnimatedButton> _optionButtons = new List<AnimatedButton>();
+    private readonly List<OptionButton> _optionButtons = new List<OptionButton>();
     
     // Container for feedback UI elements
     private ContainerRuntime _feedbackContainer;
     
-    // UI element for displaying feedback text
-    private TextRuntime _feedbackText;
+    // UI element for displaying feedback as texture
+    private SpriteRuntime _feedbackSprite;
     
     // Button to continue after answering
     private AnimatedButton _continueButton;
@@ -53,8 +62,14 @@ public class QuestionPanel : Panel
     // Callback for when the panel is closed
     private Action _onClose;
 
-    // Font used for text in the panel
-    private const string PanelFont = @"fonts/04b_30.fnt";
+    // Paths to fonts (if left null, the default fonts of the LaTeXRenderer will be used)
+    private const string TextFontPath = null;
+    private const string MathFontPath = null;
+    private const float FontSizeText = 44f;
+    private const float FontSizeMath = 36f;
+
+    // Zoom level of the Gum camera; required to correctly scale rendered textures to match the UI resolution
+    private readonly float _zoom = GumService.Default.Renderer.Camera.Zoom;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QuestionPanel"/> class.
@@ -81,69 +96,88 @@ public class QuestionPanel : Panel
     }
 
     /// <summary>
-    /// Initializes the child UI elements, including background, question text, feedback container, and buttons.
+    /// Initializes the child UI elements, including the panel background, question container and sprite, feedback container, and continue button.
     /// </summary>
     private void InitializeChildren()
     {
-        // Create a semi-transparent background rectangle for the panel
+        // Create a semi-transparent background rectangle for the entire panel
         _background = new ColoredRectangleRuntime();
         _background.Dock(Gum.Wireframe.Dock.Fill);
         _background.Color = new Microsoft.Xna.Framework.Color(50, 50, 50, 200); // Semi-transparent dark background
         AddChild(_background);
+        
+        // Question container (positioned near the top and centered horizontally; height will be set dynamically based on content)
+        _questionContainer = new ContainerRuntime();
+        _questionContainer.Anchor(Gum.Wireframe.Anchor.Top);
+        _questionContainer.XOrigin = HorizontalAlignment.Center;
+        _questionContainer.XUnits = GeneralUnitType.Percentage;
+        _questionContainer.X = 50; // 50% to center horizontally
+        _questionContainer.Y = 10;
+        _questionContainer.WidthUnits = DimensionUnitType.Absolute;
+        _questionContainer.HeightUnits = DimensionUnitType.Absolute;
+        _questionContainer.Width = _background.GetAbsoluteWidth() - 20;
+        AddChild(_questionContainer);
+        
+        // Static nine-slice background for the question container (matches the unfocused state of OptionButton for visual consistency)
+        _questionBackground = new NineSliceRuntime();
+        _questionBackground.Texture = _atlas.Texture;
+        _questionBackground.TextureAddress = TextureAddress.Custom;
+        _questionBackground.Color = Color.White * 0.1f;
+        _questionBackground.Alpha = 200;
+        TextureRegion unfocusedTextureRegion = _atlas.GetRegion("unfocused-button");
+        _questionBackground.TextureTop = (int)(unfocusedTextureRegion.TopTextureCoordinate * _atlas.Texture.Height);
+        _questionBackground.TextureLeft = (int)(unfocusedTextureRegion.LeftTextureCoordinate * _atlas.Texture.Width);
+        _questionBackground.TextureHeight = (int)((unfocusedTextureRegion.BottomTextureCoordinate - unfocusedTextureRegion.TopTextureCoordinate) * _atlas.Texture.Height);
+        _questionBackground.TextureWidth = (int)((unfocusedTextureRegion.RightTextureCoordinate - unfocusedTextureRegion.LeftTextureCoordinate) * _atlas.Texture.Width);
+        _questionBackground.WidthUnits = DimensionUnitType.RelativeToParent;
+        _questionBackground.HeightUnits = DimensionUnitType.RelativeToParent;
+        _questionBackground.Width = 0;
+        _questionBackground.Height = 0;  
+        _questionContainer.AddChild(_questionBackground);
+        
+        // Question sprite (centered within the question container)
+        _questionSprite = new SpriteRuntime();
+        _questionSprite.XOrigin = HorizontalAlignment.Center;
+        _questionSprite.XUnits = GeneralUnitType.Percentage;
+        _questionSprite.YOrigin = VerticalAlignment.Center;
+        _questionSprite.YUnits = GeneralUnitType.Percentage;
+        _questionSprite.X = 50;
+        _questionSprite.Y = 50;
+        _questionSprite.WidthUnits = DimensionUnitType.Absolute;
+        _questionSprite.HeightUnits = DimensionUnitType.Absolute;
+        _questionContainer.AddChild(_questionSprite);
 
-        // Question text (positioned near top)
-        _questionText = new TextRuntime();
-        _questionText.HorizontalAlignment = HorizontalAlignment.Center; // Center text horizontally
-        _questionText.VerticalAlignment = VerticalAlignment.Top; // Vertically align text to the top
-        _questionText.Anchor(Gum.Wireframe.Anchor.Top);
-        _questionText.X = 0; // No offset in x direction
-        _questionText.Y = 10; // Position down from top
-        _questionText.WidthUnits = DimensionUnitType.Absolute;
-        _questionText.Width = _background.GetAbsoluteWidth() - 20; // Fit within background with padding
-        _questionText.Wrap = true; // Enable text wrapping
-        _questionText.UseCustomFont = true;
-        _questionText.CustomFontFile = PanelFont; // Set custom font
-        _questionText.FontScale = 0.25f; // Font scaling
-        _questionText.Red = 255; // White text color
-        _questionText.Green = 255;
-        _questionText.Blue = 255;
-        _questionText.Alpha = 255;
-        AddChild(_questionText);
-
-        // Feedback container (centered, initially hidden)
+        // Feedback container (fills the panel and initially hidden)
         _feedbackContainer = new ContainerRuntime();
         _feedbackContainer.Visible = false; // Initially hidden
         _feedbackContainer.Dock(Gum.Wireframe.Dock.Fill);
         AddChild(_feedbackContainer);
 
-        // Add a feedback background
+        // Add a semi-transparent background for the feedback container
         _feedbackBackground = new ColoredRectangleRuntime();
         _feedbackBackground.Dock(Gum.Wireframe.Dock.Fill);
         _feedbackBackground.Alpha = 50; // Semi-transparent
-        _feedbackBackground.Blue = 0; // Initial color (the blue color channel is always zero - red and green will be updated based on answer)
+        _feedbackBackground.Blue = 0; // Initial color (blue channel is always zero; red and green channels will be updated based on whether the answer is correct)
         _feedbackContainer.AddChild(_feedbackBackground);
 
-        // Feedback text
-        _feedbackText = new TextRuntime();
-        _feedbackText.Anchor(Gum.Wireframe.Anchor.Top);
-        _feedbackText.WidthUnits = DimensionUnitType.Absolute;
-        _feedbackText.HorizontalAlignment = HorizontalAlignment.Center; // Center text horizontally
-        _feedbackText.VerticalAlignment = VerticalAlignment.Center; // Center text vertically
-        _feedbackText.X = 0; // No offset in x direction
-        _feedbackText.Y = 20; // Position below top
-        _feedbackText.Width = _background.GetAbsoluteWidth() - 20; // Fit within background with padding
-        _feedbackText.Height = _background.GetAbsoluteHeight() - _feedbackText.Y - 50; // Fit within available space
-        _feedbackText.Wrap = true; // Enable text wrapping
-        _feedbackText.UseCustomFont = true;
-        _feedbackText.CustomFontFile = PanelFont; // Set custom font
-        _feedbackText.FontScale = 0.25f; // Font scaling
-        _feedbackContainer.AddChild(_feedbackText);
+        // Feedback sprite (centered within the feedback container)
+        _feedbackSprite = new SpriteRuntime();
+        _feedbackSprite.Anchor(Gum.Wireframe.Anchor.Top);
+        _feedbackSprite.XOrigin = HorizontalAlignment.Center;
+        _feedbackSprite.XUnits = GeneralUnitType.Percentage;
+        _feedbackSprite.YOrigin = VerticalAlignment.Center;
+        _feedbackSprite.YUnits = GeneralUnitType.Percentage;
+        _feedbackSprite.X = 50;
+        _feedbackSprite.Y = 50;
+        _feedbackSprite.WidthUnits = DimensionUnitType.Absolute;
+        _feedbackSprite.HeightUnits = DimensionUnitType.Absolute;
+        _feedbackContainer.AddChild(_feedbackSprite);
 
-        // Continue button
+        // Continue button (anchored to the bottom of the feedback container)
         _continueButton = new AnimatedButton(_atlas);
         _continueButton.Text = "Continue"; // Button text
         _continueButton.Anchor(Gum.Wireframe.Anchor.Bottom);
-        _continueButton.Visual.Y = -10; // Position below feedback text
+        _continueButton.Visual.Y = -10; // Position slightly above the bottom edge, below the feedback text
         _continueButton.Click += HandleContinueClicked; // Subscribe to click event
         _feedbackContainer.AddChild(_continueButton);
     }
@@ -160,9 +194,18 @@ public class QuestionPanel : Panel
         _currentQuestion = question;
         _onAnswered = onAnswered;
         _onClose = onClose;
+        
+        // Render question text to texture, handling null or empty questions
+        string questionStr = question?.QuestionText ?? "No question available";
+        var questionTexture = LaTeXRenderer.Render(Core.GraphicsDevice, questionStr, TextFontPath, MathFontPath, FontSizeText, FontSizeMath, Color.White, (_questionContainer.GetAbsoluteWidth() - 20) * _zoom);
+        _questionSprite.Texture = questionTexture;
+        _questionSprite.Width = questionTexture.Width / _zoom;
+        _questionSprite.Height = questionTexture.Height / _zoom;
 
-        // Set question text, defaulting to a placeholder if null
-        _questionText.Text = question?.QuestionText ?? "No question available";
+        
+        // Adjust question container size to fit the sprite with padding (matches OptionButton logic)
+        _questionContainer.Height = _questionSprite.Height + 10;
+
 
         // Clear previous option buttons
         foreach (var button in _optionButtons)
@@ -174,24 +217,33 @@ public class QuestionPanel : Panel
         // Create buttons for each option
         if (question != null && question.Options != null)
         {
-            // Calculate vertical space for option buttons
-            float availableVerticalSpace = _background.GetAbsoluteHeight() - _questionText.GetAbsoluteHeight();
-            float totalHeight = question.Options.Count * 20;
-            float verticalOffset = (availableVerticalSpace - totalHeight) / 2;
+            // Calculate vertical space for option buttons, starting just below the question container
+            float beginOfFreeSpace = _questionContainer.Y + _questionContainer.Height;
+            float verticalOffset = beginOfFreeSpace + 5;
+            
 
-            // Create a button for each option
+            // Total height of all rendered OptionButtons
+            float totalOptionsHeight = 0f;
+            
+            // Create a button with sprite for each option
             for (int i = 0; i < question.Options.Count; i++)
             {
                 var optionIndex = i; // Capture for closure
-                var button = new AnimatedButton(_atlas);
-                button.Text = question.Options[i]; // Set option text
+                var button = new OptionButton(_atlas);
+                
+                // Render option text to texture and set it on the button
+                var optionTexture = LaTeXRenderer.Render(Core.GraphicsDevice, question.Options[i], TextFontPath, MathFontPath, FontSizeText, FontSizeMath, Color.White);
+                button.SetOptionTexture(optionTexture);
+
                 button.Anchor(Gum.Wireframe.Anchor.Top);
-                button.Visual.X = 0; // Center horizontally
-                button.Visual.Y = verticalOffset + (i * 20); // Adjusted starting Y and spacing
+                button.Visual.Y = verticalOffset + totalOptionsHeight + 10f; // Adjusted starting Y and spacing
+                button.Visual.Width = _background.GetAbsoluteWidth() - 20;
                 button.IsVisible = true; // Ensure visibility
                 button.Click += (sender, args) => HandleOptionClicked(optionIndex); // Subscribe to click event
                 AddChild(button);
                 _optionButtons.Add(button);
+
+                totalOptionsHeight += button.Visual.GetAbsoluteHeight();
             }
         }
 
@@ -214,12 +266,13 @@ public class QuestionPanel : Panel
         // Determine if the selected answer is correct
         bool isCorrect = _currentQuestion != null && selectedIndex == _currentQuestion.CorrectOptionIndex;
 
-        // Set feedback text and color based on correctness
-        _feedbackText.Text = isCorrect ? "Correct!" : $"Incorrect! {_currentQuestion?.Explanation ?? "No explanation available"}";
-        _feedbackText.Red = isCorrect ? 0 : 255; // Green for correct, red for incorrect
-        _feedbackText.Green = isCorrect ? 255 : 0;
-        _feedbackText.Blue = 0;
-        _feedbackText.Alpha = 255;
+        // Render feedback text to texture, using appropriate color and content based on correctness
+        string feedbackStr = isCorrect ? "Correct!" : $"Incorrect! {_currentQuestion?.Explanation ?? "No explanation available"}";
+        Color feedbackColor = isCorrect ? Color.GreenYellow : Color.OrangeRed;
+        var feedbackTexture = LaTeXRenderer.Render(Core.GraphicsDevice, feedbackStr, TextFontPath, MathFontPath, FontSizeText, FontSizeMath, feedbackColor, (_background.GetAbsoluteWidth() - 20) * _zoom);
+        _feedbackSprite.Texture = feedbackTexture;
+        _feedbackSprite.Width = feedbackTexture.Width / _zoom;
+        _feedbackSprite.Height = feedbackTexture.Height / _zoom;
 
         // Set feedback background color (green for correct, red for incorrect)
         _feedbackBackground.Red = isCorrect ? 0 : 255;

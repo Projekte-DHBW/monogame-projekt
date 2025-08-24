@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -22,8 +23,8 @@ public class QuestionGenerator
     private static string _format = "<Questions>\n<Question Topic=\"Programming\">\n<Text>Which of the following is a valid way to declare an integer variable in C++?</Text>\n<Options>\n<Option>A: int x;</Option>\n<Option>B: x integer;</Option>\n<Option>C: Integer x;</Option>\n<Option>D: var x: int;</Option>\n</Options>\n<CorrectOptionIndex>0</CorrectOptionIndex>\n<Explanation>In C++, `int x;` is the correct syntax to declare an integer variable named `x`.</Explanation>\n</Question>\n</Questions>";
 
     // System prompt template for the API to generate questions
-    private static string _systemPromptTemplate = "You are a multiple choice question generator for a mini student game. The questions are for computer science students in the second semester and could involve topics like analysis, linear algebra, programming, data structures and algorithms. Generate exactly {0} questions in the following XML format. Keep the option text short with <= 40 characters. Don't use superscript numbers directly in the question text, the answer options or the explanation. Do not add any additional text, explanations, introductions, markdown, code blocks, or anything else. Output only the pure XML string, starting directly with the <Questions> tag and ending with </Questions>. Don't start with ```xml.\n\n" + _format;
-
+    private static string _systemPromptTemplate = @"You are a multiple choice question generator for a mini student game. The questions are for computer science students in the second semester and could involve topics like analysis, linear algebra, programming, data structures and algorithms. Generate exactly {0} questions in the following XML format. Keep the option text short with <= 40 characters. For mathematical expressions, formulas, superscripts, or subscripts in the question text, options, or explanation, always use inline LaTeX delimited by '\', e.g. 'The formula for kinetic energy is \( E_k = \frac{{1}}{{2}}mv^2 \), where m is mass and v is velocity.'. Use LaTeX as well for big O notation and similar stuff. Do not use plain text superscripts, subscripts, or other non-LaTeX formatting for math. Do not add any additional text, explanations, introductions, markdown, code blocks, or anything else. In all XML element content, properly escape XML special characters: replace '&' with '&amp', '<' with '&lt', '>' with '&gt', '\' with '&quot;', ' with '&apos;'. Output only the pure XML string, starting directly with the <Questions> tag and ending with </Questions>. Don't start with ```xml.\n\n" + _format;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="QuestionGenerator"/> class with the specified API key.
     /// </summary>
@@ -40,15 +41,37 @@ public class QuestionGenerator
     }
 
     /// <summary>
-    /// Generates the specified number of multiple-choice questions using the external API.
+    /// Generates the specified number of multiple-choice questions using the external API and parses them into objects.
     /// </summary>
     /// <param name="numberOfQuestions">The number of questions to generate.</param>
-    /// <returns>A task that resolves to the XML string containing the generated questions or an error message.</returns>
-    public async Task<string> GenerateQuestions(int numberOfQuestions)
+    /// <returns>A task that resolves to a list of parsed <see cref="MultipleChoiceQuestion"/> objects.</returns>
+    /// <exception cref="Exception">Thrown if the API fails to generate valid XML or parsing fails.</exception>
+    public async Task<List<MultipleChoiceQuestion>> GenerateQuestions(int numberOfQuestions)
     {
-        // Format the system prompt with the desired number of questions
+        // Format the prompt with the desired number of questions
         string prompt = string.Format(_systemPromptTemplate, numberOfQuestions);
-        return await GenerateWithGeminiAsync(prompt);
+        string xmlContent = await GenerateWithGeminiAsync(prompt);
+
+        // Check for API errors
+        if (xmlContent.StartsWith("Error:"))
+        {
+            throw new Exception(xmlContent);
+        }
+
+        // Fix unescaped '&' characters in content (preserving valid entities like &lt;)
+        xmlContent = Regex.Replace(xmlContent, @"&(?!#?[a-zA-Z0-9]+;)", "&amp;");
+
+        // Parse the XML into question objects
+        var serializer = new QuestionXmlSerializer();
+        var questions = serializer.LoadFromString(xmlContent);
+
+        // Warn if the number of questions doesn't match expectations
+        if (questions.Count != numberOfQuestions)
+        {
+            Console.WriteLine($"Warning: Expected {numberOfQuestions} questions, got {questions.Count}.");
+        }
+
+        return questions;
     }
 
     /// <summary>
@@ -97,7 +120,7 @@ public class QuestionGenerator
             {
                 return "Error: Invalid content from API - " + cleanedText;
             }
-
+            
             return cleanedText;
         }
 
