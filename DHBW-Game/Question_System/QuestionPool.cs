@@ -26,7 +26,7 @@ public class QuestionPool
     // Generator for creating new questions via API
     private readonly QuestionGenerator _questionGenerator;
     
-    // Random number generator for getting a random question from the pool
+    // Random number generator for selecting a random question from the pool
     private readonly Random _randomNumberGenerator;
 
     /// <summary>
@@ -71,23 +71,22 @@ public class QuestionPool
     }
 
     /// <summary>
-    /// Generates new questions using the API and adds them to the pool.
+    /// Generates new questions using the API and adds them to the pool, saving to file.
     /// </summary>
     /// <param name="numberOfQuestions">The number of questions to generate.</param>
     /// <param name="keepExisting">Whether to keep existing questions or replace them.</param>
     /// <returns>A task that completes when the generation and saving are done.</returns>
-    /// <exception cref="Exception">Thrown if the API fails to generate questions.</exception>
+    /// <exception cref="Exception">Thrown if the API fails to generate questions or returns no questions.</exception>
     public async Task GenerateNewQuestions(int numberOfQuestions, bool keepExisting)
     {
-        // Generate questions via the API
-        var xmlContent = await _questionGenerator.GenerateQuestions(numberOfQuestions);
-        if (xmlContent.StartsWith("Error:"))
-        {
-            throw new Exception($"Failed to generate questions: {xmlContent}");
-        }
+        // Generate and parse questions via the API
+        var newQuestions = await _questionGenerator.GenerateQuestions(numberOfQuestions);
 
-        // Load the generated questions from the XML string
-        var newQuestions = _xmlSerializer.LoadFromString(xmlContent);
+        // Check if any questions were returned
+        if (newQuestions.Count == 0)
+        {
+            throw new Exception("Failed to generate questions: Invalid or empty response from API.");
+        }
 
         // Clear existing questions if not keeping them
         if (!keepExisting)

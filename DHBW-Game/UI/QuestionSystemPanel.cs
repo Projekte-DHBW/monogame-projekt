@@ -212,6 +212,7 @@ public class QuestionSystemPanel : Panel
             // Queue UI update for error
             _uiActions.Enqueue(() =>
             {
+                Console.WriteLine(ex.Message);
                 _statusText.Text = $"Error: {ex.Message}";
                 _regenerateButton.IsEnabled = true;
             });

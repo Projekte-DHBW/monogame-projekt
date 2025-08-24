@@ -28,11 +28,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CSharpMath.SkiaSharp" Version="0.5.1" />
     <PackageReference Include="Gum.MonoGame" Version="2025.8.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="8.0.19" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
+    <PackageReference Include="SkiaSharp" Version="3.119.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameLibrary\GameLibrary.csproj" />
