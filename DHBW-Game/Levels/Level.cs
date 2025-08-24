@@ -20,10 +20,10 @@ namespace DHBW_Game.Levels
     public class Level
     {
         private Tilemap _tilemap;
-        private Tileset _tileset; // Add this field
+        private Tileset _tileset;
         private Player _player;
-        private List<Vector2> exitPositions = new List<Vector2>();
-        private ContentManager content;
+        private List<Vector2> _exitPositions = new List<Vector2>();
+        private ContentManager _content;
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
 
         public int Width => _tilemap?.Columns ?? 0;
@@ -36,7 +36,7 @@ namespace DHBW_Game.Levels
         /// </summary>
         public Level(ContentManager contentManager, string levelName)
         {
-            content = contentManager;
+            _content = contentManager;
             LoadContent();
             LoadLevel(Path.Combine(contentManager.RootDirectory, "Levels", levelName));
         }
@@ -47,7 +47,7 @@ namespace DHBW_Game.Levels
         private void LoadContent()
         {
             // Load tileset texture
-            Texture2D tilesetTexture = content.Load<Texture2D>("Tiles/TilesetA");
+            Texture2D tilesetTexture = _content.Load<Texture2D>("Tiles/TilesetA");
             // Create texture region for the entire tileset
             TextureRegion tilesetRegion = new TextureRegion(tilesetTexture, 0, 0, tilesetTexture.Width, tilesetTexture.Height);
             // Create tileset with 32x32 tiles
@@ -71,7 +71,7 @@ namespace DHBW_Game.Levels
             
             // Clear lists and references
             Objects.Clear();
-            exitPositions.Clear();
+            _exitPositions.Clear();
             _player = null;
 
             List<string> lines = new List<string>();
@@ -113,7 +113,7 @@ namespace DHBW_Game.Levels
                             foundPlayer = true;
                             break;
                         case 'X': // Exit
-                            exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
                     }
                     int tileId = GetTileIdFromChar(tileChar);
@@ -150,7 +150,7 @@ namespace DHBW_Game.Levels
                 throw new Exception("Level must have a player start position (P)!");
             }
 
-            if (exitPositions.Count == 0)
+            if (_exitPositions.Count == 0)
             {
                 throw new Exception("Level must have at least one exit (X)!");
             }
@@ -192,7 +192,7 @@ namespace DHBW_Game.Levels
             {
                 const float PLAYER_COLLISION_RADIUS = 32f;
 
-                foreach (Vector2 exitPos in exitPositions)
+                foreach (Vector2 exitPos in _exitPositions)
                 {
                     Rectangle exitBounds = new Rectangle(
                         (int)exitPos.X,
