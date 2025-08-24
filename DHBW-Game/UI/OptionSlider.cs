@@ -35,10 +35,12 @@ public class OptionsSlider : Slider
     /// <param name="atlas">The texture atlas containing slider graphics.</param>
     public OptionsSlider(TextureAtlas atlas)
     {
-        // Create the top-level container for all visual elements
+        float scaleFactor = 0.7f; 
+
+        // Container Slider
         ContainerRuntime topLevelContainer = new ContainerRuntime();
-        topLevelContainer.Height = 55f;
-        topLevelContainer.Width = 264f;
+        topLevelContainer.Height = 55f * scaleFactor;
+        topLevelContainer.Width = 264f * scaleFactor;
 
         TextureRegion backgroundRegion = atlas.GetRegion("panel-background");
 
@@ -57,19 +59,19 @@ public class OptionsSlider : Slider
         _textInstance = new TextRuntime();
         _textInstance.CustomFontFile = @"fonts/04b_30.fnt";
         _textInstance.UseCustomFont = true;
-        _textInstance.FontScale = 0.5f;
+        _textInstance.FontScale = 0.5f * scaleFactor; 
         _textInstance.Text = "Replace Me";
-        _textInstance.X = 10f;
-        _textInstance.Y = 10f;
+        _textInstance.X = 10f * scaleFactor;
+        _textInstance.Y = 10f * scaleFactor;
         _textInstance.WidthUnits = DimensionUnitType.RelativeToChildren;
         topLevelContainer.AddChild(_textInstance);
 
         // Create the container for the slider track and decorative elements
         ContainerRuntime innerContainer = new ContainerRuntime();
-        innerContainer.Height = 13f;
-        innerContainer.Width = 241f;
-        innerContainer.X = 10f;
-        innerContainer.Y = 33f;
+        innerContainer.Height = 13f * scaleFactor;
+        innerContainer.Width = 241f * scaleFactor;
+        innerContainer.X = 10f * scaleFactor;
+        innerContainer.Y = 33f * scaleFactor;
         topLevelContainer.AddChild(innerContainer);
 
         TextureRegion offBackgroundRegion = atlas.GetRegion("slider-off-background");
@@ -83,9 +85,8 @@ public class OptionsSlider : Slider
         offBackground.TextureLeft = offBackgroundRegion.SourceRectangle.Left;
         offBackground.TextureTop = offBackgroundRegion.SourceRectangle.Top;
         offBackground.TextureWidth = offBackgroundRegion.Width;
-        offBackground.Width = 28f;
+        offBackground.Width = 28f * scaleFactor;
         offBackground.WidthUnits = DimensionUnitType.Absolute;
-        offBackground.Dock(Gum.Wireframe.Dock.Left);
         innerContainer.AddChild(offBackground);
 
         TextureRegion middleBackgroundRegion = atlas.GetRegion("slider-middle-background");
@@ -99,10 +100,10 @@ public class OptionsSlider : Slider
         middleBackground.TextureLeft = middleBackgroundRegion.SourceRectangle.Left;
         middleBackground.TextureTop = middleBackgroundRegion.SourceRectangle.Top;
         middleBackground.TextureWidth = middleBackgroundRegion.Width;
-        middleBackground.Width = 179f;
+        middleBackground.Width = 179f * scaleFactor;
         middleBackground.WidthUnits = DimensionUnitType.Absolute;
         middleBackground.Dock(Gum.Wireframe.Dock.Left);
-        middleBackground.X = 27f;
+        middleBackground.X = 27f * scaleFactor;
         innerContainer.AddChild(middleBackground);
 
         TextureRegion maxBackgroundRegion = atlas.GetRegion("slider-max-background");
@@ -115,7 +116,7 @@ public class OptionsSlider : Slider
         maxBackground.TextureLeft = maxBackgroundRegion.SourceRectangle.Left;
         maxBackground.TextureTop = maxBackgroundRegion.SourceRectangle.Top;
         maxBackground.TextureWidth = maxBackgroundRegion.Width;
-        maxBackground.Width = 36f;
+        maxBackground.Width = 36f * scaleFactor;
         maxBackground.WidthUnits = DimensionUnitType.Absolute;
         maxBackground.Dock(Gum.Wireframe.Dock.Right);
         innerContainer.AddChild(maxBackground);
@@ -125,8 +126,8 @@ public class OptionsSlider : Slider
         ContainerRuntime trackInstance = new ContainerRuntime();
         trackInstance.Name = "TrackInstance";
         trackInstance.Dock(Gum.Wireframe.Dock.Fill);
-        trackInstance.Height = -2f;
-        trackInstance.Width = -2f;
+        trackInstance.Height = -2f * scaleFactor;
+        trackInstance.Width = -2f * scaleFactor;
         middleBackground.AddChild(trackInstance);
 
         // Create the fill rectangle that visually displays the current value
@@ -142,7 +143,7 @@ public class OptionsSlider : Slider
         offText.Green = 86;
         offText.Blue = 130;
         offText.CustomFontFile = @"fonts/04b_30.fnt";
-        offText.FontScale = 0.25f;
+        offText.FontScale = 0.25f * scaleFactor;
         offText.UseCustomFont = true;
         offText.Text = "OFF";
         offText.Anchor(Gum.Wireframe.Anchor.Center);
@@ -154,7 +155,7 @@ public class OptionsSlider : Slider
         maxText.Green = 86;
         maxText.Blue = 130;
         maxText.CustomFontFile = @"fonts/04b_30.fnt";
-        maxText.FontScale = 0.25f;
+        maxText.FontScale = 0.25f * scaleFactor;
         maxText.UseCustomFont = true;
         maxText.Text = "MAX";
         maxText.Anchor(Gum.Wireframe.Anchor.Center);
