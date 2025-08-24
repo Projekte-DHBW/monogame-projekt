@@ -111,7 +111,7 @@ public class TitleScene : Scene
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
 
         // Change to the game scene to start the game.
-        Core.ChangeScene(new TestScene());
+        Core.ChangeScene(new GameScene());
     }
     
     private void HandleOptionsClicked(object sender, EventArgs e)

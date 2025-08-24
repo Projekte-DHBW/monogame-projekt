@@ -1,4 +1,5 @@
-using DHBW_Game.Maps;
+using DHBW_Game.GameObjects;
+using DHBW_Game.Levels;
 using GameLibrary;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
@@ -11,11 +12,9 @@ namespace DHBW_Game.Scenes;
 
 public class TestScene : Scene
 {
-    // Player character
-    private Player _character;
 
     // The map instance
-    private Map _map;
+    private Level _level;
     
     private readonly CollisionEngine _collisionEngine;
     private readonly PhysicsEngine _physicsEngine;
@@ -39,12 +38,7 @@ public class TestScene : Scene
     
     private void InitializeNewGame()
     {
-        // Load the map from an XML configuration file using the content manager.
-        _map = Map.FromFile(Core.Content, "Maps/test_map.xml");
-        
-        // Create the player character separately, using the start position from the map.
-        _character = new Player(mass: 2f, isElastic: false);
-        _character.Initialize(_map.StartPosition);
+        _level = new Level(Core.Content, "00.txt");
     }
     
     public override void LoadContent()
@@ -54,10 +48,7 @@ public class TestScene : Scene
     public override void Update(GameTime gameTime)
     {
         // Update the map (which updates all placed game objects).
-        _map.Update(gameTime);
-        
-        // Update the player character.
-        _character.Update(gameTime);
+        _level.Update(gameTime);
     }
 
     public override void Draw(GameTime gameTime)
@@ -72,10 +63,7 @@ public class TestScene : Scene
         _collisionEngine.VisualizeColliders();
         
         // Draw the map (which draws the background tilemap and all placed game objects).
-        _map.Draw(Core.SpriteBatch);
-        
-        // Draw the player character.
-        _character.Draw();
+        _level.Draw(Core.SpriteBatch);
 
         // End the sprite batch when finished.
         Core.SpriteBatch.End();

@@ -183,6 +183,15 @@
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 
-#begin Maps/TestMap.xml
-/copy:Maps/TestMap.xml;Maps/test_map.xml
+#begin Levels/00.txt
+/copy:Levels/00.txt
+
+#begin Levels/01.txt
+/copy:Levels/01.txt
+
+#begin Levels/02.txt
+/copy:Levels/02.txt
+
+#begin Tiles/TilesetA.png
+/copy:Tiles/TilesetA.png
 

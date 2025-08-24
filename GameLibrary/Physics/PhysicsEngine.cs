@@ -148,5 +148,23 @@ namespace GameLibrary.Physics
                 physicsObject.Velocity = physicsObject.NewVelocity;
             }
         }
+        
+        /// <summary>
+        /// Removes a physics component from the physics engine.
+        /// </summary>
+        /// <param name="physicsComponent">The physics component to remove.</param>
+        public void RemoveComponent(PhysicsComponent physicsComponent)
+        {
+            if (physicsComponent == null) return;
+            _physicsObjects.Remove(physicsComponent);
+        }
+
+        /// <summary>
+        /// Removes all physics components
+        /// </summary>
+        public void ClearComponents()
+        {
+            _physicsObjects.Clear();
+        }
     }
 }
