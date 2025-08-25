@@ -39,13 +39,14 @@ public class PausePanel : Panel
     private readonly Action onOptions;
     
     
-    public PausePanel(TextureAtlas atlas, SoundEffect uiSoundEffect)
+    public PausePanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onOptions)
     {
         // Validate input parameters
         if (atlas == null) throw new ArgumentNullException(nameof(atlas));
         if (uiSoundEffect == null) throw new ArgumentNullException(nameof(uiSoundEffect));
 
         _uiSoundEffect = uiSoundEffect;
+        this.onOptions = onOptions;
         _atlas = atlas;
         Anchor(Gum.Wireframe.Anchor.Center);
         Visual.WidthUnits = DimensionUnitType.Absolute;
