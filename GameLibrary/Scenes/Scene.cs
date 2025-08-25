@@ -20,6 +20,11 @@ public abstract class Scene : IDisposable
     public bool IsDisposed { get; private set; }
     
     /// <summary>
+    /// Gets whether the scene is paused.
+    /// </summary>
+    public bool IsPaused { get; protected set; }
+    
+    /// <summary>
     /// Creates a new scene instance.
     /// </summary>
     public Scene()
@@ -99,6 +104,28 @@ public abstract class Scene : IDisposable
         {
             UnloadContent();
             Content.Dispose();
+        }
+    }
+    
+    /// <summary>
+    /// Pause the scene.
+    /// </summary>
+    public virtual void Pause()
+    {
+        if (!IsPaused)
+        {
+            IsPaused = true;
+        }
+    }
+
+    /// <summary>
+    /// Resume the scene.
+    /// </summary>
+    public virtual void Resume()
+    {
+        if (IsPaused)
+        {
+            IsPaused = false;
         }
     }
 }

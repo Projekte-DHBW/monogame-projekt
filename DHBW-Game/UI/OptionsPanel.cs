@@ -27,6 +27,11 @@ namespace DHBW_Game.UI
         /// </summary>
         public OptionsSlider SfxSlider { get; private set; }
 
+        /// <summary>
+        /// Gets the button for navigating to the question system panel.
+        /// </summary>
+        public AnimatedButton QuestionSystemButton { get; private set; }
+
         // Constants for slider behavior
         private const float SliderSmallChange = 0.1f; // Small increment for slider adjustments
         private const float SliderLargeChange = 0.2f; // Large increment for slider adjustments
@@ -34,6 +39,7 @@ namespace DHBW_Game.UI
 
         private readonly SoundEffect _uiSoundEffect; // Sound effect for UI interactions
         private readonly Action _onBack; // Callback for back button action
+        private readonly Action _onQuestionSystem; // Callback for question system button action
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OptionsPanel"/> class.
@@ -41,8 +47,9 @@ namespace DHBW_Game.UI
         /// <param name="atlas">The texture atlas for UI elements.</param>
         /// <param name="uiSoundEffect">The sound effect played on UI interactions.</param>
         /// <param name="onBack">The action to invoke when the back button is clicked.</param>
+        /// <param name="onQuestionSystem">The action to invoke when the question system button is clicked.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="atlas"/> or <paramref name="uiSoundEffect"/> is null.</exception>
-        public OptionsPanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onBack)
+        public OptionsPanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onBack, Action onQuestionSystem)
         {
             // Validate input parameters
             if (atlas == null) throw new ArgumentNullException(nameof(atlas));
@@ -50,8 +57,9 @@ namespace DHBW_Game.UI
 
             _uiSoundEffect = uiSoundEffect;
             
-            // Store onBack callback for use in handler
-            _onBack = onBack; // Assign readonly field in constructor
+            // Store callbacks for use in handlers
+            _onBack = onBack;
+            _onQuestionSystem = onQuestionSystem;
             Dock(Gum.Wireframe.Dock.Fill); // Set panel to fill the parent container
             IsVisible = false; // Initially hide the panel
 
@@ -60,7 +68,7 @@ namespace DHBW_Game.UI
         }
 
         /// <summary>
-        /// Initializes the child UI elements, including the title text, sliders, and back button.
+        /// Initializes the child UI elements, including the title text, sliders, and buttons.
         /// </summary>
         /// <param name="atlas">The texture atlas for UI elements.</param>
         private void InitializeChildren(TextureAtlas atlas)
@@ -109,6 +117,14 @@ namespace DHBW_Game.UI
             SfxSlider.ValueChangeCompleted += HandleSfxSliderChangeCompleted; // Subscribe to value change completion
             AddChild(SfxSlider); // Add to panel
 
+            // Question System button
+            QuestionSystemButton = new AnimatedButton(atlas);
+            QuestionSystemButton.Text = "QUESTION SYSTEM";
+            QuestionSystemButton.Anchor(Gum.Wireframe.Anchor.Top);
+            QuestionSystemButton.Visual.Y = 156f; // Below SFX slider (spacing consistent with ~63 units)
+            QuestionSystemButton.Click += HandleQuestionSystemButtonClick; // Subscribe to click event
+            AddChild(QuestionSystemButton);
+
             // Back button
             BackButton = new AnimatedButton(atlas);
             BackButton.Text = "BACK"; // Button text
@@ -117,6 +133,19 @@ namespace DHBW_Game.UI
             BackButton.Y = -10f; // Vertical position offset
             BackButton.Click += HandleOptionsButtonBack; // Subscribe to click event
             AddChild(BackButton); // Add to panel
+        }
+
+        /// <summary>
+        /// Handles the question system button click, triggering the question system action and playing a sound.
+        /// </summary>
+        /// <param name="sender">The button that triggered the event.</param>
+        /// <param name="args">Event arguments.</param>
+        private void HandleQuestionSystemButtonClick(object sender, EventArgs args)
+        {
+            // A UI interaction occurred, play the sound effect
+            Core.Audio.PlaySoundEffect(_uiSoundEffect);
+            // Invoke the provided question system action
+            _onQuestionSystem?.Invoke();
         }
 
         /// <summary>

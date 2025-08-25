@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using DHBW_Game.Question_System;
 using DHBW_Game.Scenes;
 using Microsoft.Xna.Framework.Media;
 using GameLibrary;
@@ -25,6 +26,11 @@ public class Game1 : Core
     // The font used to render the title text.
     private SpriteFont _font5x;
 
+    /// <summary>
+    /// Gets whether the game is paused.
+    /// </summary>
+    public bool IsPaused { get; private set; }
+
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
 
@@ -40,6 +46,9 @@ public class Game1 : Core
         ServiceLocator.Register(_physicsEngine.CollisionEngine);
         ServiceLocator.Register(_font5x, "Font5x");
         ServiceLocator.Register(_font, "Font");
+        
+        QuestionPool questionPool = new QuestionPool();
+        ServiceLocator.Register(questionPool);
 
         _camera = new Camera();
         ServiceLocator.Register(_camera);
@@ -58,6 +67,8 @@ public class Game1 : Core
 
         // Initialize the Gum UI service
         InitializeGum();
+        
+        ServiceLocator.Register(this);
     }
 
     protected override void LoadContent()
@@ -114,5 +125,31 @@ public class Game1 : Core
     protected override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
+    }
+    
+    /// <summary>
+    /// Pause the game.
+    /// </summary>
+    public void Pause()
+    {
+        if (!IsPaused)
+        {
+            _physicsEngine.Pause();
+            s_activeScene.Pause();
+            IsPaused = true;
+        }
+    }
+
+    /// <summary>
+    /// Resume the game.
+    /// </summary>
+    public void Resume()
+    {
+        if (IsPaused)
+        {
+            _physicsEngine.Resume();
+            s_activeScene.Resume();
+            IsPaused = false;
+        }
     }
 }
