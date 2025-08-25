@@ -73,16 +73,6 @@ namespace DHBW_Game.UI
         /// <param name="atlas">The texture atlas for UI elements.</param>
         private void InitializeChildren(TextureAtlas atlas)
         {
-            // Options title text
-            TextRuntime optionsText = new TextRuntime();
-            optionsText.X = 10; // Position X coordinate
-            optionsText.Y = 150; // Position Y coordinate
-            optionsText.Text = "OPTIONS"; // Title text
-            optionsText.UseCustomFont = true; // Enable custom font
-            optionsText.FontScale = 0.5f; // Font scaling
-            optionsText.CustomFontFile = OptionsFont; // Set custom font file
-            AddChild(optionsText); // Add to panel
-
             // Music slider
             MusicSlider = new OptionsSlider(atlas);
             MusicSlider.Name = "MusicSlider"; // Unique identifier
