@@ -2,7 +2,6 @@ using DHBW_Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using GameLibrary;
 using GameLibrary.Scenes;
 namespace DHBW_Game.Scenes;
@@ -75,7 +74,7 @@ public class TitleScene : Scene
     
         // Create title panel
         _titlePanel = new TitlePanel(_atlas, _uiSoundEffect, 
-            () => Core.ChangeScene(new TestScene()), 
+            () => Core.ChangeScene(new GameScene()),
             () => 
             {
                 _titlePanel.Hide();
@@ -123,12 +122,6 @@ public class TitleScene : Scene
     
     public override void Update(GameTime gameTime)
     {
-        // If the user presses enter, switch to the game scene.
-        if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Enter))
-        {
-            Core.ChangeScene(new TestScene());
-        }
-
         GumService.Default.Update(gameTime);
         _questionSystemPanel.Activity();
     }
