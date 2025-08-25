@@ -25,7 +25,7 @@ public class Game1 : Core
 
     // The font used to render the title text.
     private SpriteFont _font5x;
-    
+
     /// <summary>
     /// Gets whether the game is paused.
     /// </summary>
@@ -61,7 +61,7 @@ public class Game1 : Core
         
         // Start playing the background music.
         Audio.PlaySong(_themeSong);
-        
+
         // Start the game with the title scene.
         ChangeScene(new TitleScene());
 
