@@ -1,6 +1,6 @@
 ﻿using GameLibrary.Physics;
 
-namespace GameObjects.Player;
+namespace GameObjects.Animate;
 
 public enum Facing
 {

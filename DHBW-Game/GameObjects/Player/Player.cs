@@ -8,6 +8,7 @@ using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
+using GameObjects.Animate;
 
 namespace GameObjects.Player;
 
