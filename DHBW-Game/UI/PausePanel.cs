@@ -26,6 +26,8 @@ public class PausePanel : Panel
 {
     private AnimatedButton _resumeButton;
 
+    private AnimatedButton _restartButton;
+
     // The UI sound effect to play when a UI event is triggered.
     private SoundEffect _uiSoundEffect;
 
@@ -90,6 +92,14 @@ public class PausePanel : Panel
         _resumeButton.Click += HandleResumeButtonClicked;
         AddChild(_resumeButton);
 
+        _restartButton = new AnimatedButton(_atlas);
+        _restartButton.Text = "RESTART";
+        _restartButton.Anchor(Gum.Wireframe.Anchor.Center);
+        _restartButton.Visual.X = 9f;
+        _restartButton.Visual.Y = 19f;
+        _restartButton.Click += HandleResumeButtonClicked;
+        AddChild(_restartButton);
+
         AnimatedButton quitButton = new AnimatedButton(_atlas);
         quitButton.Text = "QUIT";
         quitButton.Anchor(Gum.Wireframe.Anchor.BottomRight);
@@ -123,6 +133,18 @@ public class PausePanel : Panel
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
         ServiceLocator.Get<Game1>().Resume();
+        
+    }
+
+    private void HandleRestartButtonClicked(object sender, EventArgs e)
+    {
+        // A UI interaction occurred, play the sound effect
+        Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+        // Make the pause panel invisible to resume the game.
+        IsVisible = false;
+        
+        // restart logic must me implemented
         
     }
     private void HandleQuitButtonClicked(object sender, EventArgs e)
