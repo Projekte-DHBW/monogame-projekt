@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Dozent/Walk_Dozent</Texture>
+	<Regions>
+		<!-- Definiere die einzelnen Frames für die Animation -->
+		<Region name="walking-1" x="0" y="0" width="48" height="48" />
+		<Region name="walking-2" x="48" y="0" width="48" height="48" />
+		<Region name="walking-3" x="96" y="0" width="48" height="48" />
+		<Region name="walking-4" x="144" y="0" width="48" height="48" />
+		<Region name="walking-5" x="0" y="48" width="48" height="48" />
+		<Region name="walking-6" x="48" y="48" width="48" height="48" />
+		<Region name="walking-7" x="96" y="48" width="48" height="48" />
+		<Region name="walking-8" x="144" y="48" width="48" height="48" />
+	</Regions>
+	<Animations>
+		<Animation name="walking-animation" delay="200">
+			<Frame region="walking-1" />
+			<Frame region="walking-2" />
+			<Frame region="walking-3" />
+			<Frame region="walking-4" />
+			<Frame region="walking-5" />
+			<Frame region="walking-6" />
+			<Frame region="walking-7" />
+			<Frame region="walking-8" />
+		</Animation>
+	</Animations>
+</TextureAtlas>

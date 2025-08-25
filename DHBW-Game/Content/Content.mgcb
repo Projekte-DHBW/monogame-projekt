@@ -13,6 +13,21 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Animated_Sprites/Dozent/Walk_Dozent-definition.xml
+/copy:Animated_Sprites/Dozent/Walk_Dozent-definition.xml
+
+#begin Animated_Sprites/Dozent/Walk_Dozent.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Dozent/Walk_Dozent.png
+
 #begin Animated_Sprites/Player/Fall-definition.xml
 /copy:Animated_Sprites/Player/Fall-definition.xml
 
