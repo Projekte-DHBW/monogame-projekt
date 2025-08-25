@@ -33,7 +33,7 @@ public class Game1 : Core
 
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
-        
+
     }
 
     protected override void Initialize()
