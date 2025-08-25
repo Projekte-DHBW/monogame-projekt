@@ -2,13 +2,13 @@
 
 namespace GameObjects.Player;
 
-public enum PlayerFacing
+public enum Facing
 {
     Left,
     Right
 }
 
-public enum PlayerState
+public enum State
 {
     Idle,
     Run,
@@ -16,27 +16,62 @@ public enum PlayerState
     Fall
 }
 
-public record PlayerAnimationReturn(PlayerFacing Facing, PlayerState State);
-public class AnimatePlayer
+public record AnimationReturn(Facing Facing, State State);
+public class AnimateGameObject
 {
-    private bool _playerOnGround;
-    private PlayerFacing _playerFacingUserInput;
-    private PlayerFacing _playerFacingPhysics;
-    private PlayerState _playerState;
+    private bool _OnGround;
+    private Facing _FacingUserInput;
+    private Facing _FacingPhysics;
+    private State _State;
     private bool _userDirectionInput;
-    private PlayerAnimationReturn _playerAnimationReturn;
 
-    public AnimatePlayer()
+    public AnimateGameObject()
     {
-        _playerOnGround = false;
-        _playerState = PlayerState.Idle;
+        _OnGround = false;
+        _State = State.Idle;
     }
 
-    public PlayerAnimationReturn GetAnimation(bool KeyUp, bool KeyDown, bool KeyLeft, bool KeyRight, PhysicsComponent physicsComponent)
+    public virtual AnimationReturn GetAnimation(PhysicsComponent physicsComponent)
+    {
+        _State = State.Fall;
+        _OnGround = false;
+
+        if (physicsComponent.Velocity.Y == 0f)
+        {
+            _OnGround = true;
+        }
+
+        if (_OnGround)
+        {
+            _State = State.Idle;
+        }
+        else if (physicsComponent.Velocity.Y < 0)
+        {
+            _State = State.Jump;
+        }
+
+        if (physicsComponent.Velocity.X > 0f)
+        {
+            _FacingPhysics = Facing.Right;
+        }
+        if (physicsComponent.Velocity.X < 0f)
+        {
+            _FacingPhysics = Facing.Left;
+        }
+
+        if ((physicsComponent.Velocity.X != 0f) && (_OnGround))
+        {
+            _State = State.Run;
+        }
+
+        return new AnimationReturn(_FacingPhysics, _State);
+    }
+
+    public AnimationReturn GetAnimation(bool KeyUp, bool KeyDown, bool KeyLeft, bool KeyRight, PhysicsComponent physicsComponent)
     {
         _userDirectionInput = false;
-        _playerState = PlayerState.Fall;
-        _playerOnGround = false;
+        _State = State.Fall;
+        _OnGround = false;
 
         if (KeyLeft || KeyRight)
         {
@@ -45,49 +80,50 @@ public class AnimatePlayer
 
         if (physicsComponent.Velocity.Y == 0f)
         {
-            _playerOnGround = true;
+            _OnGround = true;
         }
 
         if (KeyLeft && !KeyRight)
         {
-            _playerFacingUserInput = PlayerFacing.Left;
+            _FacingUserInput = Facing.Left;
         }
         if (!KeyLeft && KeyRight)
         {
-            _playerFacingUserInput = PlayerFacing.Right;
+            _FacingUserInput = Facing.Right;
         }
 
-        if (_playerOnGround)
+        if (_OnGround)
         {
-            _playerState = PlayerState.Idle;
+            _State = State.Idle;
             if (_userDirectionInput)
             {
-                _playerState = PlayerState.Run;
+                _State = State.Run;
             }
-        } else if (physicsComponent.Velocity.Y < 0)
+        }
+        else if (physicsComponent.Velocity.Y < 0)
         {
-            _playerState = PlayerState.Jump;
+            _State = State.Jump;
         }
 
         if (_userDirectionInput)
         {
-            return new PlayerAnimationReturn(_playerFacingUserInput, _playerState);
+            return new AnimationReturn(_FacingUserInput, _State);
         }
 
         if (physicsComponent.Velocity.X > 0f)
         {
-            _playerFacingPhysics = PlayerFacing.Right;
+            _FacingPhysics = Facing.Right;
         }
         if (physicsComponent.Velocity.X < 0f)
         {
-            _playerFacingPhysics = PlayerFacing.Left;
+            _FacingPhysics = Facing.Left;
         }
 
-        if ((physicsComponent.Velocity.X != 0f) && (_playerOnGround))
+        if ((physicsComponent.Velocity.X != 0f) && (_OnGround))
         {
-            _playerState = PlayerState.Run;
+            _State = State.Run;
         }
 
-        return new PlayerAnimationReturn(_playerFacingPhysics, _playerState);
+        return new AnimationReturn(_FacingPhysics, _State);
     }
 }
