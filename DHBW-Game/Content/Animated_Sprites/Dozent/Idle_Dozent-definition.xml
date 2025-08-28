@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Dozent/Idle_Dozent</Texture>
+	<Regions>
+		<Region name="standing" x="0" y="0" width="35" height="35" />
+	</Regions>
+</TextureAtlas>
