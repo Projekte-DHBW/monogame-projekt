@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Student/Idle_Student</Texture>
+	<Regions>
+		<Region name="standing" x="0" y="0" width="32" height="32" />
+	</Regions>
+</TextureAtlas>
