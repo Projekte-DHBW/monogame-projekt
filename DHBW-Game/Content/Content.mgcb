@@ -13,10 +13,10 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Animated_Sprites/Dozent/Walk_Dozent-definition.xml
-/copy:Animated_Sprites/Dozent/Walk_Dozent-definition.xml
+#begin Animated_Sprites/Dozent/Idle_Dozent-definition.xml
+/copy:Animated_Sprites/Dozent/Idle_Dozent-definition.xml
 
-#begin Animated_Sprites/Dozent/Walk_Dozent.png
+#begin Animated_Sprites/Dozent/Idle_Dozent.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -26,7 +26,22 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Animated_Sprites/Dozent/Walk_Dozent.png
+/build:Animated_Sprites/Dozent/Idle_Dozent.png
+
+#begin Animated_Sprites/Dozent/Run_Dozent-definition.xml
+/copy:Animated_Sprites/Dozent/Run_Dozent-definition.xml
+
+#begin Animated_Sprites/Dozent/Run_Dozent.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Dozent/Run_Dozent.png
 
 #begin Animated_Sprites/Player/Fall-definition.xml
 /copy:Animated_Sprites/Player/Fall-definition.xml
@@ -102,6 +117,36 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Animated_Sprites/Player/Transition_Jump2Fall.png
+
+#begin Animated_Sprites/Student/Idle_Student-definition.xml
+/copy:Animated_Sprites/Student/Idle_Student-definition.xml
+
+#begin Animated_Sprites/Student/Idle_Student.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Student/Idle_Student.png
+
+#begin Animated_Sprites/Student/Run_Student-definition.xml
+/copy:Animated_Sprites/Student/Run_Student-definition.xml
+
+#begin Animated_Sprites/Student/Run_Student.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Student/Run_Student.png
 
 #begin audio/bounce.wav
 /importer:WavImporter
