@@ -97,7 +97,7 @@ public class QuestionPanel : Panel
         // Initialize child UI elements
         InitializeChildren();
 
-        _ttsDemo = Core.Content.Load<SoundEffect>("audio/ttsTestMaria");
+        _ttsDemo = Core.Content.Load<SoundEffect>("audio/ttsTestMariaIncreasedVolume");
     }
 
     /// <summary>

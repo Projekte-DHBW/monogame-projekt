@@ -166,11 +166,11 @@
 /processorParam:Quality=Best
 /build:audio/theme.ogg
 
-#begin audio/ttsTestMaria.wav
+#begin audio/ttsTestMariaIncreasedVolume.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:audio/ttsTestMaria.wav
+/build:audio/ttsTestMariaIncreasedVolume.wav
 
 #begin audio/ui.wav
 /importer:WavImporter
