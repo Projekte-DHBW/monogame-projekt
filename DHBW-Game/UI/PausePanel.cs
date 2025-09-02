@@ -15,23 +15,46 @@ namespace DHBW_Game.UI;
 /// </summary>
 public class PausePanel : Panel
 {
+    /// <summary>
+    /// The resume button UI element.
+    /// </summary>
     private AnimatedButton _resumeButton;
 
+    /// <summary>
+    /// The restart button UI element.
+    /// </summary>
     private AnimatedButton _restartButton;
 
-    // The UI sound effect to play when a UI event is triggered.
-    private SoundEffect _uiSoundEffect;
+    /// <summary>
+    /// The UI sound effect to play when a UI event is triggered.
+    /// </summary>
+    private readonly SoundEffect _uiSoundEffect;
 
-    // Reference to the texture atlas that we can pass to UI elements when they
-    // are created.
-    private TextureAtlas _atlas;
+    /// <summary>
+    /// Reference to the texture atlas that we can pass to UI elements when they
+    /// are created.
+    /// </summary>
+    private readonly TextureAtlas _atlas;
 
-
+    /// <summary>
+    /// The options button UI element.
+    /// </summary>
     public AnimatedButton OptionsButton { get; private set; }
 
-    private readonly Action onOptions;
-    
-    
+    /// <summary>
+    /// The action to invoke when the options button is clicked.
+    /// </summary>
+    private readonly Action _onOptions;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PausePanel"/> class.
+    /// </summary>
+    /// <param name="atlas">The texture atlas used for UI elements.</param>
+    /// <param name="uiSoundEffect">The sound effect to play on UI interactions.</param>
+    /// <param name="onOptions">The action to invoke when the options button is clicked.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="atlas"/> or <paramref name="uiSoundEffect"/> is null.
+    /// </exception>
     public PausePanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onOptions)
     {
         // Validate input parameters
@@ -39,7 +62,7 @@ public class PausePanel : Panel
         if (uiSoundEffect == null) throw new ArgumentNullException(nameof(uiSoundEffect));
 
         _uiSoundEffect = uiSoundEffect;
-        this.onOptions = onOptions;
+        _onOptions = onOptions;
         _atlas = atlas;
         Anchor(Gum.Wireframe.Anchor.Center);
         Visual.WidthUnits = DimensionUnitType.Absolute;
@@ -52,6 +75,10 @@ public class PausePanel : Panel
         InitializeChildren(atlas);
     }
 
+    /// <summary>
+    /// Initializes the child UI elements of the pause panel.
+    /// </summary>
+    /// <param name="atlas">The texture atlas used for UI elements.</param>
     private void InitializeChildren(TextureAtlas atlas)
     {
         TextureRegion backgroundRegion = _atlas.GetRegion("panel-background");
@@ -107,15 +134,27 @@ public class PausePanel : Panel
         OptionsButton.Text = "Options"; // Button text
         OptionsButton.Click += HandleOptionsClicked; // Subscribe to click event
         AddChild(OptionsButton); // Add to panel
-
     }
+
+    /// <summary>
+    /// Handles the click event for the options button.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void HandleOptionsClicked(object sender, EventArgs e)
     {
         // Play the UI sound effect for interaction
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
         // Invoke the provided options action
-        onOptions?.Invoke();
+        _onOptions?.Invoke();
     }
+
+    /// <summary>
+    /// Handles the click event for the resume button.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void HandleResumeButtonClicked(object sender, EventArgs e)
     {
         // A UI interaction occurred, play the sound effect
@@ -124,9 +163,13 @@ public class PausePanel : Panel
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
         ServiceLocator.Get<Game1>().Resume();
-        
     }
 
+    /// <summary>
+    /// Handles the click event for the restart button.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void HandleRestartButtonClicked(object sender, EventArgs e)
     {
         // A UI interaction occurred, play the sound effect
@@ -135,16 +178,27 @@ public class PausePanel : Panel
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
 
+        // Reload the game scene
         Core.ChangeScene(new GameScene());
+
+        // Resume the game
         ServiceLocator.Get<Game1>().Resume();
     }
+
+    /// <summary>
+    /// Handles the click event for the quit button.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void HandleQuitButtonClicked(object sender, EventArgs e)
     {
         // A UI interaction occurred, play the sound effect
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
 
         // Go back to the title scene.
-        Core.ChangeScene(new Scenes.TitleScene());
+        Core.ChangeScene(new TitleScene());
+
+        // Resume the game
         ServiceLocator.Get<Game1>().Resume();
     }
 
