@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 using GameObjects.Animate;
+using GameObjects.Enemy;
 
 namespace GameObjects.Player;
 
@@ -197,5 +198,13 @@ public class Player : GameObject
     public override void Draw()
     {
         base.Draw();
+    }
+
+    public override void TriggerCollision(Collider collider)
+    {
+        base.TriggerCollision(collider);
+
+        if ((collider.GameObject is Enemy.Student) && (Math.Abs(PhysicsComponent.Velocity.X) > 100))
+            PhysicsComponent.Forces.Add(new Vector2(-2*PhysicsComponent.Velocity.X, 0));
     }
 }

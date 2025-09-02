@@ -175,6 +175,7 @@ public class Core : Game
         if (s_activeScene != next)
         {
             s_nextScene = next;
+            ServiceLocator.Register(next);
         }
     }
     

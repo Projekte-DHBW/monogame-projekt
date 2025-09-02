@@ -83,4 +83,9 @@ public abstract class GameObject
     {
         ServiceLocator.Get<Camera>().Draw(Sprite, Position);
     }
+
+    public virtual void TriggerCollision(Collider collider)
+    {
+
+    }
 }
