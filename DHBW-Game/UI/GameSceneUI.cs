@@ -64,6 +64,7 @@ public class GameSceneUI : ContainerRuntime
             () =>
             {
                 _optionsPanel.Hide();
+                _pausePanel.Show();
             },
             () =>
             {
