@@ -171,7 +171,10 @@ namespace GameLibrary.Physics.Colliders
             }
             else if (!isCollider1Static && !isCollider2Static)
             {
-                Collision(collider1, collider2, collisionData);
+                collider1.GameObject.TriggerCollision(collider2);
+                collider2.GameObject.TriggerCollision(collider1);
+                //Collision(collider1, collider2, collisionData);
+
             }
         }
 

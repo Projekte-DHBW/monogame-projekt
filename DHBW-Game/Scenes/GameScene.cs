@@ -93,6 +93,16 @@ namespace DHBW_Game.Scenes
             LoadCurrentLevel();
         }
 
+        public void ShowQuestion()
+        {
+            var (q, idx) = _questionPool.GetNextQuestion();
+            if (q != null)
+            {
+                ServiceLocator.Get<Game1>().Pause();
+                _ui.ShowQuestion(q, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume());
+            }
+        }
+
         public override void Update(GameTime gameTime)
         {
             // Ensure the UI is always updated.
@@ -103,12 +113,7 @@ namespace DHBW_Game.Scenes
             // Temporary demonstration code for the question display system
             if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
             {
-                var (q, idx) = _questionPool.GetNextQuestion();
-                if (q != null)
-                {
-                    ServiceLocator.Get<Game1>().Pause();
-                    _ui.ShowQuestion(q, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume() );
-                }
+                ShowQuestion();
             }
 
             // Check whether to pause the game. Currently works like a toggle.

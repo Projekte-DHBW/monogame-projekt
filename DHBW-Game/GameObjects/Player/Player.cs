@@ -8,6 +8,8 @@ using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
+using GameObjects.Animate;
+using GameObjects.Enemy;
 
 namespace GameObjects.Player;
 
@@ -21,8 +23,8 @@ public class Player : GameObject
     private AnimatedSpriteOnce _playerTransitionJ2F;
     private AnimatedSprite _playerFalling; 
     private Sprite _playerStanding;
-    private AnimatePlayer _animatePlayer;
-    private PlayerAnimationReturn _playerAnimationReturn;
+    private AnimateGameObject _animatePlayer;
+    private AnimationReturn _playerAnimationReturn;
     private bool _moveUp;
     private bool _moveDown;
     private bool _moveLeft;
@@ -88,7 +90,7 @@ public class Player : GameObject
         _playerFalling = playerFallingAtlas.CreateAnimatedSprite("falling-animation");
         _playerFalling.Scale = new Vector2(4.0f, 4.0f);
 
-        _animatePlayer = new AnimatePlayer();
+        _animatePlayer = new AnimateGameObject();
 
         _moveUp = false;
         _moveDown = false;
@@ -154,18 +156,18 @@ public class Player : GameObject
 
         switch (_playerAnimationReturn.State)
         {
-            case PlayerState.Idle:
+            case State.Idle:
                 Sprite = _playerStanding;
                 break;
-            case PlayerState.Run:
+            case State.Run:
                 Sprite = _playerRunning;
                 break;
-            case PlayerState.Jump:
+            case State.Jump:
                 if (Sprite != _playerJumping)
                     _playerJumping.ResetAnimation();
                 Sprite = _playerJumping;
                 break;
-            case PlayerState.Fall:
+            case State.Fall:
                 if ((Sprite == _playerTransitionJ2F) && (_playerTransitionJ2F.IsFinished))
                 {
                     Sprite = _playerFalling;
@@ -181,10 +183,10 @@ public class Player : GameObject
 
         switch (_playerAnimationReturn.Facing)
         {
-            case PlayerFacing.Left:
+            case Facing.Left:
                 Sprite.Effects = SpriteEffects.FlipHorizontally;
                 break;
-            case PlayerFacing.Right:
+            case Facing.Right:
                 Sprite.Effects = SpriteEffects.None;
                 break;
         }
@@ -196,5 +198,13 @@ public class Player : GameObject
     public override void Draw()
     {
         base.Draw();
+    }
+
+    public override void TriggerCollision(Collider collider)
+    {
+        base.TriggerCollision(collider);
+
+        if ((collider.GameObject is Enemy.Student) && (Math.Abs(PhysicsComponent.Velocity.X) > 100))
+            PhysicsComponent.Forces.Add(new Vector2(-2*PhysicsComponent.Velocity.X, 0));
     }
 }
