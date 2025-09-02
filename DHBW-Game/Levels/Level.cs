@@ -4,6 +4,7 @@ using GameLibrary.Entities;
 using GameLibrary.Graphics;
 using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
+using GameObjects.Enemy;
 using GameObjects.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -25,6 +26,7 @@ namespace DHBW_Game.Levels
         private List<Vector2> _exitPositions = new List<Vector2>();
         private ContentManager _content;
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
+        public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
@@ -71,6 +73,7 @@ namespace DHBW_Game.Levels
             
             // Clear lists and references
             Objects.Clear();
+            Enemys.Clear();
             _exitPositions.Clear();
             _player = null;
 
@@ -111,6 +114,16 @@ namespace DHBW_Game.Levels
                         case 'P': // Player start
                             StartPosition = new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2);
                             foundPlayer = true;
+                            break;
+                        case 'D': // Dozent
+                            Enemy enemy = new Professor(mass: 2f, isElastic: false);
+                            enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                            Enemys.Add(enemy);
+                            break;
+                        case 'S': // Student
+                            enemy = new Student(mass: 2f, isElastic: false);
+                            enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                            Enemys.Add(enemy);
                             break;
                         case 'X': // Exit
                             _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
@@ -184,6 +197,11 @@ namespace DHBW_Game.Levels
                 obj.Update(gameTime);
             }
 
+            foreach (var enemy in Enemys)
+            {
+                enemy.Update(gameTime);
+            }
+
             // Update player
             _player?.Update(gameTime);
 
@@ -222,7 +240,12 @@ namespace DHBW_Game.Levels
         public void Draw(SpriteBatch spriteBatch)
         {
             _tilemap.Draw(spriteBatch);
+            foreach (var enemy in Enemys)
+            {
+                enemy.Draw();
+            }
             _player?.Draw();
+
         }
     }
 
