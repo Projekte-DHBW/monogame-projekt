@@ -2,20 +2,11 @@ using GameLibrary.Graphics;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework.Audio;
 using System;
-using DHBW_Game;
-using DHBW_Game.UI;
+using DHBW_Game.Scenes;
 using Gum.DataTypes;
 using Gum.Managers;
-using Gum.Wireframe;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MonoGameGum;
 using MonoGameGum.GueDeriving;
 using GameLibrary;
-using GameLibrary.Input;
-using GameLibrary.Scenes;
-using MonoGameTutorial.UI;
 
 namespace DHBW_Game.UI;
 
@@ -97,7 +88,7 @@ public class PausePanel : Panel
         _restartButton.Anchor(Gum.Wireframe.Anchor.Center);
         _restartButton.Visual.X = 9f;
         _restartButton.Visual.Y = 19f;
-        _restartButton.Click += HandleResumeButtonClicked;
+        _restartButton.Click += HandleRestartButtonClicked;
         AddChild(_restartButton);
 
         AnimatedButton quitButton = new AnimatedButton(_atlas);
@@ -143,9 +134,9 @@ public class PausePanel : Panel
 
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
-        
-        // restart logic must me implemented
-        
+
+        Core.ChangeScene(new GameScene());
+        ServiceLocator.Get<Game1>().Resume();
     }
     private void HandleQuitButtonClicked(object sender, EventArgs e)
     {
@@ -154,6 +145,7 @@ public class PausePanel : Panel
 
         // Go back to the title scene.
         Core.ChangeScene(new Scenes.TitleScene());
+        ServiceLocator.Get<Game1>().Resume();
     }
 
     /// <summary>
