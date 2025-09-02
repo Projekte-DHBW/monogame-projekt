@@ -1,4 +1,4 @@
-using DHBW_Game.GameObjects;
+﻿using DHBW_Game.GameObjects;
 using GameLibrary;
 using GameLibrary.Entities;
 using GameLibrary.Graphics;
@@ -52,7 +52,7 @@ namespace DHBW_Game.Levels
             TextureRegion tilesetRegion = new TextureRegion(tilesetTexture, 0, 0, tilesetTexture.Width, tilesetTexture.Height);
             // Create tileset with 32x32 tiles
             _tileset = new Tileset(tilesetRegion, Tiles.TILE_SIZE, Tiles.TILE_SIZE);
-            
+
             // Initialize empty tilemap (will be populated in LoadLevel)
             _tilemap = new Tilemap(_tileset, 0, 0);
         }
@@ -68,7 +68,7 @@ namespace DHBW_Game.Levels
             // Clear all physics components and colliders
             physicsEngine.ClearComponents();  // You'll need to add this method to PhysicsEngine
             physicsEngine.CollisionEngine.ClearColliders();
-            
+
             // Clear lists and references
             Objects.Clear();
             _exitPositions.Clear();
@@ -93,67 +93,53 @@ namespace DHBW_Game.Levels
             int width = lines[0].Length;
             int height = lines.Count;
 
-                // Create new tilemap with correct dimensions using the stored tileset
+            // Create new tilemap with correct dimensions using the stored tileset
             _tilemap = new Tilemap(_tileset, width, height);
+
+            // Store tile IDs for second pass rectangle merging
+            int[,] tileIds = new int[height, width];
+
 
             // Parse level data and set tiles
             bool foundPlayer = false;
-            int oldTileId = GetTileIdFromChar(lines[0][0]);
-            var objPosition = new ColissionSegmentCalculator();
             for (int y = 0; y < height; y++)
             {
+                if (lines[y].Length != width)
+                    throw new Exception($"Inconsistent row width at line {y}.");
+
                 for (int x = 0; x < width; x++)
                 {
                     char tileChar = lines[y][x];
-                    // Handle special tiles
+
                     switch (tileChar)
                     {
-                        case 'P': // Player start
-                            StartPosition = new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2);
+                        case 'P':
+                            StartPosition = new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2f,
+                                                        y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2f);
                             foundPlayer = true;
                             break;
-                        case 'X': // Exit
+                        case 'X':
                             _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
                     }
-                    int tileId = GetTileIdFromChar(tileChar);
-                    _tilemap.SetTile(x, y, tileId);
 
-                    if ((tileId == Tiles.SOLID_TILE) && (oldTileId != tileId))
-                    {
-                        objPosition = new ColissionSegmentCalculator(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
-                    }
-                    if ((tileId == Tiles.SOLID_TILE) && (oldTileId == tileId))
-                    {
-                        objPosition.AddPosition(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
-                    }
-                    if (((tileId != Tiles.SOLID_TILE) && (oldTileId == Tiles.SOLID_TILE)) || ((x == width - 1) && (y == height - 1) && (tileId == 1)))
-                    {
-                        objPosition.AddPosition(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
-                        TestSegment obj = new TestSegment(objPosition.GetSegmentWidth(), Tiles.TILE_SIZE, 0, isElastic: false, frictionCoefficient: 1f);
-                        obj.Initialize(new Vector2(objPosition.GetStartPosition().X + objPosition.GetSegmentWidth() / 2, objPosition.GetStartPosition().Y));
-                        Objects.Add(obj);
-                    }
-                    oldTileId = tileId;
+                    int id = GetTileIdFromChar(tileChar);
+                    tileIds[y, x] = id;
+                    _tilemap.SetTile(x, y, id);
                 }
             }
 
-
-            // Create player if start position was found
-            if (foundPlayer)
-            {
-                _player = new Player(mass: 2f, isElastic: false);
-                _player.Initialize(StartPosition);
-            }
-            else
-            {
+            if (!foundPlayer)
                 throw new Exception("Level must have a player start position (P)!");
-            }
-
             if (_exitPositions.Count == 0)
-            {
                 throw new Exception("Level must have at least one exit (X)!");
-            }
+
+            // Build merged solid rectangles & create colliders
+            BuildOptimizedRectangleCover(tileIds, width, height, Tiles.SOLID_TILE);
+
+            // Create player
+            _player = new Player(mass: 2f, isElastic: false);
+            _player.Initialize(StartPosition);
         }
 
         /// <summary>
@@ -224,53 +210,139 @@ namespace DHBW_Game.Levels
             _tilemap.Draw(spriteBatch);
             _player?.Draw();
         }
-    }
 
-        /// <summary>
-        /// The purpose of this class is to optimize the creation of solid obstacles
-        /// like ground or platforms.
-        ///</summary>
-        public class ColissionSegmentCalculator
+        private void BuildOptimizedRectangleCover(int[,] tileIds, int width, int height, int solidId)
         {
-            private Vector2 _positionStart;
-            private Vector2 _positionEnd;
-            public ColissionSegmentCalculator()
+            // Maske: true = noch nicht abgedeckt
+            bool[,] mask = new bool[height, width];
+            int remaining = 0;
+            for (int y = 0; y < height; y++)
             {
-                // Initialize collision segment calculator with the given position
-                // This could be used to calculate segments based on the tile positions
+                for (int x = 0; x < width; x++)
+                {
+                    if (tileIds[y, x] == solidId)
+                    {
+                        mask[y, x] = true;
+                        remaining++;
+                    }
+                }
             }
-            public ColissionSegmentCalculator(Vector2 position)
+
+            if (remaining == 0)
+                return;
+
+            // Wiederhole bis alle SOLID Tiles abgedeckt
+            while (remaining > 0)
             {
-                // Initialize collision segment calculator with the given position
-                // This could be used to calculate segments based on the tile positions
-                _positionStart = position;
-                _positionEnd = _positionStart;
-            }
-            public void SetStartPosition(Vector2 position)
-            {
-                _positionStart = position;
-            }
-            public void SetEndPosition(Vector2 position)
-            {
-                _positionEnd = position;
-            }
-            public Vector2 GetStartPosition()
-            {
-                return _positionStart;
-            }
-            public Vector2 GetEndPosition()
-            {
-                return _positionEnd;
-            }
-            public int GetSegmentWidth()
-            {
-                // Calculate the width of the segment based on start and end positions
-                return (int)Math.Abs(_positionEnd.X - _positionStart.X);
-            }
-            public void AddPosition(Vector2 position)
-            {
-                // Add a new position to the segment
-                _positionEnd = position;
+                // Finde größtes Rechteck aus True-Zellen
+                if (!LargestRectangleInMask(mask, width, height,
+                        out int bestTop, out int bestLeft,
+                        out int bestH, out int bestW, out int bestArea))
+                {
+                    // Fallback (sollte nicht passieren): nimm erste verbliebene Zelle
+                    FindFirstTrue(mask, width, height, out bestTop, out bestLeft);
+                    bestH = 1;
+                    bestW = 1;
+                    bestArea = 1;
+                }
+
+                // Erstelle Collider
+                CreateColliderForRectangle(bestLeft, bestTop, bestW, bestH);
+
+                // Markiere Bereich als abgedeckt
+                for (int dy = 0; dy < bestH; dy++)
+                {
+                    for (int dx = 0; dx < bestW; dx++)
+                    {
+                        if (mask[bestTop + dy, bestLeft + dx])
+                        {
+                            mask[bestTop + dy, bestLeft + dx] = false;
+                            remaining--;
+                        }
+                    }
+                }
+
+                // (Optional) Early exit Heuristik; hier nicht nötig
             }
         }
+
+        private void CreateColliderForRectangle(int leftTile, int topTile, int widthTiles, int heightTiles)
+        {
+            int tileSize = Tiles.TILE_SIZE;
+            int wPx = widthTiles * tileSize;
+            int hPx = heightTiles * tileSize;
+
+            // Center
+            float centerX = (leftTile + widthTiles / 2f) * tileSize;
+            float centerY = (topTile + heightTiles / 2f) * tileSize;
+
+            var seg = new TestSegment(wPx, hPx, 0f, isElastic: false, frictionCoefficient: 1f);
+            seg.Initialize(new Vector2(centerX, centerY));
+            Objects.Add(seg);
+        }
+
+        private bool LargestRectangleInMask(bool[,] mask, int width, int height,
+            out int bestTop, out int bestLeft, out int bestHeight, out int bestWidth, out int bestArea)
+        {
+            // Histogram Höhen
+            int[] heights = new int[width];
+            bestArea = 0;
+            bestTop = bestLeft = bestHeight = bestWidth = 0;
+
+            for (int y = 0; y < height; y++)
+            {
+                // Update Histogramm
+                for (int x = 0; x < width; x++)
+                {
+                    heights[x] = mask[y, x] ? heights[x] + 1 : 0;
+                }
+
+                // Größtes Rechteck in Histogramm dieser Zeile
+                // Standard Stack-Algorithmus
+                Stack<int> stack = new();
+                int xIdx = 0;
+                while (xIdx <= width)
+                {
+                    int currHeight = (xIdx == width) ? 0 : heights[xIdx];
+                    if (stack.Count == 0 || currHeight >= heights[stack.Peek()])
+                    {
+                        stack.Push(xIdx++);
+                    }
+                    else
+                    {
+                        int top = stack.Pop();
+                        int heightRect = heights[top];
+                        int right = xIdx - 1;
+                        int left = stack.Count == 0 ? 0 : stack.Peek() + 1;
+                        int widthRect = right - left + 1;
+                        int area = heightRect * widthRect;
+                        if (area > bestArea)
+                        {
+                            bestArea = area;
+                            bestHeight = heightRect;
+                            bestWidth = widthRect;
+                            int bottomRow = y;
+                            bestTop = bottomRow - heightRect + 1;
+                            bestLeft = left;
+                        }
+                    }
+                }
+            }
+
+            return bestArea > 0;
+        }
+
+        private void FindFirstTrue(bool[,] mask, int width, int height, out int top, out int left)
+        {
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    if (mask[y, x])
+                    {
+                        top = y;
+                        left = x;
+                        return;
+                    }
+            top = left = 0;
+        }
     }
+}
