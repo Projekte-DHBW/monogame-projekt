@@ -114,7 +114,7 @@ public class Player : GameObject
         _moveRight = GameController.MoveRight();
 
         // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
-        if (_moveUp)
+        if (_moveUp && Collider.IsOnGround)
         {
             _jumpDuration = 0.1;
         }
