@@ -69,7 +69,8 @@ public class GameSceneUI : ContainerRuntime
             () =>
             {
                 _optionsPanel.Hide();
-            });
+            },
+            false);
         _optionsPanel.AddToRoot();
     }
 

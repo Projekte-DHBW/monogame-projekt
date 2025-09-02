@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using DHBW_Game.Save_System;
 using GameLibrary;
 using GameLibrary.Graphics;
+using Gum.DataTypes;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework.Audio;
 using MonoGameGum.GueDeriving;
@@ -32,6 +35,11 @@ namespace DHBW_Game.UI
         /// </summary>
         public AnimatedButton QuestionSystemButton { get; private set; }
 
+        /// <summary>
+        /// Gets the button for resetting the game progress.
+        /// </summary>
+        public AnimatedButton ResetGameProgressButton { get; private set; }
+
         // Constants for slider behavior
         private const float SliderSmallChange = 0.1f; // Small increment for slider adjustments
         private const float SliderLargeChange = 0.2f; // Large increment for slider adjustments
@@ -41,6 +49,14 @@ namespace DHBW_Game.UI
         private readonly Action _onBack; // Callback for back button action
         private readonly Action _onQuestionSystem; // Callback for question system button action
 
+        private ContainerRuntime _audioContainer;
+        private ContainerRuntime _deeperSettingsContainer;
+        private AnimatedButton _leftArrow;
+        private AnimatedButton _rightArrow;
+        private List<ContainerRuntime> _pages;
+        private int _currentPage = 0;
+        private readonly bool _includeDeepSettings;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OptionsPanel"/> class.
         /// </summary>
@@ -48,18 +64,20 @@ namespace DHBW_Game.UI
         /// <param name="uiSoundEffect">The sound effect played on UI interactions.</param>
         /// <param name="onBack">The action to invoke when the back button is clicked.</param>
         /// <param name="onQuestionSystem">The action to invoke when the question system button is clicked.</param>
+        /// <param name="includeDeepSettings">Whether to include deeper settings such as for the question system or the save system.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="atlas"/> or <paramref name="uiSoundEffect"/> is null.</exception>
-        public OptionsPanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onBack, Action onQuestionSystem)
+        public OptionsPanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onBack, Action onQuestionSystem, bool includeDeepSettings = true)
         {
             // Validate input parameters
             if (atlas == null) throw new ArgumentNullException(nameof(atlas));
             if (uiSoundEffect == null) throw new ArgumentNullException(nameof(uiSoundEffect));
 
             _uiSoundEffect = uiSoundEffect;
-            
+
             // Store callbacks for use in handlers
             _onBack = onBack;
             _onQuestionSystem = onQuestionSystem;
+            _includeDeepSettings = includeDeepSettings;
             Dock(Gum.Wireframe.Dock.Fill); // Set panel to fill the parent container
             IsVisible = false; // Initially hide the panel
 
@@ -73,10 +91,22 @@ namespace DHBW_Game.UI
         /// <param name="atlas">The texture atlas for UI elements.</param>
         private void InitializeChildren(TextureAtlas atlas)
         {
+            // Create containers for pages
+            _audioContainer = new ContainerRuntime();
+            _audioContainer.Dock(Gum.Wireframe.Dock.Fill);
+            AddChild(_audioContainer);
+
+            if (_includeDeepSettings)
+            {
+                _deeperSettingsContainer = new ContainerRuntime();
+                _deeperSettingsContainer.Dock(Gum.Wireframe.Dock.Fill);
+                AddChild(_deeperSettingsContainer);
+            }
+
             // Layout-Parameter
             const float sliderBaseY   = 55f; // Start point first slider
             const float sliderSpacing = 42f; // Distance between Music and SFX slider
-            
+
             // Music slider
             MusicSlider = new OptionsSlider(atlas);
             MusicSlider.Name = "MusicSlider"; // Unique identifier
@@ -90,14 +120,14 @@ namespace DHBW_Game.UI
             MusicSlider.LargeChange = SliderLargeChange; // Large increment for coarse adjustments
             MusicSlider.ValueChanged += HandleMusicSliderValueChanged; // Subscribe to value change event
             MusicSlider.ValueChangeCompleted += HandleMusicSliderValueChangeCompleted; // Subscribe to value change completion
-            AddChild(MusicSlider); // Add to panel
+            _audioContainer.AddChild(MusicSlider.Visual); // Add to audio page
 
             // SFX slider
             SfxSlider = new OptionsSlider(atlas);
             SfxSlider.Name = "SfxSlider"; // Unique identifier
             SfxSlider.Text = "SFX"; // Label text
             SfxSlider.Anchor(Gum.Wireframe.Anchor.Top); // Anchor to top
-            SfxSlider.Visual.Y =  sliderBaseY + sliderSpacing;; // Vertical position
+            SfxSlider.Visual.Y =  sliderBaseY + sliderSpacing; // Vertical position
             SfxSlider.Minimum = 0; // Minimum slider value
             SfxSlider.Maximum = 1; // Maximum slider value
             SfxSlider.Value = Core.Audio.SoundEffectVolume; // Initial value from audio settings
@@ -105,15 +135,56 @@ namespace DHBW_Game.UI
             SfxSlider.LargeChange = SliderLargeChange; // Large increment for coarse adjustments
             SfxSlider.ValueChanged += HandleSfxSliderChanged; // Subscribe to value change event
             SfxSlider.ValueChangeCompleted += HandleSfxSliderChangeCompleted; // Subscribe to value change completion
-            AddChild(SfxSlider); // Add to panel
+            _audioContainer.AddChild(SfxSlider.Visual); // Add to audio page
 
-            // Question System button
-            QuestionSystemButton = new AnimatedButton(atlas);
-            QuestionSystemButton.Text = "QUESTION SYSTEM";
-            QuestionSystemButton.Anchor(Gum.Wireframe.Anchor.Top);
-            QuestionSystemButton.Visual.Y = 156f; // Below SFX slider (spacing consistent with ~63 units)
-            QuestionSystemButton.Click += HandleQuestionSystemButtonClick; // Subscribe to click event
-            AddChild(QuestionSystemButton);
+            if (_includeDeepSettings)
+            {
+                // Question System button
+                QuestionSystemButton = new AnimatedButton(atlas);
+                QuestionSystemButton.Text = "QUESTION SYSTEM";
+                QuestionSystemButton.Anchor(Gum.Wireframe.Anchor.Top);
+                QuestionSystemButton.Visual.Y = sliderBaseY; // Vertical position (similar to audio sliders)
+                QuestionSystemButton.Height = 40f;
+                QuestionSystemButton.Visual.WidthUnits = DimensionUnitType.Absolute;
+                QuestionSystemButton.Width = 200f;
+                QuestionSystemButton.Click += HandleQuestionSystemButtonClick; // Subscribe to click event
+                _deeperSettingsContainer.AddChild(QuestionSystemButton.Visual);
+
+                // Reset game progress button
+                ResetGameProgressButton = new AnimatedButton(atlas);
+                ResetGameProgressButton.Text = "Reset Progress";
+                ResetGameProgressButton.Anchor(Gum.Wireframe.Anchor.Top);
+                ResetGameProgressButton.Visual.Y = sliderBaseY + sliderSpacing; // Vertical position (similar to audio sliders)
+                ResetGameProgressButton.Height = 40f;
+                ResetGameProgressButton.Visual.WidthUnits = DimensionUnitType.Absolute;
+                ResetGameProgressButton.Width = 200f;
+                ResetGameProgressButton.Click += HandleResetGameProgressButtonClick; // Subscribe to click event
+                _deeperSettingsContainer.AddChild(ResetGameProgressButton.Visual);
+            }
+
+            // Navigation arrows
+            _leftArrow = new AnimatedButton(atlas);
+            _leftArrow.Text = "<";
+            _leftArrow.Anchor(Gum.Wireframe.Anchor.Left);
+            _leftArrow.Visual.X = 20;
+            _leftArrow.Height = 30;
+            _leftArrow.Click += HandleLeftArrowClick;
+            AddChild(_leftArrow);
+
+            _rightArrow = new AnimatedButton(atlas);
+            _rightArrow.Text = ">";
+            _rightArrow.Anchor(Gum.Wireframe.Anchor.Right);
+            _rightArrow.Visual.X = -20;
+            _rightArrow.Height = 30;
+            _rightArrow.Click += HandleRightArrowClick;
+            AddChild(_rightArrow);
+
+            // Pages list
+            _pages = new List<ContainerRuntime> { _audioContainer };
+            if (_includeDeepSettings)
+            {
+                _pages.Add(_deeperSettingsContainer);
+            }
 
             // Back button
             BackButton = new AnimatedButton(atlas);
@@ -123,6 +194,60 @@ namespace DHBW_Game.UI
             BackButton.Y = -10f; // Vertical position offset
             BackButton.Click += HandleOptionsButtonBack; // Subscribe to click event
             AddChild(BackButton); // Add to panel
+        }
+
+        /// <summary>
+        /// Handles the left arrow button click, playing a sound effect and navigating to the previous page if available.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="args">The event arguments.</param>
+        private void HandleLeftArrowClick(object sender, EventArgs args)
+        {
+            Core.Audio.PlaySoundEffect(_uiSoundEffect);
+            if (_currentPage > 0)
+            {
+                _currentPage--;
+                UpdatePageVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Handles the right arrow button click, playing a sound effect and navigating to the next page if available.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="args">The event arguments.</param>
+        private void HandleRightArrowClick(object sender, EventArgs args)
+        {
+            Core.Audio.PlaySoundEffect(_uiSoundEffect);
+            if (_currentPage < _pages.Count - 1)
+            {
+                _currentPage++;
+                UpdatePageVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Updates the visibility of the pages and navigation arrows based on the current page index, and sets focus to the first control on the active page.
+        /// </summary>
+        private void UpdatePageVisibility()
+        {
+            for (int i = 0; i < _pages.Count; i++)
+            {
+                _pages[i].Visible = (i == _currentPage);
+            }
+
+            _leftArrow.IsVisible = _pages.Count > 1 && _currentPage > 0;
+            _rightArrow.IsVisible = _pages.Count > 1 && _currentPage < _pages.Count - 1;
+
+            // Set focus to first control on the page
+            if (_currentPage == 0)
+            {
+                MusicSlider.IsFocused = true;
+            }
+            else if (_includeDeepSettings && _currentPage == 1)
+            {
+                QuestionSystemButton.IsFocused = true;
+            }
         }
 
         /// <summary>
@@ -136,6 +261,19 @@ namespace DHBW_Game.UI
             Core.Audio.PlaySoundEffect(_uiSoundEffect);
             // Invoke the provided question system action
             _onQuestionSystem?.Invoke();
+        }
+
+        /// <summary>
+        /// Handles the reset game progress button click by resetting the progress and playing a sound.
+        /// </summary>
+        /// <param name="sender">The button that triggered the event.</param>
+        /// <param name="args">Event arguments.</param>
+        private void HandleResetGameProgressButtonClick(object sender, EventArgs args)
+        {
+            // A UI interaction occurred, play the sound effect
+            Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+            SaveManager.ResetProgress();
         }
 
         /// <summary>
@@ -203,6 +341,8 @@ namespace DHBW_Game.UI
         public void Show()
         {
             IsVisible = true; // Make the panel visible
+            _currentPage = 0;
+            UpdatePageVisibility();
             BackButton.IsFocused = true; // Set focus to the back button
         }
 
