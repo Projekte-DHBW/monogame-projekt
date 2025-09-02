@@ -262,7 +262,7 @@ namespace DHBW_Game.Levels
                     }
                 }
 
-                // (Optional) Early exit Heuristik; hier nicht nötig
+                // (Optional) Early exit heuristic; not needed here
             }
         }
 
