@@ -58,7 +58,6 @@ public class TestScene : Scene
 
         // Create the game scene ui instance.
         _ui = new GameSceneUI();
-        
     }
     
     private void InitializeNewGame()
