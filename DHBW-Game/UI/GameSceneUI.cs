@@ -25,6 +25,9 @@ public class GameSceneUI : ContainerRuntime
     // The question panel
     private QuestionPanel _questionPanel;
 
+    // The options panel
+    private OptionsPanel _optionsPanel;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GameSceneUI"/> class.
     /// </summary>
@@ -48,8 +51,27 @@ public class GameSceneUI : ContainerRuntime
         _questionPanel.AddToRoot();
         
         // Initialize pause panel
-        _pausePanel = new PausePanel(atlas, _uiSoundEffect);
+        _pausePanel = new PausePanel(atlas, _uiSoundEffect,
+            () =>
+            {
+                _optionsPanel.Show();
+                _pausePanel.Hide();
+            });
         _pausePanel.AddToRoot();
+
+        // Create options panel
+        _optionsPanel = new OptionsPanel(atlas, _uiSoundEffect,
+            () =>
+            {
+                _optionsPanel.Hide();
+                _pausePanel.Show();
+            },
+            () =>
+            {
+                _optionsPanel.Hide();
+            },
+            false);
+        _optionsPanel.AddToRoot();
     }
 
     /// <summary>

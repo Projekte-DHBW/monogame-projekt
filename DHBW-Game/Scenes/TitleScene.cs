@@ -93,7 +93,8 @@ public class TitleScene : Scene
             {
                 _optionsPanel.Hide();
                 _questionSystemPanel.Show();
-            });
+            },
+            true); // Include deep settings
         _optionsPanel.AddToRoot();
 
         // Create question system panel
