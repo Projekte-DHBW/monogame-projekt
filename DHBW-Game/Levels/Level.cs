@@ -284,7 +284,7 @@ namespace DHBW_Game.Levels
         private bool LargestRectangleInMask(bool[,] mask, int width, int height,
             out int bestTop, out int bestLeft, out int bestHeight, out int bestWidth, out int bestArea)
         {
-            // Histogram Höhen
+            // Histogram heights
             int[] heights = new int[width];
             bestArea = 0;
             bestTop = bestLeft = bestHeight = bestWidth = 0;
