@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using DHBW_Game.Question_System;
+using DHBW_Game.Save_System;
 using Microsoft.Xna.Framework.Input;
 using MonoGameGum;
 using MonoGameTutorial;
@@ -40,6 +41,9 @@ namespace DHBW_Game.Scenes
             Core.ExitOnEscape = false;
 
             _questionPool = ServiceLocator.Get<QuestionPool>();
+
+            // Load saved progress if available
+            _currentLevelNumber = SaveManager.LoadProgress();
 
             // Initialize the user interface for the game scene.
             InitializeUI();
@@ -133,6 +137,9 @@ namespace DHBW_Game.Scenes
             // Check if the current level is completed
             if (_currentLevel?.IsCompleted == true)
             {
+                // Save progress for the next level
+                SaveManager.SaveProgress(_currentLevelNumber + 1);
+
                 NextLevel();
             }
         }
