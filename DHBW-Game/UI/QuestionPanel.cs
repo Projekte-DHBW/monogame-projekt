@@ -25,6 +25,9 @@ public class QuestionPanel : Panel
     
     // Sound effect for UI interactions
     private readonly SoundEffect _uiSoundEffect;
+
+    // Demo of tts
+    private readonly SoundEffect _ttsDemo;
     
     // Container for question texture and nineslice background
     private ContainerRuntime _questionContainer;
@@ -93,6 +96,8 @@ public class QuestionPanel : Panel
 
         // Initialize child UI elements
         InitializeChildren();
+
+        _ttsDemo = Core.Content.Load<SoundEffect>("audio/ttsTestMariaIncreasedVolume");
     }
 
     /// <summary>
@@ -249,6 +254,8 @@ public class QuestionPanel : Panel
 
         // Hide feedback initially
         _feedbackContainer.Visible = false;
+
+        Core.Audio.PlaySoundEffect(_ttsDemo, 1.0f, 0.0f, 0.0f, false);
     }
 
     /// <summary>
