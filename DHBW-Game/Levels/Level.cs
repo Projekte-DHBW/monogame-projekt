@@ -239,7 +239,7 @@ namespace DHBW_Game.Levels
                         out int bestTop, out int bestLeft,
                         out int bestH, out int bestW, out int bestArea))
                 {
-                    // Fallback (sollte nicht passieren): nimm erste verbliebene Zelle
+                    // Fallback (should not happen): take the first remaining cell
                     FindFirstTrue(mask, width, height, out bestTop, out bestLeft);
                     bestH = 1;
                     bestW = 1;
