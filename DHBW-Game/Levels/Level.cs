@@ -234,7 +234,7 @@ namespace DHBW_Game.Levels
             // Wiederhole bis alle SOLID Tiles abgedeckt
             while (remaining > 0)
             {
-                // Finde größtes Rechteck aus True-Zellen
+                // Find the largest rectangle of true cells
                 if (!LargestRectangleInMask(mask, width, height,
                         out int bestTop, out int bestLeft,
                         out int bestH, out int bestW, out int bestArea))
