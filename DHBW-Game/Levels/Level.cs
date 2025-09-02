@@ -297,8 +297,8 @@ namespace DHBW_Game.Levels
                     heights[x] = mask[y, x] ? heights[x] + 1 : 0;
                 }
 
-                // Größtes Rechteck in Histogramm dieser Zeile
-                // Standard Stack-Algorithmus
+                // Largest rectangle in the histogram of this row
+                // Standard stack algorithm
                 Stack<int> stack = new();
                 int xIdx = 0;
                 while (xIdx <= width)
