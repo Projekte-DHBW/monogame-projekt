@@ -97,7 +97,7 @@ namespace GameLibrary.Physics
                 Vector2 acceleration = totalForce / physicsObject.Mass;
                 
                 // gravity acceleration
-                float g = 500f;
+                float g = 1000f;
                 
                 // Depending on whether the physics object is on the ground or not, the acceleration resulting from gravity has to be calculated differently
                 if (physicsObject.Collider.IsOnGround)
