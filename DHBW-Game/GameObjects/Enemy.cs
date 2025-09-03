@@ -46,11 +46,6 @@ public class Enemy : GameObject
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
 
         // Use rectangle collider
-        Collider = new RectangleCollider(this, new Vector2(0, 0), 55, 140, 0, isElastic);
-
-        PhysicsComponent = new PhysicsComponent(this, mass);
-
-        ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
         _animateEnemy = new AnimateGameObject();
         _cooldown = TimeSpan.FromMilliseconds(5000);
     }
