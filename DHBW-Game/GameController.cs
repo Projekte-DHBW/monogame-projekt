@@ -68,4 +68,12 @@ public static class GameController
         return s_keyboard.WasKeyJustPressed(Keys.Enter) ||
                s_gamePad.WasButtonJustPressed(Buttons.A);
     }
+
+    /// <summary>
+    /// Returns true if the player has triggered the "full-screen" button.
+    /// </summary>
+    public static bool FullScreen()
+    {
+        return s_keyboard.WasKeyJustPressed(Keys.F11);
+    }
 }
