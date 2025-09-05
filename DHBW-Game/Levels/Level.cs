@@ -6,6 +6,9 @@ using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
 using GameObjects.Enemy;
 using GameObjects.Player;
+using GameObjects.Static_Sprites.Door_Open;
+using GameObjects.Static_Sprites.Door_Closed;
+using GameObjects.Static_Sprites.Fire_Extinguisher;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,10 +31,13 @@ namespace DHBW_Game.Levels
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
         public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
 
+        public List<GameObject> BackgroundSprites { get; private set; } = new List<GameObject>();
+
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
         public bool IsCompleted { get; private set; }
         public Vector2 StartPosition { get; private set; }
+
 
         /// <summary>
         /// Initialize the level from a text file
@@ -57,6 +63,7 @@ namespace DHBW_Game.Levels
 
             // Initialize empty tilemap (will be populated in LoadLevel)
             _tilemap = new Tilemap(_tileset, 0, 0);
+
         }
 
         /// <summary>
@@ -74,6 +81,7 @@ namespace DHBW_Game.Levels
             // Clear lists and references
             Objects.Clear();
             Enemys.Clear();
+            BackgroundSprites.Clear();
             _exitPositions.Clear();
             _player = null;
 
@@ -134,6 +142,21 @@ namespace DHBW_Game.Levels
                         case 'X': // Exit
                             _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
+                        case 'O': // Door Open Sprite
+                            Door_Open openDoor = new Door_Open();
+                            openDoor.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(openDoor);
+                            break;
+                        case 'C': // Door closed Sprite
+                            Door_Closed closedDoor = new Door_Closed();
+                            closedDoor.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(closedDoor);
+                            break;
+                        case 'F': // Fire Extinguisher Sprite
+                            Fire_Extinguisher fireExtinguisher = new Fire_Extinguisher();
+                            fireExtinguisher.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(fireExtinguisher);
+                            break;
                     }
 
                     int id = GetTileIdFromChar(tileChar);
@@ -153,7 +176,14 @@ namespace DHBW_Game.Levels
             // Create player
             _player = new Player(mass: 2f, isElastic: false);
             _player.Initialize(StartPosition);
+           
+
+            if (_exitPositions.Count == 0)
+            {
+                throw new Exception("Level must have at least one exit (X)!");
+            }
         }
+        
 
         /// <summary>
         /// Get the tile ID corresponding to a character in the level file
@@ -186,6 +216,11 @@ namespace DHBW_Game.Levels
             foreach (var enemy in Enemys)
             {
                 enemy.Update(gameTime);
+            }
+
+            foreach (var sprite in BackgroundSprites)
+            {
+                sprite.Update(gameTime);
             }
 
             // Update player
@@ -226,10 +261,18 @@ namespace DHBW_Game.Levels
         public void Draw(SpriteBatch spriteBatch)
         {
             _tilemap.Draw(spriteBatch);
+
+            foreach (var sprite in BackgroundSprites)
+            {
+                sprite.Draw();
+            }
+
             foreach (var enemy in Enemys)
             {
                 enemy.Draw();
             }
+
+
             _player?.Draw();
 
         }

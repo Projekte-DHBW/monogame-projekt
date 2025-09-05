@@ -258,6 +258,51 @@
 #begin Levels/02.txt
 /copy:Levels/02.txt
 
+#begin Static_Sprites/Door/Door_Closed-definition.xml
+/copy:Static_Sprites/Door/Door_Closed-definition.xml
+
+#begin Static_Sprites/Door/Door_Closed.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Door/Door_Closed.png
+
+#begin Static_Sprites/Door/Door_Open-definition.xml
+/copy:Static_Sprites/Door/Door_Open-definition.xml
+
+#begin Static_Sprites/Door/Door_Open.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Door/Door_Open.png
+
+#begin Static_Sprites/Fire_Extinguisher-definition.xml
+/copy:Static_Sprites/Fire_Extinguisher-definition.xml
+
+#begin Static_Sprites/Fire_Extinguisher.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Fire_Extinguisher.png
+
 #begin Tiles/TilesetA.png
 /copy:Tiles/TilesetA.png
 
