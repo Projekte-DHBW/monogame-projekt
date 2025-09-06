@@ -78,6 +78,7 @@ namespace DHBW_Game.Scenes
             {
                 // If   no more levels exist, return to the title screen
                 Core.ChangeScene(new TitleScene());
+                SaveManager.ResetProgress();
                 return;
             }
 
