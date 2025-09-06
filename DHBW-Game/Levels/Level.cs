@@ -130,12 +130,12 @@ namespace DHBW_Game.Levels
                             foundPlayer = true;
                             break;
                         case 'D': // Dozent
-                            Enemy enemy = new Professor(mass: 2f, isElastic: false);
+                            Enemy enemy = new Professor(mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
                         case 'S': // Student
-                            enemy = new Student(mass: 2f, isElastic: false);
+                            enemy = new Student(mass: 1f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
