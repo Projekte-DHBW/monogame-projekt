@@ -9,6 +9,7 @@ using GameLibrary.Physics;
 using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameTutorial;
 
 namespace DHBW_Game;
 
@@ -120,6 +121,19 @@ public class Game1 : Core
     {
         base.Update(gameTime);
         _camera.Update(gameTime);
+        // Check whether to full-screen the game. Currently works like a toggle.
+        if (GameController.FullScreen())
+        {
+            if (Graphics.IsFullScreen)
+            {
+                Graphics.IsFullScreen = false;
+            }
+            else
+            {
+                Graphics.IsFullScreen = true;
+            }
+            Graphics.ApplyChanges();
+        }
     }
 
     protected override void Draw(GameTime gameTime)
