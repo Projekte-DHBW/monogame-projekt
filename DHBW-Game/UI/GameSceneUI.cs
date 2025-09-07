@@ -89,12 +89,13 @@ public class GameSceneUI : ContainerRuntime
     /// Displays a multiple-choice question in the question panel.
     /// </summary>
     /// <param name="question">The multiple-choice question to display.</param>
+    /// <param name="questionIndex">The index of the question in the question pool.</param>
     /// <param name="onAnswered">The action to invoke when the question is answered.</param>
     /// <param name="onClose">The action to invoke when the question panel is closed.</param>
-    public void ShowQuestion(MultipleChoiceQuestion question, Action onAnswered, Action onClose)
+    public void ShowQuestion(MultipleChoiceQuestion question, int questionIndex, Action onAnswered, Action onClose)
     {
         // Configure the question panel with the provided question and callbacks
-        _questionPanel.SetQuestion(question, onAnswered, onClose);
+        _questionPanel.SetQuestion(question, questionIndex, onAnswered, onClose);
         
         // Show the question panel
         _questionPanel.IsVisible = true;

@@ -112,6 +112,10 @@ public class QuestionXmlSerializer
             
             // Add question text
             questionElement.Add(new XElement("Text", q.QuestionText));
+            questionElement.Add(new XElement("TTSFriendlyText", q.TTSFriendlyText ?? q.QuestionText));
+
+            // Add lecturer ID
+            questionElement.Add(new XElement("LecturerID", q.LecturerID));
 
             // Create <Options> element and add each option
             var optionsElement = new XElement("Options");
@@ -161,6 +165,10 @@ public class QuestionXmlSerializer
             
             // Add question text
             questionElement.Add(new XElement("Text", q.QuestionText));
+            questionElement.Add(new XElement("TTSFriendlyText", q.TTSFriendlyText ?? q.QuestionText));
+
+            // Add lecturer ID
+            questionElement.Add(new XElement("LecturerID", q.LecturerID));
 
             // Create <Options> element and add each option
             var optionsElement = new XElement("Options");
@@ -212,7 +220,13 @@ public class QuestionXmlSerializer
                     
                     // Extract question text
                     QuestionText = questionElement.Element("Text")?.Value,
-                    
+
+                    // Extract tts friendly question text
+                    TTSFriendlyText = questionElement.Element("TTSFriendlyText")?.Value ?? questionElement.Element("Text")?.Value, // Fallback to QuestionText if missing
+
+                    // Extract lecturer ID
+                    LecturerID = questionElement.Element("LecturerID")?.Value ?? "",
+
                     // Extract options from <Options> element
                     Options = questionElement.Element("Options")?.Elements("Option")
                         .Select(o => o.Value)

@@ -81,7 +81,7 @@ public class TestScene : Scene
             if (q != null)
             {
                 ServiceLocator.Get<Game1>().Pause();
-                _ui.ShowQuestion(q, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume() );
+                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume() );
             }
         }
         

@@ -166,17 +166,71 @@
 /processorParam:Quality=Best
 /build:audio/theme.ogg
 
-#begin audio/ttsTestMariaIncreasedVolume.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:audio/ttsTestMariaIncreasedVolume.wav
-
 #begin audio/ui.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:audio/ui.wav
+
+#begin audio/VoiceLines/berninger1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/berninger1.wav
+
+#begin audio/VoiceLines/berninger2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/berninger2.wav
+
+#begin audio/VoiceLines/berninger3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/berninger3.wav
+
+#begin audio/VoiceLines/berninger4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/berninger4.wav
+
+#begin audio/VoiceLines/berninger5.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/berninger5.wav
+
+#begin audio/VoiceLines/schwenker1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/schwenker1.wav
+
+#begin audio/VoiceLines/schwenker2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/schwenker2.wav
+
+#begin audio/VoiceLines/schwenker3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/schwenker3.wav
+
+#begin audio/VoiceLines/schwenker4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/schwenker4.wav
+
+#begin audio/VoiceLines/schwenker5.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/VoiceLines/schwenker5.wav
 
 #begin fonts/04B_30_5x.spritefont
 /importer:FontDescriptionImporter
