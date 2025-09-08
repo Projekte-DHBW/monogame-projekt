@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using DHBW_Game.Question_System;
 using GameLibrary;
 using GameLibrary.Graphics;
@@ -104,18 +105,15 @@ public class QuestionPanel : Panel
     }
 
     /// <summary>
-    /// Loads all lecturer voice lines from Content/audio/VoiceLines with the naming scheme "[lecturer_id][file_index].wav".
+    /// Loads all lecturer voice lines from Content/audio/VoiceLines with the naming scheme "[lecturer_id][file_index].xnb".
     /// </summary>
     private void LoadLecturerVoiceLines()
     {
         // Assume voice lines are compiled via MGCB with asset names like "audio/VoiceLines/berninger1"
         // For dynamic loading, enumerate the directory to get file names, then load via Content.Load
 
-        var projectRoot = AppDomain.CurrentDomain.BaseDirectory;
-        while (!Directory.Exists(Path.Combine(projectRoot, "TTS")) && !string.IsNullOrEmpty(projectRoot))
-        {
-            projectRoot = Path.GetDirectoryName(projectRoot);
-        }
+        var projectRoot = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
         var voiceLinesDir = Path.Combine(projectRoot, "Content", "audio", "VoiceLines");
 
         if (!Directory.Exists(voiceLinesDir))
@@ -124,7 +122,7 @@ public class QuestionPanel : Panel
             return;
         }
 
-        foreach (var file in Directory.GetFiles(voiceLinesDir, "*.wav"))
+        foreach (var file in Directory.GetFiles(voiceLinesDir, "*.xnb"))
         {
             var fileName = Path.GetFileNameWithoutExtension(file);
 
