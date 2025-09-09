@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Elevator/Elevator</Texture>
+	<Regions>
+		<!-- Definiere die einzelnen Frames für die Animation -->
+		<Region name="elevatorOpen" x="0" y="0" width="64" height="64" />
+		<Region name="elevatorClosed" x="0" y="64" width="64" height="64" />
+	</Regions>
+	<Animations>
+		<Animation name="elevator-animation" delay="200">
+			<Frame region="elevatorOpen" />
+			<Frame region="elevatorClosed" />
+		</Animation>
+	</Animations>
+</TextureAtlas>
