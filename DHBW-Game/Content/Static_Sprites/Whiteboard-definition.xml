@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Static_Sprites/Whiteboard</Texture>
+	<Regions>
+		<Region name="whiteboard" x="0" y="0" width="32" height="32" />
+		<Region name="whiteboardMath" x="0" y="32" width="32" height="32" />
+		<Region name="whiteboardTheory" x="0" y="64" width="32" height="32" />
+	</Regions>
+</TextureAtlas>
