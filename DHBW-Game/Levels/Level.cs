@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using GameObjects.Static_Sprites.Whiteboard;
 
 namespace DHBW_Game.Levels
 {
@@ -161,6 +162,21 @@ namespace DHBW_Game.Levels
                             enemy = new FinalProfessor(mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
+                            break;
+                        case 'W': // Whiteboard Sprite
+                            Whiteboard whiteboard = new Whiteboard();
+                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboard);
+                            break;
+                        case 'M': // Whiteboard Math Sprite
+                            Whiteboard whiteboardMath = new Whiteboard("whiteboardMath");
+                            whiteboardMath.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboardMath);
+                            break;
+                        case 'T': // Whiteboard Theory Sprite
+                            Whiteboard whiteboardTheory = new Whiteboard("whiteboardTheory");
+                            whiteboardTheory.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboardTheory);
                             break;
                     }
 
