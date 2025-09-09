@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace DHBW_Game.Question_System;
@@ -88,7 +89,8 @@ public class QuestionPool
     {
         if (_questionGenerator == null)
         {
-            throw new InvalidOperationException("API key not set. Please provide a valid API key to generate questions.");
+            var errorMessage = "API key not set. Please provide a valid API key to generate questions.";
+            updateStatus?.Invoke($"Error: {errorMessage}");
         }
 
         updateStatus?.Invoke("Generating questions...");
@@ -114,7 +116,8 @@ public class QuestionPool
         // Check if any questions were returned
         if (newQuestions.Count == 0)
         {
-            throw new Exception("Failed to generate questions: Invalid or empty response from API.");
+            var errorMessage = "Failed to generate questions: Invalid or empty response from API.";
+            updateStatus?.Invoke($"Error: {errorMessage}");
         }
 
         // Clear existing questions if not keeping them
@@ -127,6 +130,9 @@ public class QuestionPool
 
         // Save the updated question list to the XML file
         _xmlSerializer.SaveToFile(_questions);
+
+        // Send final success message via callback
+        updateStatus?.Invoke("Questions generated!");
     }
 
     /// <summary>
@@ -134,25 +140,30 @@ public class QuestionPool
     /// </summary>
     /// <param name="voicePromptPath">Path to a single lecturer voice sample WAV file. If null, uses per-lecturer voices from voices_dir.</param>
     /// <param name="updateStatus">Callback to update UI status.</param>
-    /// <returns>A task that completes when audio files are detected or timeout occurs.</returns>
-    private async Task EnsureTTSSetupAndGenerateAudio(string voicePromptPath = null, Action<string> updateStatus = null)
+    /// <returns>A task that completes with true if the entire process (setup + generation) succeeded; false otherwise.</returns>
+    private async Task<bool> EnsureTTSSetupAndGenerateAudio(string voicePromptPath = null, Action<string> updateStatus = null)
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var venvPath = Path.Combine(appData, "DHBW-Game", "tts_venv");
         var audioDir = Path.Combine(appData, "DHBW-Game", "audio", "questions");
 
-        // Find project root by searching for TTS\tts_controller.py
-        var projectRoot = AppDomain.CurrentDomain.BaseDirectory;
-        while (!File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")) && !string.IsNullOrEmpty(projectRoot))
+        // Find project root by traversing up from the executing assembly's location (build output) until TTS\tts_controller.py is found
+        // This handles debugging where the build is in bin/Debug, but TTS is in the project root
+        var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var projectRoot = currentDir;
+        while (!string.IsNullOrEmpty(projectRoot) && !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
         {
             projectRoot = Path.GetDirectoryName(projectRoot);
         }
-        if (string.IsNullOrEmpty(projectRoot))
+
+        if (string.IsNullOrEmpty(projectRoot) || !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
         {
-            updateStatus?.Invoke("Error: Could not find TTS\\tts_controller.py");
-            Console.WriteLine("Error: Could not find project root containing TTS\\tts_controller.py");
-            return;
+            updateStatus?.Invoke("Error: Could not find TTS\\tts_controller.py in project root. Ensure the TTS folder is in your project directory.");
+            Console.WriteLine($"Error: Could not find project root containing TTS\\tts_controller.py. Searched from: {currentDir}");
+            return false;
         }
+
+        Console.WriteLine($"Found project root at: {projectRoot}"); // For debugging
 
         var scriptPath = Path.Combine(projectRoot, "TTS", "setup_tts.ps1");
         var voicesDir = Path.Combine(projectRoot, "TTS", "voices");
@@ -162,7 +173,7 @@ public class QuestionPool
         {
             updateStatus?.Invoke($"Error: Questions XML not found at {_filePath}");
             Console.WriteLine($"Questions XML not found at {_filePath}. Skipping TTS generation.");
-            return;
+            return false;
         }
 
         // Count expected number of questions from XML
@@ -176,19 +187,20 @@ public class QuestionPool
         {
             updateStatus?.Invoke($"Error: Failed to parse questions.xml: {ex.Message}");
             Console.WriteLine($"Failed to parse questions.xml: {ex.Message}");
-            return;
+            return false;
         }
 
         if (expectedAudioFiles == 0)
         {
             updateStatus?.Invoke("No questions to generate audio for.");
-            return;
+            return false;
         }
 
         // Set up venv if needed
         if (!await SetupTTSVenvIfNeeded(venvPath, scriptPath, updateStatus))
         {
-            return; // Early return on setup failure
+            Console.WriteLine("TTS setup failed. Skipping audio generation.");
+            return false; // Explicit early return on setup failure
         }
 
         // Clear existing audio files
@@ -203,29 +215,84 @@ public class QuestionPool
         }
 
         // Generate audio
-        if (!await GenerateAudioWithTTS(projectRoot, _filePath, audioDir, voicePromptPath, voicesDir, expectedAudioFiles, updateStatus))
+        bool audioGenerated = await GenerateAudioWithTTS(projectRoot, _filePath, audioDir, voicePromptPath, voicesDir, expectedAudioFiles, updateStatus);
+        if (audioGenerated)
         {
-            updateStatus?.Invoke("Warning: Audio generation incomplete. Check Python window.");
+            updateStatus?.Invoke("Audio generated!");
+            return true;
         }
         else
         {
-            updateStatus?.Invoke("Audio generated!");
+            updateStatus?.Invoke("Warning: Audio generation incomplete. Check Python window and logs.");
+            return false;
         }
     }
 
     /// <summary>
-    /// Sets up the TTS virtual environment if it doesn't exist by running the setup PowerShell script.
+    /// Sets up the TTS virtual environment if it doesn't exist or is invalid by running the setup PowerShell script.
     /// </summary>
     /// <param name="venvPath">Path to the venv directory.</param>
     /// <param name="setupScriptPath">Path to the setup_tts.ps1 script.</param>
     /// <param name="updateStatus">Callback to update UI status.</param>
-    /// <returns>True if setup succeeds or venv already exists; false on timeout or error.</returns>
+    /// <returns>True if setup succeeds or venv is valid; false on failure or timeout.</returns>
     private async Task<bool> SetupTTSVenvIfNeeded(string venvPath, string setupScriptPath, Action<string> updateStatus = null)
     {
         var venvPython = Path.Combine(venvPath, "Scripts", "python.exe");
+        var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DHBW-Game", "logs");
+        var startedFlagPattern = "tts_setup_started.flag";
+        var successFlagPattern = "tts_setup_success.flag";
+        var errorFlagPattern = "tts_setup_error.flag";
 
-        // Check and run setup script if venv is missing
-        if (!File.Exists(venvPython))
+        // Ensure logs dir exists
+        Directory.CreateDirectory(logDir);
+
+        // Clean up old flags to avoid stale state
+        try
+        {
+            var existingFlags = Directory.GetFiles(logDir, "*.flag");
+            foreach (var flag in existingFlags)
+            {
+                if (Path.GetFileName(flag).StartsWith("tts_setup_"))
+                {
+                    File.Delete(flag);
+                }
+            }
+            Console.WriteLine("Cleared old TTS setup flags in logs folder.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to clean old flags: {ex.Message}");
+        }
+
+        // Validate existing venv
+        bool isVenvValid = false;
+        if (File.Exists(venvPython))
+        {
+            Console.WriteLine($"Found venv python at {venvPython}. Validating...");
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = venvPython,
+                    Arguments = "-c \"import chatterbox.tts\"",
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            string errorOutput = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            isVenvValid = process.ExitCode == 0;
+            if (!isVenvValid)
+            {
+                Console.WriteLine($"Venv invalid: {errorOutput}");
+                updateStatus?.Invoke("Error: Existing virtual environment is invalid. Re-running setup.");
+            }
+        }
+
+        // Run setup if needed
+        if (!File.Exists(venvPython) || !isVenvValid)
         {
             var setupArgs = $"-ExecutionPolicy Bypass -File \"{setupScriptPath}\" -VenvPath \"{venvPath}\"";
             Console.WriteLine($"Running setup detached: cmd /c start powershell.exe {setupArgs}");
@@ -237,7 +304,8 @@ public class QuestionPool
                     FileName = "cmd.exe",
                     Arguments = $"/c start \"\" powershell.exe {setupArgs}",
                     UseShellExecute = true,
-                    CreateNoWindow = false
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Minimized
                 }
             };
             process.Start();
@@ -247,27 +315,86 @@ public class QuestionPool
             updateStatus?.Invoke("Setting up TTS environment...");
             bool setupComplete = false;
             const int setupTimeoutMs = 1800 * 1000; // 30 minutes
-            const int setupPollIntervalMs = 5000; // Check every 5 seconds
+            const int setupPollIntervalMs = 1000; // 1 second
             var startTime = DateTime.UtcNow;
-            while ((DateTime.UtcNow - startTime).TotalMilliseconds < setupTimeoutMs)
+            bool startedDetected = false;
+            bool errorDetected = false;
+
+            while ((DateTime.UtcNow - startTime).TotalMilliseconds < setupTimeoutMs && !errorDetected)
             {
-                if (File.Exists(venvPython))
+                var elapsed = (int)((DateTime.UtcNow - startTime).TotalSeconds);
+                updateStatus?.Invoke($"Setting up TTS environment ({elapsed}s elapsed)...");
+
+                // Force directory refresh and check for started flag
+                try
                 {
-                    setupComplete = true;
-                    break;
+                    var startedFiles = Directory.GetFiles(logDir, startedFlagPattern);
+                    if (!startedDetected && startedFiles.Length > 0)
+                    {
+                        startedDetected = true;
+                        Console.WriteLine("TTS setup started flag detected in logs folder. Script is running.");
+                        updateStatus?.Invoke("TTS setup script launched. Monitoring progress...");
+                    }
+
+                    // Check for success flag
+                    var successFiles = Directory.GetFiles(logDir, successFlagPattern);
+                    if (successFiles.Length > 0)
+                    {
+                        setupComplete = true;
+                        Console.WriteLine("TTS setup success flag detected in logs folder.");
+                        updateStatus?.Invoke("TTS environment set up! Starting audio generation...");
+                        // Clean up flags
+                        File.Delete(successFiles[0]);
+                        if (startedDetected) File.Delete(Directory.GetFiles(logDir, startedFlagPattern)[0]);
+                        break;
+                    }
+
+                    // Check for error flag
+                    var errorFiles = Directory.GetFiles(logDir, errorFlagPattern);
+                    if (errorFiles.Length > 0)
+                    {
+                        errorDetected = true;
+                        var errorMessage = File.ReadAllText(errorFiles[0]);
+                        updateStatus?.Invoke($"Error: {errorMessage}");
+                        Console.WriteLine($"TTS setup failed: {errorMessage}");
+
+                        // Clean up flags
+                        File.Delete(errorFiles[0]);
+                        if (startedDetected) File.Delete(Directory.GetFiles(logDir, startedFlagPattern)[0]);
+                        return false;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error enumerating flags in {logDir}: {ex.Message}");
+                }
+
+                // Warn if started but no resolution after 15 minutes
+                if (startedDetected && (DateTime.UtcNow - startTime).TotalMinutes > 15 && !setupComplete)
+                {
+                    var warningMessage = "TTS setup may be hanging. Check the PowerShell window or %APPDATA%\\DHBW-Game\\logs\\setup_tts.log for progress.";
+                    updateStatus?.Invoke($"Warning: {warningMessage}");
+                    Console.WriteLine(warningMessage);
+                }
+
                 await Task.Delay(setupPollIntervalMs);
             }
 
             if (!setupComplete)
             {
-                updateStatus?.Invoke("Error: TTS setup timed out. Check the PowerShell window for issues.");
-                Console.WriteLine("TTS setup timed out.");
+                var errorMessage = "TTS setup timed out or failed. Check the PowerShell window or %APPDATA%\\DHBW-Game\\logs\\setup_tts.log for details.";
+                updateStatus?.Invoke($"Error: {errorMessage}");
+                Console.WriteLine(errorMessage);
                 return false;
             }
         }
+        else
+        {
+            Console.WriteLine("Existing venv is valid. Skipping setup.");
+            updateStatus?.Invoke("TTS environment ready! Starting audio generation...");
+        }
 
-        return true; // Venv exists or setup succeeded
+        return true;
     }
 
     /// <summary>
@@ -303,7 +430,7 @@ public class QuestionPool
         var ttsScript = Path.Combine(projectRoot, "TTS", "tts_controller.py");
         Directory.CreateDirectory(outputDir);
 
-        // Launch TTS audio generation
+        // Launch TTS audio generation in a separate window, detached
         string cmdArgs;
         if (!string.IsNullOrEmpty(voicePromptPath))
         {
@@ -333,7 +460,8 @@ public class QuestionPool
                 FileName = "cmd.exe",
                 Arguments = $"/c start \"\" \"{venvPython}\" {cmdArgs}",
                 UseShellExecute = true,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Minimized
             }
         };
         processTTS.Start();
@@ -367,11 +495,11 @@ public class QuestionPool
     /// Generates audio for questions.
     /// </summary>
     /// <param name="updateStatus">Callback to update UI status.</param>
-    /// <returns>A task that completes when audio files are detected or timeout occurs.</returns>
-    public async Task GenerateAudioAsync(Action<string> updateStatus = null)
+    /// <returns>A task that completes with true if the entire process (setup + generation) succeeded; false otherwise.</returns>
+    public async Task<bool> GenerateAudioAsync(Action<string> updateStatus = null)
     {
         // Set to null to use per-lecturer voices
-        await EnsureTTSSetupAndGenerateAudio(null, updateStatus);
+        return await EnsureTTSSetupAndGenerateAudio(null, updateStatus);
     }
 
     /// <summary>

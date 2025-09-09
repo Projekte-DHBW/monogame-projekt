@@ -195,8 +195,6 @@ public class QuestionSystemPanel : Panel
             return;
         }
 
-        // Update UI to indicate generation in progress
-        _statusText.Text = "Generating questions...";
         _generateQuestionsButton.IsEnabled = false;
         _generateAudioButton.IsEnabled = false;
 
@@ -205,32 +203,26 @@ public class QuestionSystemPanel : Panel
     }
 
     /// <summary>
-    /// Asynchronously generates new questions, updating the UI.
+    /// Asynchronously generates new questions, updating the UI via callback.
     /// </summary>
     /// <returns>A task that completes when generation is done.</returns>
     private async Task GenerateQuestionsAsync()
     {
         try
         {
-            // Define callback for status updates
+            // Define callback for status updates (pool handles all messages, including success/error)
             Action<string> updateStatus = (message) => _uiActions.Enqueue(() => _statusText.Text = message);
 
             // Generate 10 new questions, replacing existing ones
             await _questionPool.GenerateNewQuestions(10, false, updateStatus);
-
-            // Queue UI update for success
-            _uiActions.Enqueue(() =>
-            {
-                _statusText.Text = "Questions generated!";
-            });
         }
         catch (Exception ex)
         {
-            // Queue UI update for error
+            // Fallback for unexpected exceptions (pool already sent specific error via callback)
             _uiActions.Enqueue(() =>
             {
                 Console.WriteLine(ex.Message);
-                _statusText.Text = $"Error: {ex.Message}";
+                _statusText.Text = $"Unexpected error: {ex.Message}";
             });
         }
 
@@ -254,8 +246,6 @@ public class QuestionSystemPanel : Panel
             return;
         }
 
-        // Update UI to indicate generation in progress
-        _statusText.Text = "Generating audio...";
         _generateAudioButton.IsEnabled = false;
         _generateQuestionsButton.IsEnabled = false;
 
@@ -264,32 +254,26 @@ public class QuestionSystemPanel : Panel
     }
 
     /// <summary>
-    /// Asynchronously generates audio, updating the UI.
+    /// Asynchronously generates audio, updating the UI via callback.
     /// </summary>
     /// <returns>A task that completes when generation is done.</returns>
     private async Task GenerateAudioAsync()
     {
         try
         {
-            // Define callback for status updates
+            // Define callback for status updates (pool handles all messages, including success/error)
             Action<string> updateStatus = (message) => _uiActions.Enqueue(() => _statusText.Text = message);
 
             // Generate audio
             await _questionPool.GenerateAudioAsync(updateStatus);
-
-            // Queue UI update for success
-            _uiActions.Enqueue(() =>
-            {
-                _statusText.Text = "Audio generated!";
-            });
         }
         catch (Exception ex)
         {
-            // Queue UI update for error
+            // Fallback for unexpected exceptions (pool already sent specific error via callback)
             _uiActions.Enqueue(() =>
             {
                 Console.WriteLine(ex.Message);
-                _statusText.Text = $"Error: {ex.Message}";
+                _statusText.Text = $"Unexpected error: {ex.Message}";
             });
         }
 
@@ -321,7 +305,7 @@ public class QuestionSystemPanel : Panel
     {
         // Play UI sound effect for interaction
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
-        
+
         // Invoke the back action (e.g., return to options panel)
         _onBack?.Invoke();
     }
@@ -333,7 +317,7 @@ public class QuestionSystemPanel : Panel
     {
         // Make the panel visible
         IsVisible = true;
-        
+
         // Set focus to the back button
         _backButton.IsFocused = true;
     }
