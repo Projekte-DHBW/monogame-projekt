@@ -16,6 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using GameObjects.Static_Sprites.Whiteboard;
+using GameObjects.Static_Sprites.Elevator;
+using GameObjects.Static_Sprites.Desk;
 using GameLibrary.Rendering;
 
 namespace DHBW_Game.Levels
@@ -174,6 +176,16 @@ namespace DHBW_Game.Levels
                         case 'X': // Exit
                             _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
+                        case 'E': // Exit Elevator Sprite
+                            Elevator elevator = new Elevator();
+                            elevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(elevator);
+                            break;
+                        case 'M': // Mirrored Elevator Sprite, initially open
+                            Elevator mirroredElevator = new Elevator(isActivated: true, isMirrored: true);
+                            mirroredElevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(mirroredElevator);
+                            break;
                         case 'O': // Door Open Sprite
                             Door_Open openDoor = new Door_Open();
                             openDoor.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
@@ -196,18 +208,23 @@ namespace DHBW_Game.Levels
                             break;
                         case '1': // Whiteboard 1 Sprite
                             Whiteboard whiteboard = new Whiteboard();
-                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard);
                             break;
                         case '2': // Whiteboard 2 Sprite
                             Whiteboard whiteboard2 = new Whiteboard("whiteboard2");
-                            whiteboard2.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard2.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard2);
                             break;
                         case '3': // Whiteboard 3 Sprite
                             Whiteboard whiteboard3 = new Whiteboard("whiteboard3");
-                            whiteboard3.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard3.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard3);
+                            break;
+                        case 'T': // Desk Sprite
+                            Desk desk = new Desk(mass: 2f, isElastic: false);
+                            desk.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(desk);
                             break;
                     }
 
@@ -277,34 +294,86 @@ namespace DHBW_Game.Levels
             // Update player
             _player?.Update(gameTime);
 
-            // Check if player reached any exit
-            if (_player != null && !IsCompleted)
-            {
-                const float PLAYER_COLLISION_RADIUS = 32f;
+            const float PLAYER_COLLISION_RADIUS = 32f;
+            Vector2 playerPos = _player.Position;
 
-                foreach (Vector2 exitPos in _exitPositions)
+            // Check if player has moved away from the starting position
+            if (Vector2.Distance(playerPos, StartPosition) > 1f) 
+            {
+               
+                foreach (var sprite in BackgroundSprites)
                 {
-                    Rectangle exitBounds = new Rectangle(
-                        (int)exitPos.X,
-                        (int)exitPos.Y,
+                    if (sprite is Elevator elevator && elevator.IsActivated)
+                    {
+                        elevator.Deactivate();
+                    }
+                }
+            }
+
+            // Check if player reached any exit
+            foreach (Vector2 exitPos in _exitPositions)
+            {
+                Rectangle exitBounds = new Rectangle(
+                    (int)exitPos.X,
+                    (int)exitPos.Y,
+                    Tiles.TILE_SIZE,
+                    Tiles.TILE_SIZE
+                );
+
+                bool playerInExitX = playerPos.X + PLAYER_COLLISION_RADIUS > exitBounds.Left &&
+                                     playerPos.X - PLAYER_COLLISION_RADIUS < exitBounds.Right;
+                bool playerInExitY = playerPos.Y + PLAYER_COLLISION_RADIUS > exitBounds.Top &&
+                                     playerPos.Y - PLAYER_COLLISION_RADIUS < exitBounds.Bottom;
+
+                if (playerInExitX && playerInExitY)
+                {
+                    // Open the elevator when the player reaches the exit
+                    foreach (var sprite in BackgroundSprites)
+                    {
+                        if (sprite is Elevator elevator && !elevator.IsActivated)
+                        {
+                            elevator.Activate();
+                        }
+                    }
+                }
+            }
+
+            // Check for collision with elevator
+            foreach (var sprite in BackgroundSprites)
+            {
+                if (sprite is Elevator elevator && elevator.IsActivated)
+                {
+                    Rectangle elevatorBounds = new Rectangle(
+                        (int)elevator.Position.X,
+                        (int)elevator.Position.Y,
                         Tiles.TILE_SIZE,
                         Tiles.TILE_SIZE
                     );
 
-                    Vector2 playerPos = _player.Position;
-                    bool playerInExitX = playerPos.X + PLAYER_COLLISION_RADIUS > exitBounds.Left &&
-                                      playerPos.X - PLAYER_COLLISION_RADIUS < exitBounds.Right;
-                    bool playerInExitY = playerPos.Y + PLAYER_COLLISION_RADIUS > exitBounds.Top &&
-                                      playerPos.Y - PLAYER_COLLISION_RADIUS < exitBounds.Bottom;
+                    bool playerInElevatorX = playerPos.X + PLAYER_COLLISION_RADIUS > elevatorBounds.Left &&
+                                             playerPos.X - PLAYER_COLLISION_RADIUS < elevatorBounds.Right;
+                    bool playerInElevatorY = playerPos.Y + PLAYER_COLLISION_RADIUS > elevatorBounds.Top &&
+                                             playerPos.Y - PLAYER_COLLISION_RADIUS < elevatorBounds.Bottom;
 
-                    if (playerInExitX && playerInExitY)
+                    if (playerInElevatorX && playerInElevatorY)
                     {
+                        // Transition to the next level
                         IsCompleted = true;
+                        LoadNextLevel();
                         break;
                     }
                 }
             }
         }
+
+        private void LoadNextLevel()
+        {
+            // Implement the logic to load the next level
+            // This could involve resetting the current level state and loading new level data
+            // Example:
+            // LoadLevel("NextLevel.txt");
+        }
+
 
         /// <summary>
         /// Draw the level
