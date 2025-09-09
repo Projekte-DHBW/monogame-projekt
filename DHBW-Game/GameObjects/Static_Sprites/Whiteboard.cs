@@ -15,7 +15,7 @@ public class Whiteboard : GameObject
 {
     private string _spriteRegionName;
 
-    public Whiteboard() : this("whiteboard")
+    public Whiteboard() : this("whiteboard1")
     {
 
     }
