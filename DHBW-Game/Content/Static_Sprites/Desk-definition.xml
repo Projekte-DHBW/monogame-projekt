@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Static_Sprites/Desk</Texture>
+	<Regions>
+		<Region name="desk" x="0" y="0" width="48" height="48" />
+	</Regions>
+</TextureAtlas>
