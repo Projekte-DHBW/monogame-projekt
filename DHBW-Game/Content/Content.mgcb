@@ -13,6 +13,21 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Animated_Sprites/Dozent_2/Run_Dozent_2-definition.xml
+/copy:Animated_Sprites/Dozent_2/Run_Dozent_2-definition.xml
+
+#begin Animated_Sprites/Dozent_2/Run_Dozent_2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Dozent_2/Run_Dozent_2.png
+
 #begin Animated_Sprites/Dozent/Idle_Dozent-definition.xml
 /copy:Animated_Sprites/Dozent/Idle_Dozent-definition.xml
 
@@ -42,6 +57,21 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Animated_Sprites/Dozent/Run_Dozent.png
+
+#begin Animated_Sprites/Elevator/Elevator-definition.xml
+/copy:Animated_Sprites/Elevator/Elevator-definition.xml
+
+#begin Animated_Sprites/Elevator/Elevator.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Animated_Sprites/Elevator/Elevator.png
 
 #begin Animated_Sprites/Player/Fall-definition.xml
 /copy:Animated_Sprites/Player/Fall-definition.xml
@@ -311,6 +341,21 @@
 
 #begin Levels/02.txt
 /copy:Levels/02.txt
+
+#begin Static_Sprites/Desk-definition.xml
+/copy:Static_Sprites/Desk-definition.xml
+
+#begin Static_Sprites/Desk.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Desk.png
 
 #begin Static_Sprites/Door/Door_Closed-definition.xml
 /copy:Static_Sprites/Door/Door_Closed-definition.xml
