@@ -142,9 +142,7 @@ public class FinalWinPanel : Panel
         Core.ChangeScene(new TitleScene());
         SaveManager.ResetProgress();
 
-        // Resume the game
         ServiceLocator.Get<Game1>().UnGameOver();
-        ServiceLocator.Get<Game1>().Resume();
     }
 
     public void UpdateGrade(double value, Color color)
