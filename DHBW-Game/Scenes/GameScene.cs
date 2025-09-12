@@ -12,10 +12,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameGum;
 using MonoGameTutorial;
 using MonoGameTutorial.UI;
-using System;
+using System.Collections.Generic;
 using DHBW_Game.UI;
-using RenderingLibrary.Graphics;
-using GameLibrary.Graphics;
 
 namespace DHBW_Game.Scenes
 {
@@ -46,6 +44,8 @@ namespace DHBW_Game.Scenes
         private readonly PhysicsEngine _physicsEngine;
         private GameSceneUI _ui;
         private QuestionPool _questionPool;
+        private List<double> _grades = new List<double>();
+        public List<double> Grades => _grades;
 
         public GameScene()
         {
@@ -65,6 +65,7 @@ namespace DHBW_Game.Scenes
 
             // Load saved progress if available
             _currentLevelNumber = SaveManager.LoadProgress();
+            _grades = SaveManager.LoadGrades();
 
             // Initialize the user interface for the game scene.
             InitializeUI();

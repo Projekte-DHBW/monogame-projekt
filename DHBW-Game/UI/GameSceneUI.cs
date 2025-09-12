@@ -1,5 +1,4 @@
 using System;
-using System.Xml.Linq;
 using DHBW_Game.Question_System;
 using DHBW_Game.Scenes;
 using DHBW_Game.UI;
@@ -206,7 +205,7 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public void ShowFinalWinPanel()
     {
-        _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100), _GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value));
+        _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100));
         _finalWinPanel.Show();
     }
 

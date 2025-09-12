@@ -2,12 +2,14 @@ using GameLibrary.Graphics;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework.Audio;
 using System;
+using System.Linq;
 using DHBW_Game.Scenes;
 using Gum.DataTypes;
 using Gum.Managers;
 using MonoGameGum.GueDeriving;
 using GameLibrary;
 using DHBW_Game.Save_System;
+using GameLibrary.Scenes;
 using Microsoft.Xna.Framework;
 
 namespace DHBW_Game.UI;
@@ -145,12 +147,17 @@ public class FinalWinPanel : Panel
         ServiceLocator.Get<Game1>().Resume();
     }
 
-    public void UpdateGrade(double value, Color color, double averageValue)
+    public void UpdateGrade(double value, Color color)
     {
         Value = value;
         grade.Text = "GRADE: " + value.ToString();
         grade.Color = color;
-        average.Text = "AVERAGE GRADE: " + averageValue.ToString();
+
+        GameScene gameScene = (GameScene)ServiceLocator.Get<Scene>();
+        double averageGrade = Math.Round(gameScene.Grades.Average(), 1);
+
+
+        average.Text = "AVERAGE GRADE: " + averageGrade.ToString();
     }
 
     /// <summary>

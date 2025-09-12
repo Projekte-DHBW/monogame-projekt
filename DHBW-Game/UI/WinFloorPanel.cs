@@ -2,11 +2,13 @@ using GameLibrary.Graphics;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework.Audio;
 using System;
+using DHBW_Game.Save_System;
 using DHBW_Game.Scenes;
 using Gum.DataTypes;
 using Gum.Managers;
 using MonoGameGum.GueDeriving;
 using GameLibrary;
+using GameLibrary.Scenes;
 using Microsoft.Xna.Framework;
 
 namespace DHBW_Game.UI;
@@ -125,6 +127,9 @@ public class WinFloorPanel : Panel
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
 
+        // Save the grades before changing scenes
+        SaveManager.SaveGrades(ServiceLocator.Get<GameScene>().Grades);
+
         // Reload the game scene
         Core.ChangeScene(new GameScene());
 
@@ -138,6 +143,8 @@ public class WinFloorPanel : Panel
         Value = value;
         grade.Text = "GRADE: " + value.ToString();
         grade.Color = color;
+        GameScene gameScene = (GameScene)ServiceLocator.Get<Scene>();
+        gameScene.Grades.Add(value);
     }
 
     /// <summary>
