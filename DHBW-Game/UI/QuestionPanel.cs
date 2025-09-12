@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DHBW_Game.Question_System;
+using DHBW_Game.Scenes;
 using GameLibrary;
 using GameLibrary.Graphics;
 using Gum.Converters;
@@ -64,6 +65,18 @@ public class QuestionPanel : Panel
     
     // Callback for when the panel is closed
     private Action _onClose;
+    public class AnswerEventArgs
+    {
+
+        public bool CorrectAnswer;
+
+        public AnswerEventArgs(bool correctAnswer)
+        {
+            CorrectAnswer = correctAnswer;
+        }
+    }
+    public delegate void AnswerlHandler(object sender, AnswerEventArgs e);
+    public event AnswerlHandler Answer;
 
     // Paths to fonts (if left null, the default fonts of the LaTeXRenderer will be used)
     private const string TextFontPath = null;
@@ -272,6 +285,8 @@ public class QuestionPanel : Panel
 
         // Determine if the selected answer is correct
         bool isCorrect = _currentQuestion != null && selectedIndex == _currentQuestion.CorrectOptionIndex;
+
+        Answer?.Invoke(this, new AnswerEventArgs(isCorrect));
 
         // Render feedback text to texture, using appropriate color and content based on correctness
         string feedbackStr = isCorrect ? "Correct!" : $"Incorrect! {_currentQuestion?.Explanation ?? "No explanation available"}";

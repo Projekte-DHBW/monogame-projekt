@@ -32,6 +32,16 @@ public class Game1 : Core
     /// </summary>
     public bool IsPaused { get; private set; }
 
+    /// <summary>
+    /// Gets whether the game is paused.
+    /// </summary>
+    public bool IsQuestionPaused { get; private set; }
+
+    /// <summary>
+    /// Gets whether the game is over.
+    /// </summary>
+    public bool IsGameOver { get; private set; } = false;
+
     public Game1() : base("DHBW Game", 1280, 720, false)
     {
 
@@ -159,11 +169,52 @@ public class Game1 : Core
     /// </summary>
     public void Resume()
     {
-        if (IsPaused)
+        if (IsPaused && !IsGameOver)
         {
             _physicsEngine.Resume();
             s_activeScene.Resume();
             IsPaused = false;
         }
+    }
+
+    /// <summary>
+    /// Pause the game.
+    /// </summary>
+    public void QuestionPause()
+    {
+        if (!IsQuestionPaused)
+        {
+            _physicsEngine.Pause();
+            s_activeScene.Pause();
+            IsQuestionPaused = true;
+        }
+    }
+
+    /// <summary>
+    /// Resume the game.
+    /// </summary>
+    public void QuestionResume()
+    {
+        if (IsQuestionPaused && !IsGameOver)
+        {
+            _physicsEngine.Resume();
+            s_activeScene.Resume();
+            IsQuestionPaused = false;
+        }
+    }
+    /// <summary>
+    /// End the game.
+    /// </summary>
+    public void GameOver()
+    {
+        Pause();
+        IsGameOver = true;
+    }
+    /// <summary>
+    /// End the game.
+    /// </summary>
+    public void UnGameOver()
+    {
+        IsGameOver = false;
     }
 }

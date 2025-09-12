@@ -1,13 +1,18 @@
 using System;
+using System.Xml.Linq;
 using DHBW_Game.Question_System;
+using DHBW_Game.Scenes;
 using DHBW_Game.UI;
 using GameLibrary;
 using GameLibrary.Graphics;
+using GameLibrary.Scenes;
+using Gum.Forms.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using MonoGameGum;
 using MonoGameGum.GueDeriving;
+using static DHBW_Game.UI.QuestionPanel;
 
 namespace MonoGameTutorial.UI;
 
@@ -27,6 +32,20 @@ public class GameSceneUI : ContainerRuntime
 
     // The options panel
     private OptionsPanel _optionsPanel;
+
+    // The GameOver panel
+    private GameOverPanel _gameOverPanel;
+
+    private WinFloorPanel _winFloorPanel;
+
+    private FinalWinPanel _finalWinPanel;
+
+    public OptionsSlider MusicSlider { get; private set; }
+    private ContainerRuntime _audioContainer;
+    public GPAIndicatorUI _GPAIndicatorUI { get; private set; }
+    private ContainerRuntime Container;
+    private Panel hud;
+    private TextRuntime floorText;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GameSceneUI"/> class.
@@ -48,6 +67,7 @@ public class GameSceneUI : ContainerRuntime
 
         // Initialize question panel
         _questionPanel = new QuestionPanel(atlas, _uiSoundEffect);
+        _questionPanel.Answer += HandleAnswer;
         _questionPanel.AddToRoot();
         
         // Initialize pause panel
@@ -72,6 +92,48 @@ public class GameSceneUI : ContainerRuntime
             },
             false);
         _optionsPanel.AddToRoot();
+
+        // Initialize gameOver panel
+        _gameOverPanel = new GameOverPanel(atlas, _uiSoundEffect);
+        _gameOverPanel.AddToRoot();
+
+        // Initialize winFloor panel
+        _winFloorPanel = new WinFloorPanel(atlas, _uiSoundEffect);
+        _winFloorPanel.AddToRoot();
+
+        // Initialize finalWin panel
+        _finalWinPanel = new FinalWinPanel(atlas, _uiSoundEffect);
+        _finalWinPanel.AddToRoot();
+
+        hud = new Panel();
+        hud.Dock(Gum.Wireframe.Dock.Fill);
+        hud.AddToRoot();
+
+        _GPAIndicatorUI = new GPAIndicatorUI(atlas, new Stages(new Stage(100, Color.Lime, 0), new Stage(45, Color.Lime, 1), new Stage(30, Color.Yellow, 2), new Stage(15, Color.Orange, 3), new Stage(0, Color.Red, 4)));
+        _GPAIndicatorUI.Name = "bar";
+        _GPAIndicatorUI.Anchor(Gum.Wireframe.Anchor.TopRight);
+        _GPAIndicatorUI.X = -2;
+        _GPAIndicatorUI.Y = .5f;
+        _GPAIndicatorUI.Value = 1f;
+
+        hud.AddChild(_GPAIndicatorUI);
+
+        GameScene gameScene = (GameScene)ServiceLocator.Get<Scene>();
+
+        floorText = new TextRuntime();
+        floorText.Red = 70;
+        floorText.Green = 86;
+        floorText.Blue = 130;
+        floorText.CustomFontFile = @"fonts/04b_30.fnt";
+        floorText.FontScale = 0.2f;
+        floorText.UseCustomFont = true;
+        floorText.Text = "Floor: "+ (gameScene._currentLevelNumber+1).ToString();
+        floorText.Anchor(Gum.Wireframe.Anchor.TopLeft);
+        floorText.X = 2;
+        floorText.Y = 1;
+        floorText.OutlineThickness = 1;
+
+        hud.AddChild(floorText);
     }
 
     /// <summary>
@@ -83,6 +145,11 @@ public class GameSceneUI : ContainerRuntime
     {
         // Play the UI sound effect for auditory feedback when a UI element gains focus
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
+    }
+
+    public void HandleAnswer(object sender, AnswerEventArgs e)
+    {
+        _GPAIndicatorUI.HandleAnswer(e.CorrectAnswer);
     }
 
     /// <summary>
@@ -117,6 +184,32 @@ public class GameSceneUI : ContainerRuntime
     }
 
     /// <summary>
+    /// Shows the gameOver panel.
+    /// </summary>
+    public void ShowGameOver()
+    {
+        _gameOverPanel.Show();
+    }
+
+    /// <summary>
+    /// Shows the winFloor panel.
+    /// </summary>
+    public void ShowWinFloorPanel()
+    {
+        _winFloorPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value*100));
+        _winFloorPanel.Show();
+    }
+
+    /// <summary>
+    /// Shows the finalWin panel.
+    /// </summary>
+    public void ShowFinalWinPanel()
+    {
+        _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100));
+        _finalWinPanel.Show();
+    }
+
+    /// <summary>
     /// Updates the game scene UI.
     /// </summary>
     /// <param name="gameTime">A snapshot of the timing values for the current update cycle.</param>
@@ -124,6 +217,7 @@ public class GameSceneUI : ContainerRuntime
     {
         // Update the GumService to handle UI updates
         GumService.Default.Update(gameTime);
+        _GPAIndicatorUI.Update(gameTime);
     }
 
     /// <summary>
