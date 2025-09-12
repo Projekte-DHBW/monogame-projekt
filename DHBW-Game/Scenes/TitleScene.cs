@@ -74,7 +74,11 @@ public class TitleScene : Scene
     
         // Create title panel
         _titlePanel = new TitlePanel(_atlas, _uiSoundEffect, 
-            () => Core.ChangeScene(new GameScene()),
+            () =>
+            {
+                Core.ChangeScene(new GameScene());
+                ServiceLocator.Get<Game1>().Resume();
+            },
             () => 
             {
                 _titlePanel.Hide();
