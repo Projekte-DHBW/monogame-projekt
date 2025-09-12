@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace DHBW_Game.Question_System;
 
@@ -13,21 +16,24 @@ public class QuestionPool
 {
     // List of questions in the pool
     private List<MultipleChoiceQuestion> _questions = new List<MultipleChoiceQuestion>();
-    
+
     // Set of indices for answered questions
     private HashSet<int> _answeredIndices = new HashSet<int>();
-    
+
     // File path for the XML file storing questions
     private readonly string _filePath;
-    
+
     // Serializer for handling XML operations
     private readonly QuestionXmlSerializer _xmlSerializer;
-    
+
     // Generator for creating new questions via API
     private QuestionGenerator _questionGenerator;
-    
+
     // Random number generator for selecting a random question from the pool
     private readonly Random _randomNumberGenerator;
+
+    // List to track running Python processes
+    private readonly List<Process> _runningProcesses = new List<Process>();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QuestionPool"/> class, loading questions from the specified or default XML file.
@@ -38,22 +44,22 @@ public class QuestionPool
     {
         // Set the file path, defaulting to AppData directory if not provided
         _filePath = filePath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DHBW-Game", "questions.xml");
-        
+
         // Initialize the XML serializer
         _xmlSerializer = new QuestionXmlSerializer(_filePath);
 
         // Load the API key from secure storage
         var apiKey = SecureApiKeyStorage.LoadApiKey();
-        
+
         if (!string.IsNullOrEmpty(apiKey))
         {
             // Initialize the question generator with the API key
             _questionGenerator = new QuestionGenerator(apiKey);
         }
-        
+
         // Initialize the random number generator
         _randomNumberGenerator = new Random();
-        
+
         // Load questions from the XML file
         LoadQuestions();
     }
@@ -65,32 +71,53 @@ public class QuestionPool
     {
         // Load questions using the XML serializer
         _questions = _xmlSerializer.LoadFromFile();
-        
+
         // Clear answered indices to reset tracking
         _answeredIndices.Clear();
     }
 
     /// <summary>
-    /// Generates new questions using the API and adds them to the pool, saving to file.
+    /// Generates new questions using the API and adds them to the pool, saving to file. Deletes existing audio files.
     /// </summary>
     /// <param name="numberOfQuestions">The number of questions to generate.</param>
     /// <param name="keepExisting">Whether to keep existing questions or replace them.</param>
+    /// <param name="updateStatus">Callback to update UI status.</param>
     /// <returns>A task that completes when the generation and saving are done.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the API key is missing.</exception>
     /// <exception cref="Exception">Thrown if the API fails to generate questions or returns no questions.</exception>
-    public async Task GenerateNewQuestions(int numberOfQuestions, bool keepExisting)
+    public async Task GenerateNewQuestions(int numberOfQuestions, bool keepExisting, Action<string> updateStatus = null)
     {
         if (_questionGenerator == null)
         {
-            throw new InvalidOperationException("API key not set. Please provide a valid API key to generate questions."); 
+            var errorMessage = "API key not set. Please provide a valid API key to generate questions.";
+            updateStatus?.Invoke($"Error: {errorMessage}");
         }
-        
+
+        updateStatus?.Invoke("Generating questions...");
+
+        // Define audio directory
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var audioDir = Path.Combine(appData, "DHBW-Game", "audio", "questions");
+
+        // Clear existing audio files to avoid mismatches (if no new audio files are generated, the game would think that the old audio files belong to the new questions)
+        try
+        {
+            ClearExistingAudioFiles(audioDir, null); // Currently the UI update status is not needed
+        }
+        catch (Exception ex)
+        {
+            updateStatus?.Invoke($"Warning: Failed to clear old audio files: {ex.Message}");
+            Console.WriteLine($"Failed to clear old audio files: {ex.Message}");
+        }
+
         // Generate and parse questions via the API
         var newQuestions = await _questionGenerator.GenerateQuestions(numberOfQuestions);
 
         // Check if any questions were returned
         if (newQuestions.Count == 0)
         {
-            throw new Exception("Failed to generate questions: Invalid or empty response from API.");
+            var errorMessage = "Failed to generate questions: Invalid or empty response from API.";
+            updateStatus?.Invoke($"Error: {errorMessage}");
         }
 
         // Clear existing questions if not keeping them
@@ -100,11 +127,399 @@ public class QuestionPool
         }
         // Add new questions to the pool
         _questions.AddRange(newQuestions);
-        
+
         // Save the updated question list to the XML file
         _xmlSerializer.SaveToFile(_questions);
+
+        // Send final success message via callback
+        updateStatus?.Invoke("Questions generated!");
     }
-    
+
+    /// <summary>
+    /// Ensures the TTS venv is set up and generates audio for questions using lecturer voice samples.
+    /// </summary>
+    /// <param name="voicePromptPath">Path to a single lecturer voice sample WAV file. If null, uses per-lecturer voices from voices_dir.</param>
+    /// <param name="updateStatus">Callback to update UI status.</param>
+    /// <returns>A task that completes with true if the entire process (setup + generation) succeeded; false otherwise.</returns>
+    private async Task<bool> EnsureTTSSetupAndGenerateAudio(string voicePromptPath = null, Action<string> updateStatus = null)
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var venvPath = Path.Combine(appData, "DHBW-Game", "tts_venv");
+        var audioDir = Path.Combine(appData, "DHBW-Game", "audio", "questions");
+
+        // Project root is the directory of the executing assembly (build output), where TTS is copied during build
+        var projectRoot = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        // Verify TTS exists (optional, for robustness in case of build issues)
+        if (!Directory.Exists(Path.Combine(projectRoot, "TTS")) || !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
+        {
+            // Log error or throw—e.g., updateStatus?.Invoke("Error: TTS folder not found in build output. Check csproj and rebuild.");
+            throw new DirectoryNotFoundException("TTS folder missing in build output.");
+        }
+
+        Console.WriteLine($"Found project root at: {projectRoot}"); // For debugging
+
+        var scriptPath = Path.Combine(projectRoot, "TTS", "setup_tts.ps1");
+        var voicesDir = Path.Combine(projectRoot, "TTS", "voices");
+
+        // Check if questions.xml exists
+        if (!File.Exists(_filePath))
+        {
+            updateStatus?.Invoke($"Error: Questions XML not found at {_filePath}");
+            Console.WriteLine($"Questions XML not found at {_filePath}. Skipping TTS generation.");
+            return false;
+        }
+
+        // Count expected number of questions from XML
+        int expectedAudioFiles = 0;
+        try
+        {
+            var xmlDoc = XDocument.Load(_filePath);
+            expectedAudioFiles = xmlDoc.Element("Questions")?.Elements("Question").Count() ?? 0;
+        }
+        catch (Exception ex)
+        {
+            updateStatus?.Invoke($"Error: Failed to parse questions.xml: {ex.Message}");
+            Console.WriteLine($"Failed to parse questions.xml: {ex.Message}");
+            return false;
+        }
+
+        if (expectedAudioFiles == 0)
+        {
+            updateStatus?.Invoke("No questions to generate audio for.");
+            return false;
+        }
+
+        // Set up venv if needed
+        if (!await SetupTTSVenvIfNeeded(venvPath, scriptPath, updateStatus))
+        {
+            Console.WriteLine("TTS setup failed. Skipping audio generation.");
+            return false; // Explicit early return on setup failure
+        }
+
+        // Clear existing audio files
+        try
+        {
+            ClearExistingAudioFiles(audioDir, updateStatus);
+        }
+        catch (Exception ex)
+        {
+            updateStatus?.Invoke($"Warning: Failed to clear old audio files: {ex.Message}");
+            Console.WriteLine($"Failed to clear old audio files: {ex.Message}");
+        }
+
+        // Generate audio
+        bool audioGenerated = await GenerateAudioWithTTS(projectRoot, _filePath, audioDir, voicePromptPath, voicesDir, expectedAudioFiles, updateStatus);
+        if (audioGenerated)
+        {
+            updateStatus?.Invoke("Audio generated!");
+            return true;
+        }
+        else
+        {
+            updateStatus?.Invoke("Warning: Audio generation incomplete. Check Python window and logs.");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Sets up the TTS virtual environment if it doesn't exist or is invalid by running the setup PowerShell script.
+    /// </summary>
+    /// <param name="venvPath">Path to the venv directory.</param>
+    /// <param name="setupScriptPath">Path to the setup_tts.ps1 script.</param>
+    /// <param name="updateStatus">Callback to update UI status.</param>
+    /// <returns>True if setup succeeds or venv is valid; false on failure or timeout.</returns>
+    private async Task<bool> SetupTTSVenvIfNeeded(string venvPath, string setupScriptPath, Action<string> updateStatus = null)
+    {
+        var venvPython = Path.Combine(venvPath, "Scripts", "python.exe");
+        var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DHBW-Game", "logs");
+        var startedFlagPattern = "tts_setup_started.flag";
+        var successFlagPattern = "tts_setup_success.flag";
+        var errorFlagPattern = "tts_setup_error.flag";
+
+        // Ensure logs dir exists
+        Directory.CreateDirectory(logDir);
+
+        // Clean up old flags to avoid stale state
+        try
+        {
+            var existingFlags = Directory.GetFiles(logDir, "*.flag");
+            foreach (var flag in existingFlags)
+            {
+                if (Path.GetFileName(flag).StartsWith("tts_setup_"))
+                {
+                    File.Delete(flag);
+                }
+            }
+            Console.WriteLine("Cleared old TTS setup flags in logs folder.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to clean old flags: {ex.Message}");
+        }
+
+        // Validate existing venv
+        bool isVenvValid = false;
+        if (File.Exists(venvPython))
+        {
+            Console.WriteLine($"Found venv python at {venvPython}. Validating...");
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = venvPython,
+                    Arguments = "-c \"import chatterbox.tts\"",
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            string errorOutput = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            isVenvValid = process.ExitCode == 0;
+            if (!isVenvValid)
+            {
+                Console.WriteLine($"Venv invalid: {errorOutput}");
+                updateStatus?.Invoke("Error: Existing virtual environment is invalid. Re-running setup.");
+            }
+        }
+
+        // Run setup if needed
+        if (!File.Exists(venvPython) || !isVenvValid)
+        {
+            var setupArgs = $"-ExecutionPolicy Bypass -File \"{setupScriptPath}\" -VenvPath \"{venvPath}\"";
+            Console.WriteLine($"Running setup detached: cmd /c start powershell.exe {setupArgs}");
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c start \"\" powershell.exe {setupArgs}",
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Minimized
+                }
+            };
+            process.Start();
+            _runningProcesses.Add(process); // Track the process
+
+            // Poll for venv creation
+            updateStatus?.Invoke("Setting up TTS environment...");
+            bool setupComplete = false;
+            const int setupTimeoutMs = 1800 * 1000; // 30 minutes
+            const int setupPollIntervalMs = 1000; // 1 second
+            var startTime = DateTime.UtcNow;
+            bool startedDetected = false;
+            bool errorDetected = false;
+
+            while ((DateTime.UtcNow - startTime).TotalMilliseconds < setupTimeoutMs && !errorDetected)
+            {
+                var elapsed = (int)((DateTime.UtcNow - startTime).TotalSeconds);
+                updateStatus?.Invoke($"Setting up TTS environment ({elapsed}s elapsed)...");
+
+                // Force directory refresh and check for started flag
+                try
+                {
+                    var startedFiles = Directory.GetFiles(logDir, startedFlagPattern);
+                    if (!startedDetected && startedFiles.Length > 0)
+                    {
+                        startedDetected = true;
+                        Console.WriteLine("TTS setup started flag detected in logs folder. Script is running.");
+                        updateStatus?.Invoke("TTS setup script launched. Monitoring progress...");
+                    }
+
+                    // Check for success flag
+                    var successFiles = Directory.GetFiles(logDir, successFlagPattern);
+                    if (successFiles.Length > 0)
+                    {
+                        setupComplete = true;
+                        Console.WriteLine("TTS setup success flag detected in logs folder.");
+                        updateStatus?.Invoke("TTS environment set up! Starting audio generation...");
+                        // Clean up flags
+                        File.Delete(successFiles[0]);
+                        if (startedDetected) File.Delete(Directory.GetFiles(logDir, startedFlagPattern)[0]);
+                        break;
+                    }
+
+                    // Check for error flag
+                    var errorFiles = Directory.GetFiles(logDir, errorFlagPattern);
+                    if (errorFiles.Length > 0)
+                    {
+                        errorDetected = true;
+                        var errorMessage = File.ReadAllText(errorFiles[0]);
+                        updateStatus?.Invoke($"Error: {errorMessage}");
+                        Console.WriteLine($"TTS setup failed: {errorMessage}");
+
+                        // Clean up flags
+                        File.Delete(errorFiles[0]);
+                        if (startedDetected) File.Delete(Directory.GetFiles(logDir, startedFlagPattern)[0]);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error enumerating flags in {logDir}: {ex.Message}");
+                }
+
+                // Warn if started but no resolution after 15 minutes
+                if (startedDetected && (DateTime.UtcNow - startTime).TotalMinutes > 15 && !setupComplete)
+                {
+                    var warningMessage = "TTS setup may be hanging. Check the PowerShell window or %APPDATA%\\DHBW-Game\\logs\\setup_tts.log for progress.";
+                    updateStatus?.Invoke($"Warning: {warningMessage}");
+                    Console.WriteLine(warningMessage);
+                }
+
+                await Task.Delay(setupPollIntervalMs);
+            }
+
+            if (!setupComplete)
+            {
+                var errorMessage = "TTS setup timed out or failed. Check the PowerShell window or %APPDATA%\\DHBW-Game\\logs\\setup_tts.log for details.";
+                updateStatus?.Invoke($"Error: {errorMessage}");
+                Console.WriteLine(errorMessage);
+                return false;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Existing venv is valid. Skipping setup.");
+            updateStatus?.Invoke("TTS environment ready! Starting audio generation...");
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Clears existing question audio files from the specified directory.
+    /// </summary>
+    /// <param name="audioDir">Path to the audio directory.</param>
+    /// <param name="updateStatus">Callback to update UI status.</param>
+    private void ClearExistingAudioFiles(string audioDir, Action<string> updateStatus = null)
+    {
+        if (Directory.Exists(audioDir))
+        {
+            foreach (var file in Directory.GetFiles(audioDir, "question_*.wav"))
+            {
+                File.Delete(file);
+            }
+            updateStatus?.Invoke("Cleared existing audio files.");
+        }
+    }
+
+    /// <summary>
+    /// Launches the TTS Python script to generate audio files and polls for completion asynchronously.
+    /// </summary>
+    /// <param name="projectRoot">Path to the project root.</param>
+    /// <param name="xmlPath">Path to questions.xml.</param>
+    /// <param name="outputDir">Output directory for audio files.</param>
+    /// <param name="voicePromptPath">Path to single voice sample (null for per-lecturer).</param>
+    /// <param name="voicesDir">Directory for per-lecturer voice samples.</param>
+    /// <param name="expectedAudioFiles">Number of expected audio files.</param>
+    /// <param name="updateStatus">Callback to update UI status.</param>
+    /// <returns>A task that completes with true if all expected files are generated; false on timeout.</returns>
+    private async Task<bool> GenerateAudioWithTTS(string projectRoot, string xmlPath, string outputDir, string voicePromptPath, string voicesDir, int expectedAudioFiles, Action<string> updateStatus = null)
+    {
+        var ttsScript = Path.Combine(projectRoot, "TTS", "tts_controller.py");
+        Directory.CreateDirectory(outputDir);
+
+        // Launch TTS audio generation in a separate window, detached
+        string cmdArgs;
+        if (!string.IsNullOrEmpty(voicePromptPath))
+        {
+            // Single voice mode
+            if (!File.Exists(voicePromptPath))
+            {
+                updateStatus?.Invoke($"Error: Voice sample not found at {voicePromptPath}");
+                Console.WriteLine($"Voice sample not found at {voicePromptPath}. Skipping TTS generation.");
+                return false;
+            }
+            cmdArgs = $"\"{ttsScript}\" --xml \"{xmlPath}\" --output \"{outputDir}\" --voice \"{voicePromptPath}\"";
+        }
+        else
+        {
+            // Per-lecturer mode, let Python handle lecturer iteration
+            cmdArgs = $"\"{ttsScript}\" --xml \"{xmlPath}\" --output \"{outputDir}\" --voices_dir \"{voicesDir}\"";
+        }
+
+        var venvPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DHBW-Game", "tts_venv");
+        var venvPython = Path.Combine(venvPath, "Scripts", "python.exe");
+
+        Console.WriteLine($"Running TTS detached: cmd /c start \"\" \"{venvPython}\" {cmdArgs}");
+        var processTTS = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c start \"\" \"{venvPython}\" {cmdArgs}",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Minimized
+            }
+        };
+        processTTS.Start();
+        _runningProcesses.Add(processTTS); // Track the process
+
+        // Poll for audio files asynchronously
+        updateStatus?.Invoke("Generating audio...");
+        bool audioGenerated = false;
+        const int audioTimeoutMs = 1800 * 1000; // 30 minutes
+        const int audioPollIntervalMs = 2000; // Check every 2 seconds
+        var audioStartTime = DateTime.UtcNow;
+        while ((DateTime.UtcNow - audioStartTime).TotalMilliseconds < audioTimeoutMs)
+        {
+            var audioFiles = Directory.GetFiles(outputDir, "question_*.wav");
+            var generatedCount = audioFiles.Length;
+            if (generatedCount >= expectedAudioFiles)
+            {
+                audioGenerated = true;
+                break;
+            }
+            // Update progress
+            updateStatus?.Invoke($"Generating audio ({generatedCount}/{expectedAudioFiles} files complete)...");
+
+            await Task.Delay(audioPollIntervalMs); // Non-blocking await to yield control to the game loop
+        }
+
+        return audioGenerated;
+    }
+
+    /// <summary>
+    /// Generates audio for questions.
+    /// </summary>
+    /// <param name="updateStatus">Callback to update UI status.</param>
+    /// <returns>A task that completes with true if the entire process (setup + generation) succeeded; false otherwise.</returns>
+    public async Task<bool> GenerateAudioAsync(Action<string> updateStatus = null)
+    {
+        // Set to null to use per-lecturer voices
+        return await EnsureTTSSetupAndGenerateAudio(null, updateStatus);
+    }
+
+    /// <summary>
+    /// Cancels all running Python processes (e.g., TTS setup and audio generation).
+    /// </summary>
+    public void CancelRunningProcesses()
+    {
+        foreach (var process in _runningProcesses.ToList()) // Create a copy to avoid modification issues
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    // Kill the process and its descendants (cmd.exe and python.exe)
+                    process.Kill(true); // true ensures the entire process tree is terminated
+                    Console.WriteLine($"Terminated process with ID {process.Id}");
+                }
+                _runningProcesses.Remove(process); // Remove from tracking
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to terminate process with ID {process.Id}: {ex.Message}");
+            }
+        }
+    }
+
     /// <summary>
     /// Refreshes the question generator by reloading the API key from storage.
     /// </summary>
@@ -200,7 +615,7 @@ public class QuestionPool
         if (index >= 0 && index < _questions.Count && updatedQuestion != null)
         {
             _questions[index] = updatedQuestion;
-            
+
             // Save the updated question list to the XML file
             _xmlSerializer.SaveToFile(_questions);
         }

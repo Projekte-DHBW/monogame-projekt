@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using DHBW_Game.Question_System;
 using DHBW_Game.Scenes;
 using GameLibrary;
@@ -23,46 +25,43 @@ public class QuestionPanel : Panel
 {
     // Texture atlas for UI elements
     private readonly TextureAtlas _atlas;
-    
+
     // Sound effect for UI interactions
     private readonly SoundEffect _uiSoundEffect;
 
-    // Demo of tts
-    private readonly SoundEffect _ttsDemo;
-    
     // Container for question texture and nineslice background
     private ContainerRuntime _questionContainer;
-    
+
     // Background for question container
     private NineSliceRuntime _questionBackground;
-    
+
     // UI element for displaying the question as texture
     private SpriteRuntime _questionSprite;
-    
+
     // List of buttons for answer options
     private readonly List<OptionButton> _optionButtons = new List<OptionButton>();
-    
+
     // Container for feedback UI elements
     private ContainerRuntime _feedbackContainer;
-    
+
     // UI element for displaying feedback as texture
     private SpriteRuntime _feedbackSprite;
-    
+
     // Button to continue after answering
     private AnimatedButton _continueButton;
-    
+
     // Background for the feedback container
     private ColoredRectangleRuntime _feedbackBackground;
-    
+
     // Background for the entire panel
-    private ColoredRectangleRuntime _background; 
+    private ColoredRectangleRuntime _background;
 
     // Current question being displayed
     private MultipleChoiceQuestion _currentQuestion;
-    
+
     // Callback for when the question is answered
     private Action _onAnswered;
-    
+
     // Callback for when the panel is closed
     private Action _onClose;
     public class AnswerEventArgs
@@ -87,6 +86,9 @@ public class QuestionPanel : Panel
     // Zoom level of the Gum camera; required to correctly scale rendered textures to match the UI resolution
     private readonly float _zoom = GumService.Default.Renderer.Camera.Zoom;
 
+    // Dictionary of lecturer voice lines (key: lecturer name, value: list of SoundEffect)
+    private readonly Dictionary<string, List<SoundEffect>> _lecturerVoiceLines = new Dictionary<string, List<SoundEffect>>();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="QuestionPanel"/> class.
     /// </summary>
@@ -102,15 +104,78 @@ public class QuestionPanel : Panel
         _atlas = atlas;
         _uiSoundEffect = uiSoundEffect;
 
+        // Load all voice lines from Content/audio/VoiceLines
+        LoadLecturerVoiceLines();
+
         // Set the panel to fill the parent container
         Dock(Gum.Wireframe.Dock.Fill);
+
         // Initially hide the panel
         IsVisible = false;
 
         // Initialize child UI elements
         InitializeChildren();
+    }
 
-        _ttsDemo = Core.Content.Load<SoundEffect>("audio/ttsTestMariaIncreasedVolume");
+    /// <summary>
+    /// Loads all lecturer voice lines from Content/audio/VoiceLines with the naming scheme "[lecturer_id][file_index].xnb".
+    /// </summary>
+    private void LoadLecturerVoiceLines()
+    {
+        // Assume voice lines are compiled via MGCB with asset names like "audio/VoiceLines/berninger1"
+        // For dynamic loading, enumerate the directory to get file names, then load via Content.Load
+
+        var projectRoot = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        var voiceLinesDir = Path.Combine(projectRoot, "Content", "audio", "VoiceLines");
+
+        if (!Directory.Exists(voiceLinesDir))
+        {
+            Console.WriteLine($"Audio directory not found: {voiceLinesDir}");
+            return;
+        }
+
+        foreach (var file in Directory.GetFiles(voiceLinesDir, "*.xnb"))
+        {
+            var fileName = Path.GetFileNameWithoutExtension(file);
+
+            // Match files like [lecturer_id][file_index] (e.g., berninger1)
+            if (System.Text.RegularExpressions.Regex.IsMatch(fileName, @"^[a-zA-Z]+[0-9]+$"))
+            {
+                var lecturerID = System.Text.RegularExpressions.Regex.Match(fileName, @"^[a-zA-Z]+").Value;
+                if (!_lecturerVoiceLines.ContainsKey(lecturerID))
+                {
+                    _lecturerVoiceLines[lecturerID] = new List<SoundEffect>();
+                }
+                try
+                {
+                    // Convert to asset name (e.g., "audio/VoiceLines/berninger1")
+                    var assetName = Path.Combine("audio", "VoiceLines", fileName).Replace("\\", "/"); // Normalize for MonoGame
+                    var soundEffect = Core.Content.Load<SoundEffect>(assetName);
+                    _lecturerVoiceLines[lecturerID].Add(soundEffect);
+                    Console.WriteLine($"Loaded voice line: {fileName} for lecturer {lecturerID} via Content.Load");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to load voice line {fileName}: {ex.Message}");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Plays a random default voice line for the specified lecturer.
+    /// </summary>
+    /// <param name="lecturerID">The id of the lecturer (e.g., "berninger").</param>
+    public void PlayLecturerVoiceLine(string lecturerID)
+    {
+        if (_lecturerVoiceLines.ContainsKey(lecturerID) && _lecturerVoiceLines[lecturerID].Count > 0)
+        {
+            var random = new Random();
+            var voiceLines = _lecturerVoiceLines[lecturerID];
+            var soundEffect = voiceLines[random.Next(voiceLines.Count)];
+            Core.Audio.PlaySoundEffect(soundEffect, 1.0f, 0.0f, 0.0f, false);
+        }
     }
 
     /// <summary>
@@ -123,7 +188,7 @@ public class QuestionPanel : Panel
         _background.Dock(Gum.Wireframe.Dock.Fill);
         _background.Color = new Microsoft.Xna.Framework.Color(50, 50, 50, 200); // Semi-transparent dark background
         AddChild(_background);
-        
+
         // Question container (positioned near the top and centered horizontally; height will be set dynamically based on content)
         _questionContainer = new ContainerRuntime();
         _questionContainer.Anchor(Gum.Wireframe.Anchor.Top);
@@ -135,7 +200,7 @@ public class QuestionPanel : Panel
         _questionContainer.HeightUnits = DimensionUnitType.Absolute;
         _questionContainer.Width = _background.GetAbsoluteWidth() - 20;
         AddChild(_questionContainer);
-        
+
         // Static nine-slice background for the question container (matches the unfocused state of OptionButton for visual consistency)
         _questionBackground = new NineSliceRuntime();
         _questionBackground.Texture = _atlas.Texture;
@@ -150,9 +215,9 @@ public class QuestionPanel : Panel
         _questionBackground.WidthUnits = DimensionUnitType.RelativeToParent;
         _questionBackground.HeightUnits = DimensionUnitType.RelativeToParent;
         _questionBackground.Width = 0;
-        _questionBackground.Height = 0;  
+        _questionBackground.Height = 0;
         _questionContainer.AddChild(_questionBackground);
-        
+
         // Question sprite (centered within the question container)
         _questionSprite = new SpriteRuntime();
         _questionSprite.XOrigin = HorizontalAlignment.Center;
@@ -204,15 +269,16 @@ public class QuestionPanel : Panel
     /// Configures the panel to display a multiple-choice question with its options and callbacks.
     /// </summary>
     /// <param name="question">The multiple-choice question to display.</param>
+    /// <param name="questionIndex">The index of the question in the question pool.</param>
     /// <param name="onAnswered">The action to invoke when the question is answered.</param>
     /// <param name="onClose">The action to invoke when the panel is closed.</param>
-    public void SetQuestion(MultipleChoiceQuestion question, Action onAnswered, Action onClose)
+    public void SetQuestion(MultipleChoiceQuestion question, int questionIndex, Action onAnswered, Action onClose)
     {
         // Store question and callback data
         _currentQuestion = question;
         _onAnswered = onAnswered;
         _onClose = onClose;
-        
+
         // Render question text to texture, handling null or empty questions
         string questionStr = question?.QuestionText ?? "No question available";
         var questionTexture = LaTeXRenderer.Render(Core.GraphicsDevice, questionStr, TextFontPath, MathFontPath, FontSizeText, FontSizeMath, Color.White, (_questionContainer.GetAbsoluteWidth() - 20) * _zoom);
@@ -220,10 +286,8 @@ public class QuestionPanel : Panel
         _questionSprite.Width = questionTexture.Width / _zoom;
         _questionSprite.Height = questionTexture.Height / _zoom;
 
-        
         // Adjust question container size to fit the sprite with padding (matches OptionButton logic)
         _questionContainer.Height = _questionSprite.Height + 10;
-
 
         // Clear previous option buttons
         foreach (var button in _optionButtons)
@@ -238,17 +302,16 @@ public class QuestionPanel : Panel
             // Calculate vertical space for option buttons, starting just below the question container
             float beginOfFreeSpace = _questionContainer.Y + _questionContainer.Height;
             float verticalOffset = beginOfFreeSpace + 5;
-            
 
             // Total height of all rendered OptionButtons
             float totalOptionsHeight = 0f;
-            
+
             // Create a button with sprite for each option
             for (int i = 0; i < question.Options.Count; i++)
             {
                 var optionIndex = i; // Capture for closure
                 var button = new OptionButton(_atlas);
-                
+
                 // Render option text to texture and set it on the button
                 var optionTexture = LaTeXRenderer.Render(Core.GraphicsDevice, question.Options[i], TextFontPath, MathFontPath, FontSizeText, FontSizeMath, Color.White);
                 button.SetOptionTexture(optionTexture);
@@ -268,7 +331,39 @@ public class QuestionPanel : Panel
         // Hide feedback initially
         _feedbackContainer.Visible = false;
 
-        Core.Audio.PlaySoundEffect(_ttsDemo, 1.0f, 0.0f, 0.0f, false);
+        // Play TTS audio or fall back to lecturer voice line
+        var audioPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DHBW-Game", "audio", "questions", $"question_{questionIndex}.wav");
+        if (File.Exists(audioPath))
+        {
+            try
+            {
+                using (var stream = new FileStream(audioPath, FileMode.Open))
+                {
+                    var ttsSound = SoundEffect.FromStream(stream);
+                    Core.Audio.PlaySoundEffect(ttsSound, 1.0f, 0.0f, 0.0f, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to play TTS audio {audioPath}: {ex.Message}");
+
+                // Fallback to default voice line
+                if (question?.LecturerID != null)
+                {
+                    PlayLecturerVoiceLine(question.LecturerID);
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"TTS audio not found: {audioPath}");
+
+            // Fallback to default voice line
+            if (question?.LecturerID != null)
+            {
+                PlayLecturerVoiceLine(question.LecturerID);
+            }
+        }
     }
 
     /// <summary>

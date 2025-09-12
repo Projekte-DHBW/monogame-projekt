@@ -122,8 +122,8 @@ namespace DHBW_Game.Scenes
             var (q, idx) = _questionPool.GetNextQuestion();
             if (q != null)
             {
-                ServiceLocator.Get<Game1>().QuestionPause();
-                _ui.ShowQuestion(q, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().QuestionResume());
+                ServiceLocator.Get<Game1>().Pause();
+                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().QuestionResume());
             }
         }
 

@@ -20,11 +20,14 @@ public class QuestionGenerator
     private static readonly HttpClient _client = new HttpClient();
 
     // XML format template for generating questions
-    private static string _format = "<Questions>\n<Question Topic=\"Programming\">\n<Text>Which of the following is a valid way to declare an integer variable in C++?</Text>\n<Options>\n<Option>A: int x;</Option>\n<Option>B: x integer;</Option>\n<Option>C: Integer x;</Option>\n<Option>D: var x: int;</Option>\n</Options>\n<CorrectOptionIndex>0</CorrectOptionIndex>\n<Explanation>In C++, `int x;` is the correct syntax to declare an integer variable named `x`.</Explanation>\n</Question>\n</Questions>";
+    private static string _format = "<Questions>\n<Question Topic=\"Programming\">\n<Text>Which of the following is a valid way to declare an integer variable in C++?</Text>\n<TTSFriendlyText>Which is a valid C plus plus integer declaration?</TTSFriendlyText>\n<LecturerID>berninger</LecturerID>\n<Options>\n<Option>A: int x;</Option>\n<Option>B: x integer;</Option>\n<Option>C: Integer x;</Option>\n<Option>D: var x: int;</Option>\n</Options>\n<CorrectOptionIndex>0</CorrectOptionIndex>\n<Explanation>In C++, `int x;` is the correct syntax to declare an integer variable named `x`.</Explanation>\n</Question>\n</Questions>";
+
+    // String for the API to know which lecturer ID to assign to the question
+    private static string _lecturers = "berninger: programming, data structures, algorithms etc.; schwenker: math";
 
     // System prompt template for the API to generate questions
-    private static string _systemPromptTemplate = @"You are a multiple choice question generator for a mini student game. The questions are for computer science students in the second semester and could involve topics like analysis, linear algebra, programming, data structures and algorithms. Generate exactly {0} questions in the following XML format. Keep the option text short with <= 40 characters. For mathematical expressions, formulas, superscripts, or subscripts in the question text, options, or explanation, always use inline LaTeX delimited by '\', e.g. 'The formula for kinetic energy is \( E_k = \frac{{1}}{{2}}mv^2 \), where m is mass and v is velocity.'. Use LaTeX as well for big O notation and similar stuff. Do not use plain text superscripts, subscripts, or other non-LaTeX formatting for math. Do not add any additional text, explanations, introductions, markdown, code blocks, or anything else. In all XML element content, properly escape XML special characters: replace '&' with '&amp', '<' with '&lt', '>' with '&gt', '\' with '&quot;', ' with '&apos;'. Output only the pure XML string, starting directly with the <Questions> tag and ending with </Questions>. Don't start with ```xml.\n\n" + _format;
-    
+    private static string _systemPromptTemplate = @"You are a multiple choice question generator for a student game. The questions are for second semester computer science students and could involve topics like analysis, linear algebra, programming, data structures and algorithms. Generate exactly {0} questions in the following XML format. Keep option text short (<= 40 characters). For mathematical expressions, formulas, superscripts, or subscripts in the question text, options, or explanation, always use inline LaTeX delimited by '\', e.g. 'The formula for kinetic energy is \( E_k = \frac{{1}}{{2}}mv^2 \), where m is mass and v is velocity.'. Use LaTeX as well for big O notation and similar stuff. Do not use plain text superscripts, subscripts, or other non-LaTeX formatting for math. For each question, include a <TTSFriendlyText> element with a plain-text version of the question optimized for speech (no LaTeX, e.g., 'The complexity is Big O of n squared' for \( O(n^2) \)). Assign a <LecturerID> based on the topic: {1}. Do not add any additional text, explanations, introductions, markdown, code blocks, or anything else. In all XML element content, properly escape XML special characters: replace '&' with '&amp', '<' with '&lt', '>' with '&gt', '\' with '&quot;', ' with '&apos;'. Output only the pure XML string, starting directly with the <Questions> tag and ending with </Questions>. Don't start with ```xml.\n\n" + _format;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="QuestionGenerator"/> class with the specified API key.
     /// </summary>
@@ -48,8 +51,8 @@ public class QuestionGenerator
     /// <exception cref="Exception">Thrown if the API fails to generate valid XML or parsing fails.</exception>
     public async Task<List<MultipleChoiceQuestion>> GenerateQuestions(int numberOfQuestions)
     {
-        // Format the prompt with the desired number of questions
-        string prompt = string.Format(_systemPromptTemplate, numberOfQuestions);
+        // Format the prompt with the desired number of questions and lecturer mapping
+        string prompt = string.Format(_systemPromptTemplate, numberOfQuestions, _lecturers);
         string xmlContent = await GenerateWithGeminiAsync(prompt);
 
         // Check for API errors

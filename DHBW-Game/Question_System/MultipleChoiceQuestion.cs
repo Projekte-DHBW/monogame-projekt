@@ -13,6 +13,16 @@ public class MultipleChoiceQuestion
     public string QuestionText { get; set; }
 
     /// <summary>
+    /// Gets or sets the tts friendly version of the question text.
+    /// </summary>
+    public string TTSFriendlyText { get; set; }
+
+    /// <summary>
+    /// Gets or sets the lecturer id of the question. Usually, this is the surname of the lecturer.
+    /// </summary>
+    public string LecturerID { get; set; }
+
+    /// <summary>
     /// Gets or sets the list of answer options for the question.
     /// </summary>
     public List<string> Options { get; set; }
