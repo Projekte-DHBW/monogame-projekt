@@ -34,6 +34,7 @@ public class FinalWinPanel : Panel
     private readonly TextureAtlas _atlas;
 
     TextRuntime grade;
+    TextRuntime average;
 
     public double Value { get; set; }
 
@@ -109,6 +110,15 @@ public class FinalWinPanel : Panel
         grade.X = 10f;
         grade.Y = 30f;
         AddChild(grade);
+
+        average = new TextRuntime();
+        average.Text = "TOTAL AVERAGE GRADE: : " + Value.ToString();
+        average.CustomFontFile = @"fonts/04b_30.fnt";
+        average.UseCustomFont = true;
+        average.FontScale = 0.3f;
+        average.X = 10f;
+        average.Y = 45f;
+        AddChild(average);
     }
 
 
@@ -135,11 +145,12 @@ public class FinalWinPanel : Panel
         ServiceLocator.Get<Game1>().Resume();
     }
 
-    public void UpdateGrade(double value, Color color)
+    public void UpdateGrade(double value, Color color, double averageValue)
     {
         Value = value;
         grade.Text = "GRADE: " + value.ToString();
         grade.Color = color;
+        average.Text = "AVERAGE GRADE: " + averageValue.ToString();
     }
 
     /// <summary>

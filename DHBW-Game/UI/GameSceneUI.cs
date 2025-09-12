@@ -206,7 +206,7 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public void ShowFinalWinPanel()
     {
-        _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100));
+        _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100), _GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value));
         _finalWinPanel.Show();
     }
 
