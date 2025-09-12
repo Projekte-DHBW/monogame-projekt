@@ -137,9 +137,7 @@ public class GameOverPanel : Panel
         // Go back to the title scene.
         Core.ChangeScene(new TitleScene());
 
-        // Resume the game
         ServiceLocator.Get<Game1>().UnGameOver();
-        ServiceLocator.Get<Game1>().Resume();
     }
 
     /// <summary>
