@@ -31,6 +31,12 @@ public class PhysicsComponent
     /// Gets or sets the mass of the physics object.
     /// </summary>
     public float Mass { get; set; } = 1f;
+
+    /// <summary>
+    /// Flag to skip friction application this frame (for custom mechanics like bunnyhopping).
+    /// Reset or set per frame by the owning GameObject.
+    /// </summary>
+    public bool SkipFrictionThisFrame { get; set; } = false;
     
     /// <summary>
     /// Gets the list of forces acting on the physics object.
