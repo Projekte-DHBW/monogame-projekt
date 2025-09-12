@@ -129,8 +129,8 @@ public class PausePanel : Panel
         // Options button
         OptionsButton = new AnimatedButton(atlas);
         OptionsButton.Anchor(Gum.Wireframe.Anchor.TopRight); // Anchor to bottom-right
-        OptionsButton.Visual.X = 0; // Horizontal position offset
-        OptionsButton.Visual.Y = 5; // Vertical position offset
+        OptionsButton.Visual.X = -9; // Horizontal position offset
+        OptionsButton.Visual.Y = 9; // Vertical position offset
         OptionsButton.Text = "Options"; // Button text
         OptionsButton.Click += HandleOptionsClicked; // Subscribe to click event
         AddChild(OptionsButton); // Add to panel
