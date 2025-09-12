@@ -30,6 +30,13 @@ public class Player : GameObject
     private bool _moveLeft;
     private bool _moveRight;
 
+    // Fields for bunnyhop mechanic
+    private float _timeSinceLanded = float.MaxValue; // Reset to 0 on landing
+    private bool _wasOnGround;
+    private float _jumpBufferTimer;
+    private const float JumpBufferTime = 0.2f; // Window before landing to buffer jump input
+    private const float LandingGraceTime = 0.2f; // Window after landing to press jump without slowdown
+
     /// <summary>
     /// Creates a new <see cref="Player"/> object.
     /// </summary>
@@ -46,6 +53,10 @@ public class Player : GameObject
         PhysicsComponent = new PhysicsComponent(this, mass);
 
         ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
+
+        _timeSinceLanded = float.MaxValue;
+        _wasOnGround = false;
+        _jumpBufferTimer = 0f;
     }
 
     /// <summary>
@@ -104,6 +115,12 @@ public class Player : GameObject
     /// <param name="gameTime">The current time state of the game.</param>
     private void HandleInput(GameTime gameTime)
     {
+        // Update jump buffer (buffer input if jump pressed, even in air)
+        if (GameController.MoveUp())
+        {
+            _jumpBufferTimer = JumpBufferTime;
+        }
+
         // The current player state is initially set to standing so that when no input is registered, the Update Loop can assign the correct state.
         // This avoids unexpected animations on the ground, for instance, when the player runs down a slope without any input.
         Vector2 nextDirection = Vector2.Zero;
@@ -113,6 +130,16 @@ public class Player : GameObject
         _moveLeft = GameController.MoveLeft();
         _moveRight = GameController.MoveRight();
 
+        float forceMagnitude;
+        if (Collider.IsOnGround)
+        {
+            forceMagnitude = 4000;
+        }
+        else
+        {
+            forceMagnitude = 2000;
+        }
+
         // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
         if (_moveUp && Collider.IsOnGround)
         {
@@ -120,25 +147,54 @@ public class Player : GameObject
         }
         if (_moveDown)
         {
-            nextDirection += Vector2.UnitY * 4000;
+            nextDirection += Vector2.UnitY * forceMagnitude;
         }
         if (_moveLeft)
         {
-            nextDirection += -Vector2.UnitX * 4000;
+            nextDirection += -Vector2.UnitX * forceMagnitude;
         }
         if (_moveRight)
         {
-            nextDirection += Vector2.UnitX * 4000;
+            nextDirection += Vector2.UnitX * forceMagnitude;
         }
-
-        if (_jumpDuration > 0)
-        {
-            nextDirection += -Vector2.UnitY * 15000;
-        }
-
-        _jumpDuration -= gameTime.ElapsedGameTime.TotalSeconds;
 
         PhysicsComponent.Forces.Add(nextDirection);
+
+        // Update landing timer (detect just landed)
+        bool justLanded = !_wasOnGround && Collider.IsOnGround;
+        if (justLanded)
+        {
+            _timeSinceLanded = 0f;
+        }
+        else if (Collider.IsOnGround)
+        {
+            _timeSinceLanded += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+        _wasOnGround = Collider.IsOnGround;
+
+        // Decrement buffer timer
+        _jumpBufferTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Determine if player wants to jump (buffered or direct press within grace)
+        bool wantsToJump = (_jumpBufferTimer > 0f) || (GameController.MoveUp() && _timeSinceLanded < LandingGraceTime);
+
+        // Trigger jump if on ground and wants to
+        if (wantsToJump && Collider.IsOnGround)
+        {
+            _jumpDuration = 0.1; // Start jump force duration
+            _jumpBufferTimer = 0f; // Consume buffer
+        }
+
+        // Add jump force if duration active
+        if (_jumpDuration > 0)
+        {
+            PhysicsComponent.Forces.Add(-Vector2.UnitY * 15000);
+        }
+        _jumpDuration -= gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Set friction skip flag for this frame (only if on ground and jumping soon)
+        PhysicsComponent.SkipFrictionThisFrame = Collider.IsOnGround && wantsToJump && _timeSinceLanded < LandingGraceTime;
+
     }
 
     /// <summary>

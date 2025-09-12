@@ -122,7 +122,14 @@ namespace GameLibrary.Physics
                     if (physicsObject.Velocity.LengthSquared() > 0f) // Only apply friction if there's movement
                     {
                         Vector2 velocityDirection = Vector2.Normalize(physicsObject.Velocity);
-                        frictionForce = -physicsObject.Collider.GroundCollider.FrictionCoefficient * normalForceMagnitude * velocityDirection;
+
+                        // Check generic skip flag (set by owning object, e.g., Player)
+                        bool skipFriction = physicsObject.SkipFrictionThisFrame;
+
+                        if (!skipFriction)
+                        {
+                            frictionForce = -physicsObject.Collider.GroundCollider.FrictionCoefficient * normalForceMagnitude * velocityDirection;
+                        }
                     }
                     acceleration -= frictionForce / physicsObject.Mass;
                 }
