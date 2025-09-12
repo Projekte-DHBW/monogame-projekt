@@ -15,14 +15,14 @@ using DHBW_Game.Scenes;
 
 namespace GameObjects.Enemy;
 
-public class Professor : Enemy
+public class FinalProfessor : Enemy
 {
     /// <summary>
     /// Creates a new <see cref="Professor"/> object.
     /// </summary>
     /// <param name="mass">The mass of the physics component.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    public Professor(float mass, bool isElastic) : base (mass, isElastic)
+    public FinalProfessor(float mass, bool isElastic) : base (mass, isElastic)
     {
         // Use circle collider
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
@@ -82,7 +82,7 @@ public class Professor : Enemy
     /// <param name="gameTime">A snapshot of the timing values for the current update cycle.</param>
     public override void Update(GameTime gameTime)
     {
-        base.Update(gameTime);
+        //base.Update(gameTime);
 
         // Handle any enemy input
         //HandleInput(gameTime);
@@ -145,10 +145,10 @@ public class Professor : Enemy
         {
             _hasCollided = true;
 
-            ServiceLocator.Get<Game1>().QuestionPause();
+            ServiceLocator.Get<Game1>().GameOver();
 
             GameScene scene = (GameScene)ServiceLocator.Get<Scene>();
-            scene.ShowQuestion();
+            scene.ShowFinalWinPanel();
         }
     }
 }

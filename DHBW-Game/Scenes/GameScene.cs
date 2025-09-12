@@ -12,26 +12,47 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameGum;
 using MonoGameTutorial;
 using MonoGameTutorial.UI;
+using System.Collections.Generic;
+using DHBW_Game.UI;
 
 namespace DHBW_Game.Scenes
 {
+
+    public class NewLevelEventArgs
+    {
+
+        public double Duration;
+
+        public NewLevelEventArgs(double duration)
+        {
+            Duration = duration;
+        }
+    }
     /// <summary>
     /// Scene that handles the game's level progression, loading levels sequentially
     /// and managing transitions between them.
     /// </summary>
     public class GameScene : Scene
     {
+        public delegate void NewLevelHandler(object sender, NewLevelEventArgs e);
+        public event NewLevelHandler NewLevel;
+        private DurationCollection _durationCollection;
+
         private Level _currentLevel;
-        private int _currentLevelNumber = 0;
+        public int _currentLevelNumber = 0;
         private readonly CollisionEngine _collisionEngine;
         private readonly PhysicsEngine _physicsEngine;
         private GameSceneUI _ui;
         private QuestionPool _questionPool;
+        private List<double> _grades = new List<double>();
+        public List<double> Grades => _grades;
 
         public GameScene()
         {
             _physicsEngine = ServiceLocator.Get<PhysicsEngine>();
             _collisionEngine = _physicsEngine.CollisionEngine;
+            _durationCollection = new DurationCollection();
+            ServiceLocator.Register(this);
         }
 
         public override void Initialize()
@@ -44,6 +65,7 @@ namespace DHBW_Game.Scenes
 
             // Load saved progress if available
             _currentLevelNumber = SaveManager.LoadProgress();
+            _grades = SaveManager.LoadGrades();
 
             // Initialize the user interface for the game scene.
             InitializeUI();
@@ -73,10 +95,11 @@ namespace DHBW_Game.Scenes
             {
                 // Load the level - Note: Don't use File.Exists here since MonoGame handles content paths differently
                 _currentLevel = new Level(Core.Content, levelFile);
+                NewLevel?.Invoke(this, new NewLevelEventArgs(_durationCollection.Durations[_currentLevelNumber]));
             }
             catch (FileNotFoundException)
             {
-                // If   no more levels exist, return to the title screen
+                // If no more levels exist, return to the title screen
                 Core.ChangeScene(new TitleScene());
                 SaveManager.ResetProgress();
                 return;
@@ -88,7 +111,7 @@ namespace DHBW_Game.Scenes
         /// Advances to the next level by incrementing the level counter
         /// and loading the corresponding level file
         /// </summary>
-        private void NextLevel()
+        public void NextLevel()
         {
             _currentLevelNumber++;
             LoadCurrentLevel();
@@ -100,8 +123,24 @@ namespace DHBW_Game.Scenes
             if (q != null)
             {
                 ServiceLocator.Get<Game1>().Pause();
-                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().Resume());
+                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().QuestionResume());
             }
+        }
+
+        public void ShowGameOver()
+        {
+            if (_ui != null)
+                _ui.ShowGameOver();
+        }
+        public void ShowWinFloorPanel()
+        {
+            if (_ui != null)
+                _ui.ShowWinFloorPanel();
+        }
+        public void ShowFinalWinPanel()
+        {
+            if (_ui != null)
+                _ui.ShowFinalWinPanel();
         }
 
         public override void Update(GameTime gameTime)
@@ -146,7 +185,8 @@ namespace DHBW_Game.Scenes
                 // Save progress for the next level
                 SaveManager.SaveProgress(_currentLevelNumber + 1);
 
-                NextLevel();
+                ServiceLocator.Get<Game1>().GameOver();
+                ShowWinFloorPanel();
             }
         }
 
