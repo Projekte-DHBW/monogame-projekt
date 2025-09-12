@@ -2,28 +2,27 @@ using GameLibrary.Graphics;
 using Gum.Forms.Controls;
 using Microsoft.Xna.Framework.Audio;
 using System;
+using System.Linq;
 using DHBW_Game.Scenes;
 using Gum.DataTypes;
 using Gum.Managers;
 using MonoGameGum.GueDeriving;
 using GameLibrary;
+using DHBW_Game.Save_System;
+using GameLibrary.Scenes;
+using Microsoft.Xna.Framework;
 
 namespace DHBW_Game.UI;
 
 /// <summary>
-/// Represents a UI panel which is shown when the game is paused.
+/// Represents a UI panel which is shown when the game finished successfully.
 /// </summary>
-public class PausePanel : Panel
+public class FinalWinPanel : Panel
 {
-    /// <summary>
-    /// The resume button UI element.
-    /// </summary>
-    private AnimatedButton _resumeButton;
-
     /// <summary>
     /// The restart button UI element.
     /// </summary>
-    private AnimatedButton _restartButton;
+    private AnimatedButton _NextfloorButton;
 
     /// <summary>
     /// The UI sound effect to play when a UI event is triggered.
@@ -36,15 +35,10 @@ public class PausePanel : Panel
     /// </summary>
     private readonly TextureAtlas _atlas;
 
-    /// <summary>
-    /// The options button UI element.
-    /// </summary>
-    public AnimatedButton OptionsButton { get; private set; }
+    TextRuntime grade;
+    TextRuntime average;
 
-    /// <summary>
-    /// The action to invoke when the options button is clicked.
-    /// </summary>
-    private readonly Action _onOptions;
+    public double Value { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PausePanel"/> class.
@@ -55,14 +49,13 @@ public class PausePanel : Panel
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="atlas"/> or <paramref name="uiSoundEffect"/> is null.
     /// </exception>
-    public PausePanel(TextureAtlas atlas, SoundEffect uiSoundEffect, Action onOptions)
+    public FinalWinPanel(TextureAtlas atlas, SoundEffect uiSoundEffect)
     {
         // Validate input parameters
         if (atlas == null) throw new ArgumentNullException(nameof(atlas));
         if (uiSoundEffect == null) throw new ArgumentNullException(nameof(uiSoundEffect));
 
         _uiSoundEffect = uiSoundEffect;
-        _onOptions = onOptions;
         _atlas = atlas;
         Anchor(Gum.Wireframe.Anchor.Center);
         Visual.WidthUnits = DimensionUnitType.Absolute;
@@ -81,6 +74,7 @@ public class PausePanel : Panel
     /// <param name="atlas">The texture atlas used for UI elements.</param>
     private void InitializeChildren(TextureAtlas atlas)
     {
+        Value = 0.0;
         TextureRegion backgroundRegion = _atlas.GetRegion("panel-background");
 
         NineSliceRuntime background = new NineSliceRuntime();
@@ -94,29 +88,13 @@ public class PausePanel : Panel
         AddChild(background);
 
         TextRuntime textInstance = new TextRuntime();
-        textInstance.Text = "PAUSED";
+        textInstance.Text = "YOU PASSED!";
         textInstance.CustomFontFile = @"fonts/04b_30.fnt";
         textInstance.UseCustomFont = true;
         textInstance.FontScale = 0.5f;
         textInstance.X = 10f;
         textInstance.Y = 10f;
         AddChild(textInstance);
-
-        _resumeButton = new AnimatedButton(_atlas);
-        _resumeButton.Text = "RESUME";
-        _resumeButton.Anchor(Gum.Wireframe.Anchor.BottomLeft);
-        _resumeButton.Visual.X = 9f;
-        _resumeButton.Visual.Y = -9f;
-        _resumeButton.Click += HandleResumeButtonClicked;
-        AddChild(_resumeButton);
-
-        _restartButton = new AnimatedButton(_atlas);
-        _restartButton.Text = "RESTART";
-        _restartButton.Anchor(Gum.Wireframe.Anchor.Center);
-        _restartButton.Visual.X = 9f;
-        _restartButton.Visual.Y = 19f;
-        _restartButton.Click += HandleRestartButtonClicked;
-        AddChild(_restartButton);
 
         AnimatedButton quitButton = new AnimatedButton(_atlas);
         quitButton.Text = "QUIT";
@@ -126,80 +104,60 @@ public class PausePanel : Panel
         quitButton.Click += HandleQuitButtonClicked;
         AddChild(quitButton);
 
-        // Options button
-        OptionsButton = new AnimatedButton(atlas);
-        OptionsButton.Anchor(Gum.Wireframe.Anchor.TopRight); // Anchor to bottom-right
-        OptionsButton.Visual.X = -9; // Horizontal position offset
-        OptionsButton.Visual.Y = 9; // Vertical position offset
-        OptionsButton.Text = "Options"; // Button text
-        OptionsButton.Click += HandleOptionsClicked; // Subscribe to click event
-        AddChild(OptionsButton); // Add to panel
+        grade = new TextRuntime();
+        grade.Text = "FINAL GRADE: " + Value.ToString();
+        grade.CustomFontFile = @"fonts/04b_30.fnt";
+        grade.UseCustomFont = true;
+        grade.FontScale = 0.3f;
+        grade.X = 10f;
+        grade.Y = 30f;
+        AddChild(grade);
+
+        average = new TextRuntime();
+        average.Text = "TOTAL AVERAGE GRADE: " + Value.ToString();
+        average.CustomFontFile = @"fonts/04b_30.fnt";
+        average.UseCustomFont = true;
+        average.FontScale = 0.3f;
+        average.X = 10f;
+        average.Y = 45f;
+        AddChild(average);
     }
 
-    /// <summary>
-    /// Handles the click event for the options button.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void HandleOptionsClicked(object sender, EventArgs e)
-    {
-        // Play the UI sound effect for interaction
-        Core.Audio.PlaySoundEffect(_uiSoundEffect);
-
-        // Invoke the provided options action
-        _onOptions?.Invoke();
-    }
-
-    /// <summary>
-    /// Handles the click event for the resume button.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void HandleResumeButtonClicked(object sender, EventArgs e)
-    {
-        // A UI interaction occurred, play the sound effect
-        Core.Audio.PlaySoundEffect(_uiSoundEffect);
-
-        // Make the pause panel invisible to resume the game.
-        IsVisible = false;
-        ServiceLocator.Get<Game1>().Resume();
-    }
 
     /// <summary>
     /// Handles the click event for the restart button.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data.</param>
-    private void HandleRestartButtonClicked(object sender, EventArgs e)
+    private void HandleQuitButtonClicked(object sender, EventArgs e)
     {
+        ServiceLocator.Get<GameScene>().NextLevel();
         // A UI interaction occurred, play the sound effect
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
 
         // Make the pause panel invisible to resume the game.
         IsVisible = false;
 
-        // Reload the game scene
-        Core.ChangeScene(new GameScene());
+        // Go back to the title scene.
+        Core.ChangeScene(new TitleScene());
+        SaveManager.ResetProgress();
 
         // Resume the game
+        ServiceLocator.Get<Game1>().UnGameOver();
         ServiceLocator.Get<Game1>().Resume();
     }
 
-    /// <summary>
-    /// Handles the click event for the quit button.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void HandleQuitButtonClicked(object sender, EventArgs e)
+    public void UpdateGrade(double value, Color color)
     {
-        // A UI interaction occurred, play the sound effect
-        Core.Audio.PlaySoundEffect(_uiSoundEffect);
+        Value = value;
+        grade.Text = "GRADE: " + value.ToString();
+        grade.Color = color;
 
-        // Go back to the title scene.
-        Core.ChangeScene(new TitleScene());
+        GameScene gameScene = (GameScene)ServiceLocator.Get<Scene>();
+        double averageGrade = Math.Round(gameScene.Grades.Average(), 1);
 
-        // Resume the game
-        ServiceLocator.Get<Game1>().Resume();
+
+        average.Text = "AVERAGE GRADE: " + averageGrade.ToString();
     }
 
     /// <summary>
