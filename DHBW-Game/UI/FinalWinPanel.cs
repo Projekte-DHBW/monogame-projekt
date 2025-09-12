@@ -112,7 +112,7 @@ public class FinalWinPanel : Panel
         AddChild(grade);
 
         average = new TextRuntime();
-        average.Text = "TOTAL AVERAGE GRADE: : " + Value.ToString();
+        average.Text = "TOTAL AVERAGE GRADE: " + Value.ToString();
         average.CustomFontFile = @"fonts/04b_30.fnt";
         average.UseCustomFont = true;
         average.FontScale = 0.3f;
