@@ -188,6 +188,7 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public void ShowGameOver()
     {
+        _questionPanel.IsVisible = false;
         _gameOverPanel.Show();
     }
 
