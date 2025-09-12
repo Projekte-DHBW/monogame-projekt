@@ -14,6 +14,8 @@
 		<Region name="slider-off-background" x="341" y="96" width="11" height="10" />
 		<Region name="slider-middle-background" x="345" y="81" width="3" height="3" />
 		<Region name="slider-max-background" x="354" y="96" width="11" height="10" />
+		<Region name="bar" x="341" y="85" width="11" height="10" />
+		<Region name="empty-bar" x="354" y="85" width="11" height="10" />
 	</Regions>
 	<Animations>
 		<Animation name="slime-animation" delay="200">
