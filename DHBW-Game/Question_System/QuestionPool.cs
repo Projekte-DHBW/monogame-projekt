@@ -147,20 +147,14 @@ public class QuestionPool
         var venvPath = Path.Combine(appData, "DHBW-Game", "tts_venv");
         var audioDir = Path.Combine(appData, "DHBW-Game", "audio", "questions");
 
-        // Find project root by traversing up from the executing assembly's location (build output) until TTS\tts_controller.py is found
-        // This handles debugging where the build is in bin/Debug, but TTS is in the project root
-        var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var projectRoot = currentDir;
-        while (!string.IsNullOrEmpty(projectRoot) && !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
-        {
-            projectRoot = Path.GetDirectoryName(projectRoot);
-        }
+        // Project root is the directory of the executing assembly (build output), where TTS is copied during build
+        var projectRoot = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        if (string.IsNullOrEmpty(projectRoot) || !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
+        // Verify TTS exists (optional, for robustness in case of build issues)
+        if (!Directory.Exists(Path.Combine(projectRoot, "TTS")) || !File.Exists(Path.Combine(projectRoot, "TTS", "tts_controller.py")))
         {
-            updateStatus?.Invoke("Error: Could not find TTS\\tts_controller.py in project root. Ensure the TTS folder is in your project directory.");
-            Console.WriteLine($"Error: Could not find project root containing TTS\\tts_controller.py. Searched from: {currentDir}");
-            return false;
+            // Log error or throw—e.g., updateStatus?.Invoke("Error: TTS folder not found in build output. Check csproj and rebuild.");
+            throw new DirectoryNotFoundException("TTS folder missing in build output.");
         }
 
         Console.WriteLine($"Found project root at: {projectRoot}"); // For debugging
