@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DHBW_Game.Question_System;
 using DHBW_Game.Save_System;
 using GameLibrary;
 using GameLibrary.Graphics;
@@ -279,6 +280,7 @@ namespace DHBW_Game.UI
             try
             {
                 SaveManager.ResetProgress();
+                ServiceLocator.Get<QuestionPool>().ResetAnswered();
                 ResetGameProgressButton.Text = "Game Progress Deleted!"; // Temporary feedback text
                 ResetGameProgressButton.IsEnabled = false; // Disable to prevent spam clicks
             }
