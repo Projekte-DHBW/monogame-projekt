@@ -151,10 +151,10 @@ namespace DHBW_Game.Scenes
             base.Update(gameTime);
 
             // Temporary demonstration code for the question display system
-            if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
-            {
-                ShowQuestion();
-            }
+            //if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
+            //{
+            //    ShowQuestion("berninger"); // Example
+            //}
 
             // Check whether to pause the game. Currently works like a toggle.
             if (GameController.Pause())
