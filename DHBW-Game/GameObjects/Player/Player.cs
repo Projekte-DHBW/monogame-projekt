@@ -262,6 +262,8 @@ public class Player : GameObject
         base.TriggerCollision(collider);
 
         if ((collider.GameObject is Enemy.Student) && (Math.Abs(PhysicsComponent.Velocity.X) > 100))
-            PhysicsComponent.Forces.Add(new Vector2(-2*PhysicsComponent.Velocity.X, 0));
+        {
+            PhysicsComponent.Forces.Add(new Vector2(-20*PhysicsComponent.Velocity.X, 0));
+        }
     }
 }
