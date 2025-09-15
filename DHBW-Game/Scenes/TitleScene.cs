@@ -128,6 +128,7 @@ public class TitleScene : Scene
     public override void Update(GameTime gameTime)
     {
         GumService.Default.Update(gameTime);
+        _optionsPanel.Update(gameTime);
         _questionSystemPanel.Activity();
     }
 
