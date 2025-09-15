@@ -49,6 +49,7 @@ public class Player : GameObject
 
         // Use rectangle collider
         Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
+        Collider.CollisionGroup = "player";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 

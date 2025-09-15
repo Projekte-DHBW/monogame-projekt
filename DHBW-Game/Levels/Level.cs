@@ -40,6 +40,7 @@ namespace DHBW_Game.Levels
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
         public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
         public List<GameObject> BackgroundSprites { get; private set; } = new List<GameObject>();
+        public List<GameObject> MoveableObjects { get; private set; } = new List<GameObject>();
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
@@ -92,13 +93,14 @@ namespace DHBW_Game.Levels
             var physicsEngine = ServiceLocator.Get<PhysicsEngine>();
 
             // Clear all physics components and colliders
-            physicsEngine.ClearComponents();  // You'll need to add this method to PhysicsEngine
+            physicsEngine.ClearComponents();
             physicsEngine.CollisionEngine.ClearColliders();
 
             // Clear lists and references
             Objects.Clear();
             Enemys.Clear();
             BackgroundSprites.Clear();
+            MoveableObjects.Clear();
             _exitPositions.Clear();
             _player = null;
 
@@ -224,7 +226,7 @@ namespace DHBW_Game.Levels
                         case 'T': // Desk Sprite
                             Desk desk = new Desk(mass: 2f, isElastic: false);
                             desk.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
-                            BackgroundSprites.Add(desk);
+                            MoveableObjects.Add(desk);
                             break;
                     }
 
@@ -291,6 +293,11 @@ namespace DHBW_Game.Levels
                 sprite.Update(gameTime);
             }
 
+            foreach (var sprite in MoveableObjects)
+            {
+                sprite.Update(gameTime);
+            }
+
             // Update player
             _player?.Update(gameTime);
 
@@ -352,6 +359,11 @@ namespace DHBW_Game.Levels
             _tilemap.Draw(spriteBatch);
 
             foreach (var sprite in BackgroundSprites)
+            {
+                sprite.Draw();
+            }
+
+            foreach (var sprite in MoveableObjects)
             {
                 sprite.Draw();
             }

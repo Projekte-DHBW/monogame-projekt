@@ -47,6 +47,17 @@ public abstract class Collider
     /// For the time being, the friction coefficient is only used for movement when <see cref="IsOnGround"/> is True and in that case, the friction coefficient of the <see cref="GroundCollider"/> is used.
     /// </summary>
     public float FrictionCoefficient { get; set; } = 1f;
+
+    /// <summary>
+    /// Gets or sets the collision group for this collider (e.g., "player", "enemy", "movable", "default").
+    /// Used to determine if a collision pair should be treated as a trigger (event only) or physical.
+    /// </summary>
+    public string CollisionGroup { get; set; } = "default";
+
+    /// <summary>
+    /// Gets or sets whether this collider can act as a ground surface for other colliders (e.g., for jumping or friction).
+    /// </summary>
+    public bool CanBeGround { get; set; } = false;  // Default to false
     
     /// <summary>
     /// Gets or sets the game object which the collider is attached to.

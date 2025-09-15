@@ -18,6 +18,8 @@ public class Desk : GameObject
     public Desk(float mass, bool isElastic)
     {
         Collider = new RectangleCollider(this, new Vector2(0, 0), 152, 84, 0, isElastic);
+        Collider.CollisionGroup = "movable";
+        Collider.CanBeGround = true;
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 
