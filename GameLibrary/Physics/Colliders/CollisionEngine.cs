@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace GameLibrary.Physics.Colliders
@@ -47,7 +48,7 @@ namespace GameLibrary.Physics.Colliders
         /// Checks all colliders managed by this collision engine for collisions and handles them if there are some.
         /// </summary>
         /// <param name="maxIterations">
-        /// Determines how many iterations of collision checks should be executed at a maximum.
+        /// Determines how many iterations of collision checks should be executed at a maximum for physical resolutions.
         /// The iterations aim to resolve all collisions, even secondary, tertiary etc. ones, which can't be resolved with a single pass.
         /// A higher number is better for more complex scenes but impacts performance. The default number is 10.
         /// </param>
@@ -62,97 +63,121 @@ namespace GameLibrary.Physics.Colliders
                     collider.GroundCollider = null;
                 }
             }
-            
+
+            // Phase 1: Handle trigger collisions (events only) in a single pass.
+            // This ensures TriggerCollision is called at most once per frame per pair.
+            for (int i = 0; i < _colliders.Count; i++)
+            {
+                Collider collider1 = _colliders[i];
+
+                for (int j = i + 1; j < _colliders.Count; j++)
+                {
+                    Collider collider2 = _colliders[j];
+
+                    // Skip if both are static (no events or physics needed)
+                    if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
+                        continue;
+
+                    CollisionData data = GetCollisionData(collider1, collider2);
+
+                    if (data.Intersects && IsTriggerPair(collider1, collider2))
+                    {
+                        collider1.GameObject.TriggerCollision(collider2);
+                        collider2.GameObject.TriggerCollision(collider1);
+                    }
+                }
+            }
+
+            // Phase 2: Resolve physical collisions with multi-pass iterations if needed.
+            // Only for non-trigger pairs.
             int iteration = 0;
             bool hadIntersections;
-            
+
             do
             {
                 hadIntersections = false;
-                
+
                 // Iterate over all unique pairs of colliders
                 for (int i = 0; i < _colliders.Count; i++)
                 {
                     Collider collider1 = _colliders[i];
-                    
+
                     for (int j = i + 1; j < _colliders.Count; j++)
                     {
                         Collider collider2 = _colliders[j];
-                        
+
                         // Skip if both are static because static colliders can't move – even if a collision between them occurs
                         if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
                             continue;
-                        
+
                         // Get collision data for current positions
                         CollisionData data = GetCollisionData(collider1, collider2);
-                        
-                        if (data.Intersects)
+
+                        if (data.Intersects && !IsTriggerPair(collider1, collider2))
                         {
                             hadIntersections = true;
-                            Console.WriteLine($"Collision detected between {collider1} and {collider2}");
-                            HandleCollision(collider1, collider2, data);
-                        }
-                        else
-                        {
-                            // Integrated on-ground check (only for dynamic-static pairs where no current intersection)
-                            Collider dynamicCollider = null;
-                            Collider staticCollider = null;
-                            
-                            if (collider1.PhysicsComponent != null && collider2.PhysicsComponent == null)
-                            {
-                                dynamicCollider = collider1;
-                                staticCollider = collider2;
-                            }
-                            else if (collider1.PhysicsComponent == null && collider2.PhysicsComponent != null)
-                            {
-                                dynamicCollider = collider2;
-                                staticCollider = collider1;
-                            }
-                            
-                            if (dynamicCollider != null)
-                            {
-                                Vector2 originalPosition = dynamicCollider.GlobalPosition;
-                                float probeDistance = 2f; // Shift slightly down to probe for a collision (if that shift results in a collision, the dynamic collider is on the ground) (TODO: consider using surface normal instead of y axis for probing as slopes could have problems with the current implementation; problem: surface normal isn't known at the time of probing)
-                                dynamicCollider.GlobalPosition = originalPosition + Vector2.UnitY * probeDistance; // Gravity direction
-                                
-                                CollisionData groundData = GetCollisionData(dynamicCollider, staticCollider);
-                                
-                                if (groundData.Intersects)
-                                {
-                                    dynamicCollider.IsOnGround = true;
-                                    dynamicCollider.GroundCollider = staticCollider;
-                                    if (groundData.Normal.LengthSquared() > 0f)
-                                    {
-                                        Vector2 unitNormal = groundData.Normal / groundData.Normal.Length();
-                                        SetSlopeFromNormal(dynamicCollider, unitNormal);
-                                    }
-                                    else
-                                    {
-                                        dynamicCollider.SlopeAngle = 0f;
-                                    }
-                                }
-                                
-                                dynamicCollider.GlobalPosition = originalPosition;
-                            }
+                            Console.WriteLine($"Physical collision detected between {collider1} and {collider2}");
+                            HandlePhysicalCollision(collider1, collider2, data);
                         }
                     }
                 }
-            } while (hadIntersections && ++iteration < maxIterations);
+
+                iteration++;
+            } while (hadIntersections && iteration < maxIterations);
 
             if (hadIntersections)
             {
                 Console.WriteLine("Last iteration still had intersections! The allowed number of iterations was too small.");
             }
+
+            // Phase 3: On-ground checks for all dynamic colliders against any potential ground (static or dynamic)
+            foreach (var dynamicCollider in _colliders.Where(c => c.PhysicsComponent != null))
+            {
+                Vector2 originalPosition = dynamicCollider.GlobalPosition;
+                float probeDistance = 2f;  // Small downward shift to probe
+                dynamicCollider.GlobalPosition = originalPosition + Vector2.UnitY * probeDistance;  // Down is +Y
+
+                Collider bestGround = null;
+                float minDepth = float.MaxValue;
+                Vector2 bestNormal = Vector2.Zero;
+
+                foreach (var otherCollider in _colliders.Where(c => c != dynamicCollider))
+                {
+                    // Skip if this pair is a trigger (e.g., don't "stand" on enemies)
+                    if (IsTriggerPair(dynamicCollider, otherCollider))
+                        continue;
+
+                    // Skip if the other can't be ground
+                    if (!otherCollider.CanBeGround)
+                        continue;
+
+                    CollisionData probeData = GetCollisionData(dynamicCollider, otherCollider);
+
+                    if (probeData.Intersects && probeData.Depth < minDepth && probeData.Normal.LengthSquared() > 0f)
+                    {
+                        minDepth = probeData.Depth;
+                        bestGround = otherCollider;
+                        bestNormal = probeData.Normal;
+                    }
+                }
+
+                if (bestGround != null)
+                {
+                    dynamicCollider.IsOnGround = true;
+                    dynamicCollider.GroundCollider = bestGround;
+                    Vector2 unitNormal = bestNormal / bestNormal.Length();
+                    SetSlopeFromNormal(dynamicCollider, unitNormal);
+                }
+
+                dynamicCollider.GlobalPosition = originalPosition;
+            }
         }
 
         /// <summary>
-        /// Handles the collision between two colliders.
-        /// Assumes that these colliders have already been checked and are in a collision.
+        /// Handles the physical collision between two colliders (separation, bounce/elasticity).
+        /// Assumes that these colliders have already been checked and are in a collision, and are not a trigger pair.
         /// </summary>
-        /// <param name="collider1">The first collider.</param>
-        /// <param name="collider2">The second collider.</param>
-        /// <param name="collisionData">The collision data.</param>
-        private void HandleCollision(Collider collider1, Collider collider2, CollisionData collisionData)
+        private void HandlePhysicalCollision(Collider collider1, Collider collider2, CollisionData collisionData)
         {
             bool isCollider1Static = collider1.PhysicsComponent == null;
             bool isCollider2Static = collider2.PhysicsComponent == null;
@@ -171,10 +196,7 @@ namespace GameLibrary.Physics.Colliders
             }
             else if (!isCollider1Static && !isCollider2Static)
             {
-                collider1.GameObject.TriggerCollision(collider2);
-                collider2.GameObject.TriggerCollision(collider1);
-                //Collision(collider1, collider2, collisionData);
-
+                Collision(collider1, collider2, collisionData);
             }
         }
 
@@ -667,6 +689,27 @@ namespace GameLibrary.Physics.Colliders
         private bool RectAndCircle(Collider collider1, Collider collider2)
         {
             return (collider1 is RectangleCollider && collider2 is CircleCollider) || (collider1 is CircleCollider && collider2 is RectangleCollider);
+        }
+
+        // Helper to determine if this pair should be treated as trigger-only (event, no physical resolution)
+        private bool IsTriggerPair(Collider collider1, Collider collider2)
+        {
+            string group1 = collider1.CollisionGroup;
+            string group2 = collider2.CollisionGroup;
+
+            // Trigger for player-enemy (either order)
+            if ((group1 == "player" && group2 == "enemy") || (group1 == "enemy" && group2 == "player"))
+                return true;
+
+            // Trigger for enemy-enemy (remove this if you want physical collisions between enemies)
+            if (group1 == "enemy" && group2 == "enemy")
+                return true;
+
+            // Trigger for enemy-movable (pass through, no push)
+            if ((group1 == "enemy" && group2 == "movable") || (group1 == "movable" && group2 == "enemy"))
+                return true;
+
+            return false;
         }
 
         /// <summary>

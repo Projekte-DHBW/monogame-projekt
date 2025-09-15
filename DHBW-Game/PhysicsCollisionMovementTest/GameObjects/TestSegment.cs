@@ -18,6 +18,7 @@ public class TestSegment : GameObject
     public TestSegment(int width, int height, float rotation, bool isElastic, float frictionCoefficient)
     {
         Collider = new RectangleCollider(this, Vector2.Zero, width, height, rotation, isElastic, frictionCoefficient);
+        Collider.CanBeGround = true;
         
         ServiceLocator.Get<CollisionEngine>().Add(Collider);
     }

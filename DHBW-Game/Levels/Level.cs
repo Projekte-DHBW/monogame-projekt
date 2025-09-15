@@ -16,6 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using GameObjects.Static_Sprites.Whiteboard;
+using GameObjects.Static_Sprites.Elevator;
+using GameObjects.Static_Sprites.Desk;
 using GameLibrary.Rendering;
 
 namespace DHBW_Game.Levels
@@ -38,6 +40,7 @@ namespace DHBW_Game.Levels
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
         public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
         public List<GameObject> BackgroundSprites { get; private set; } = new List<GameObject>();
+        public List<GameObject> MoveableObjects { get; private set; } = new List<GameObject>();
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
@@ -90,13 +93,14 @@ namespace DHBW_Game.Levels
             var physicsEngine = ServiceLocator.Get<PhysicsEngine>();
 
             // Clear all physics components and colliders
-            physicsEngine.ClearComponents();  // You'll need to add this method to PhysicsEngine
+            physicsEngine.ClearComponents();
             physicsEngine.CollisionEngine.ClearColliders();
 
             // Clear lists and references
             Objects.Clear();
             Enemys.Clear();
             BackgroundSprites.Clear();
+            MoveableObjects.Clear();
             _exitPositions.Clear();
             _player = null;
 
@@ -174,6 +178,16 @@ namespace DHBW_Game.Levels
                         case 'X': // Exit
                             _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             break;
+                        case 'E': // Exit Elevator Sprite
+                            Elevator elevator = new Elevator();
+                            elevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(elevator);
+                            break;
+                        case 'M': // Mirrored Elevator Sprite, initially open
+                            Elevator mirroredElevator = new Elevator(false);
+                            mirroredElevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE +28));
+                            BackgroundSprites.Add(mirroredElevator);
+                            break;
                         case 'O': // Door Open Sprite
                             Door_Open openDoor = new Door_Open();
                             openDoor.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
@@ -189,25 +203,30 @@ namespace DHBW_Game.Levels
                             fireExtinguisher.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
                             BackgroundSprites.Add(fireExtinguisher);
                             break;
-                        case 'E': // End, Final Professor
+                        case 'G': // End, Final Professor
                             enemy = new FinalProfessor(mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
                         case '1': // Whiteboard 1 Sprite
                             Whiteboard whiteboard = new Whiteboard();
-                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard);
                             break;
                         case '2': // Whiteboard 2 Sprite
                             Whiteboard whiteboard2 = new Whiteboard("whiteboard2");
-                            whiteboard2.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard2.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard2);
                             break;
                         case '3': // Whiteboard 3 Sprite
                             Whiteboard whiteboard3 = new Whiteboard("whiteboard3");
-                            whiteboard3.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            whiteboard3.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             BackgroundSprites.Add(whiteboard3);
+                            break;
+                        case 'T': // Desk Sprite
+                            Desk desk = new Desk(mass: 2f, isElastic: false);
+                            desk.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            MoveableObjects.Add(desk);
                             break;
                     }
 
@@ -274,6 +293,11 @@ namespace DHBW_Game.Levels
                 sprite.Update(gameTime);
             }
 
+            foreach (var sprite in MoveableObjects)
+            {
+                sprite.Update(gameTime);
+            }
+
             // Update player
             _player?.Update(gameTime);
 
@@ -304,7 +328,10 @@ namespace DHBW_Game.Levels
                     }
                 }
             }
+
         }
+
+
 
         /// <summary>
         /// Draw the level
@@ -332,6 +359,11 @@ namespace DHBW_Game.Levels
             _tilemap.Draw(spriteBatch);
 
             foreach (var sprite in BackgroundSprites)
+            {
+                sprite.Draw();
+            }
+
+            foreach (var sprite in MoveableObjects)
             {
                 sprite.Draw();
             }

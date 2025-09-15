@@ -3,13 +3,26 @@
 	<Texture>Animated_Sprites/Elevator/Elevator</Texture>
 	<Regions>
 		<!-- Definiere die einzelnen Frames für die Animation -->
-		<Region name="elevatorOpen" x="0" y="0" width="64" height="64" />
-		<Region name="elevatorClosed" x="0" y="64" width="64" height="64" />
+		<Region name="elevatorClosed" x="0" y="0" width="64" height="64" />
+		<Region name="elevatorOpenHalf" x="64" y="0" width="64" height="64" />
+		<Region name="elevatorOpen" x="128" y="0" width="64" height="64" />
+		<Region name="entranceElevatorClosed" x="0" y="14" width="64" height="50" />
+		<Region name="entranceElevatorOpenHalf" x="64" y="14" width="64" height="50" />
+		<Region name="entranceElevatorOpen" x="128" y="14" width="64" height="50" />
 	</Regions>
 	<Animations>
-		<Animation name="elevator-animation" delay="200">
-			<Frame region="elevatorOpen" />
+		<Animation name="elevatorClosing-animation" delay="200">
+			<Frame region="elevatorOpenHalf" />
 			<Frame region="elevatorClosed" />
+		</Animation>
+		<Animation name="elevatorOpening-animation" delay="200">
+			<Frame region="elevatorOpenHalf" />
+			<Frame region="elevatorOpen" />
+		</Animation>
+		<Animation name="entranceElevatorClosing-animation" delay="400">
+			<Frame region="entranceElevatorOpen" />
+			<Frame region="entranceElevatorOpenHalf" />
+			<Frame region="entranceElevatorClosed" />
 		</Animation>
 	</Animations>
 </TextureAtlas>

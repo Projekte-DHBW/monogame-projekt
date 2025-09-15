@@ -29,6 +29,7 @@ public class Student : Enemy
 
         // Use rectangle collider
         Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
+        Collider.CollisionGroup = "enemy";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 

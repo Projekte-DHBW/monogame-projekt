@@ -34,6 +34,7 @@ public class Professor : Enemy
 
         // Use rectangle collider
         Collider = new RectangleCollider(this, new Vector2(0, 0), 55, 140, 0, isElastic);
+        Collider.CollisionGroup = "enemy";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 

@@ -49,14 +49,15 @@ public class Player : GameObject
 
         // Use rectangle collider
         Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
+        Collider.CollisionGroup = "player";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 
         ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
-
         _timeSinceLanded = float.MaxValue;
         _wasOnGround = false;
         _jumpBufferTimer = 0f;
+        ServiceLocator.Register(this);
     }
 
     /// <summary>
@@ -261,6 +262,8 @@ public class Player : GameObject
         base.TriggerCollision(collider);
 
         if ((collider.GameObject is Enemy.Student) && (Math.Abs(PhysicsComponent.Velocity.X) > 100))
-            PhysicsComponent.Forces.Add(new Vector2(-2*PhysicsComponent.Velocity.X, 0));
+        {
+            PhysicsComponent.Forces.Add(new Vector2(-20*PhysicsComponent.Velocity.X, 0));
+        }
     }
 }
