@@ -13,8 +13,8 @@ public class DurationCollection
     public List<double> Durations = new List<double>();
     public DurationCollection()
     {
-        Durations.Add(55);
-        Durations.Add(10);
-        Durations.Add(50);
+        Durations.Add(45);
+        Durations.Add(40);
+        Durations.Add(60);
     }
 }
