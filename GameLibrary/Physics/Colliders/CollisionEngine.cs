@@ -705,7 +705,10 @@ namespace GameLibrary.Physics.Colliders
             if (group1 == "enemy" && group2 == "enemy")
                 return true;
 
-            // Physical for everything else (e.g., player-movable, enemy-movable, default pairs)
+            // Trigger for enemy-movable (pass through, no push)
+            if ((group1 == "enemy" && group2 == "movable") || (group1 == "movable" && group2 == "enemy"))
+                return true;
+
             return false;
         }
 
