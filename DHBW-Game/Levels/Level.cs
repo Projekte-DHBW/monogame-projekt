@@ -157,8 +157,8 @@ namespace DHBW_Game.Levels
                             fireExtinguisher.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
                             BackgroundSprites.Add(fireExtinguisher);
                             break;
-                        case 'E': // End, Final Professor
-                            enemy = new FinalProfessor(mass: 1.5f, isElastic: false);
+                        case 'G': // End, Goal
+                            enemy = new Goal(mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
