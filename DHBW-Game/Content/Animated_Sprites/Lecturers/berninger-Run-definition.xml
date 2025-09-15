@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas>
-	<Texture>Animated_Sprites/Dozent/Run_Dozent</Texture>
+	<Texture>Animated_Sprites/Lecturers/berninger-Run</Texture>
 	<Regions>
 		<!-- Definiere die einzelnen Frames für die Animation -->
 		<Region name="running-1" x="0" y="0" width="35" height="35" />

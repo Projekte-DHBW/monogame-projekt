@@ -130,8 +130,8 @@ namespace DHBW_Game.Levels
                                                         y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2f);
                             foundPlayer = true;
                             break;
-                        case 'D': // Dozent
-                            Enemy enemy = new Professor(mass: 1.5f, isElastic: false);
+                        case 'D': // Lecturers
+                            Enemy enemy = new Professor("schwenker", mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;

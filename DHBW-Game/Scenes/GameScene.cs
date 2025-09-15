@@ -117,13 +117,13 @@ namespace DHBW_Game.Scenes
             LoadCurrentLevel();
         }
 
-        public void ShowQuestion()
+        public void ShowQuestion(string lecturerID)
         {
-            var (q, idx) = _questionPool.GetNextQuestion();
+            var (q, localIdx, globalIdx) = _questionPool.GetNextQuestion(lecturerID);
             if (q != null)
             {
                 ServiceLocator.Get<Game1>().QuestionPause();
-                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().QuestionResume());
+                _ui.ShowQuestion(q, globalIdx, () => _questionPool.MarkAsAnswered(lecturerID, localIdx), () => ServiceLocator.Get<Game1>().QuestionResume());
             }
         }
 
