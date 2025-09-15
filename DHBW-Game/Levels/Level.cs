@@ -238,8 +238,6 @@ namespace DHBW_Game.Levels
 
             if (!foundPlayer)
                 throw new Exception("Level must have a player start position (P)!");
-            if (_exitPositions.Count == 0)
-                throw new Exception("Level must have at least one exit (X)!");
 
             // Build merged solid rectangles & create colliders
             BuildOptimizedRectangleCover(tileIds, width, height, Tiles.SOLID_TILE);
@@ -248,10 +246,6 @@ namespace DHBW_Game.Levels
             _player = new Player(mass: 2f, isElastic: false);
             _player.Initialize(StartPosition);
 
-            if (_exitPositions.Count == 0)
-            {
-                throw new Exception("Level must have at least one exit (X)!");
-            }
         }
         
 
