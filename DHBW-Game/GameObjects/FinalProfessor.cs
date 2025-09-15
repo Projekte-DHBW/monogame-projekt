@@ -47,8 +47,8 @@ public class FinalProfessor : Enemy
     public override void LoadContent()
     {
         // Load the enemy texture atlases
-        TextureAtlas enemyRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Dozent/Run_Dozent-definition.xml");
-        TextureAtlas enemyStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Dozent/Idle_Dozent-definition.xml");
+        TextureAtlas enemyRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Lecturers/berninger-Run-definition.xml");
+        TextureAtlas enemyStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Lecturers/berninger-Idle-definition.xml");
         //TextureAtlas enemyJumpingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");
         //TextureAtlas enemyTransitionJ2FAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");
         //TextureAtlas enemyFallingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");

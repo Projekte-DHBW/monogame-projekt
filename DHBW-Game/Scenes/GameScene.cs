@@ -117,13 +117,13 @@ namespace DHBW_Game.Scenes
             LoadCurrentLevel();
         }
 
-        public void ShowQuestion()
+        public void ShowQuestion(string lecturerID)
         {
-            var (q, idx) = _questionPool.GetNextQuestion();
+            var (q, localIdx, globalIdx) = _questionPool.GetNextQuestion(lecturerID);
             if (q != null)
             {
                 ServiceLocator.Get<Game1>().QuestionPause();
-                _ui.ShowQuestion(q, idx, () => _questionPool.MarkAsAnswered(idx), () => ServiceLocator.Get<Game1>().QuestionResume());
+                _ui.ShowQuestion(q, globalIdx, () => _questionPool.MarkAsAnswered(lecturerID, localIdx), () => ServiceLocator.Get<Game1>().QuestionResume());
             }
         }
 
@@ -151,10 +151,10 @@ namespace DHBW_Game.Scenes
             base.Update(gameTime);
 
             // Temporary demonstration code for the question display system
-            if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
-            {
-                ShowQuestion();
-            }
+            //if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Q))
+            //{
+            //    ShowQuestion("berninger"); // Example
+            //}
 
             // Check whether to pause the game. Currently works like a toggle.
             if (GameController.Pause())

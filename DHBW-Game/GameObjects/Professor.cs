@@ -17,13 +17,18 @@ namespace GameObjects.Enemy;
 
 public class Professor : Enemy
 {
+    public string LecturerID { get; private set; }
+
     /// <summary>
     /// Creates a new <see cref="Professor"/> object.
     /// </summary>
+    /// <param name="lecturerID">The ID of the lecturer (e.g., surname) for sprite and question selection.</param>
     /// <param name="mass">The mass of the physics component.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    public Professor(float mass, bool isElastic) : base (mass, isElastic)
+    public Professor(string lecturerID, float mass, bool isElastic) : base (mass, isElastic)
     {
+        LecturerID = lecturerID ?? "berninger"; // Fallback if null
+
         // Use circle collider
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
 
@@ -46,9 +51,12 @@ public class Professor : Enemy
 
     public override void LoadContent()
     {
-        // Load the enemy texture atlases
-        TextureAtlas enemyRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Dozent/Run_Dozent-definition.xml");
-        TextureAtlas enemyStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Dozent/Idle_Dozent-definition.xml");
+        // Load the lecturer-specific texture atlases
+        string runPath = $"Animated_Sprites/Lecturers/{LecturerID}-Run-definition.xml";
+        //string idlePath = $"Animated_Sprites/Lecturers/{LecturerID}-Idle-definition.xml";
+
+        TextureAtlas enemyRunningAtlas = TextureAtlas.FromFile(Core.Content, runPath);
+        //TextureAtlas enemyStandingAtlas = TextureAtlas.FromFile(Core.Content, idlePath);
         //TextureAtlas enemyJumpingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");
         //TextureAtlas enemyTransitionJ2FAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");
         //TextureAtlas enemyFallingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Walk_Dozent-definition.xml");
@@ -58,9 +66,9 @@ public class Professor : Enemy
         _enemyRunning.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the enemy sprite for standing
-        var standingRegion = enemyStandingAtlas.GetRegion("standing");
-        _enemyStanding = new Sprite(standingRegion);
-        _enemyStanding.Scale = new Vector2(4.0f, 4.0f);
+        //var standingRegion = enemyStandingAtlas.GetRegion("standing");
+        //_enemyStanding = new Sprite(standingRegion);
+        //_enemyStanding.Scale = new Vector2(4.0f, 4.0f);
         //
         //// Create the enemy sprite for jumping
         //_enemyJumping = enemyJumpingAtlas.CreateAnimatedSpriteOnce("jumping-animation");
@@ -91,8 +99,8 @@ public class Professor : Enemy
         switch (_animationReturn.State)
         {
             case State.Idle:
-                Sprite = _enemyStanding;
-                break;
+                //Sprite = _enemyStanding;
+                //break;
             case State.Run:
                 Sprite = _enemyRunning;
                 break;
@@ -145,10 +153,8 @@ public class Professor : Enemy
         {
             _hasCollided = true;
 
-            ServiceLocator.Get<Game1>().QuestionPause();
-
             GameScene scene = (GameScene)ServiceLocator.Get<Scene>();
-            scene.ShowQuestion();
+            scene.ShowQuestion(LecturerID);
         }
     }
 }

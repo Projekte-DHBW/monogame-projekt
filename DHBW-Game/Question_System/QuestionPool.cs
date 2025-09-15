@@ -14,11 +14,14 @@ namespace DHBW_Game.Question_System;
 /// </summary>
 public class QuestionPool
 {
-    // List of questions in the pool
-    private List<MultipleChoiceQuestion> _questions = new List<MultipleChoiceQuestion>();
+    // Flat list of all questions in stable order (for global indexing/audio)
+    private List<MultipleChoiceQuestion> _allQuestions = new List<MultipleChoiceQuestion>();
 
-    // Set of indices for answered questions
-    private HashSet<int> _answeredIndices = new HashSet<int>();
+    // Dictionary of questions grouped by lecturer ID
+    private Dictionary<string, List<MultipleChoiceQuestion>> _questionsByLecturer = new Dictionary<string, List<MultipleChoiceQuestion>>();
+
+    // Dictionary of answered indices grouped by lecturer ID (local indices)
+    private Dictionary<string, HashSet<int>> _answeredByLecturer = new Dictionary<string, HashSet<int>>();
 
     // File path for the XML file storing questions
     private readonly string _filePath;
@@ -65,15 +68,42 @@ public class QuestionPool
     }
 
     /// <summary>
-    /// Loads questions from the XML file into the pool.
+    /// Loads questions from the XML file into the pool, grouped by lecturer.
     /// </summary>
     private void LoadQuestions()
     {
-        // Load questions using the XML serializer
-        _questions = _xmlSerializer.LoadFromFile();
+        // Load flat list of questions using the XML serializer
+        _allQuestions = _xmlSerializer.LoadFromFile();
+
+        // Group questions by LecturerID
+        _questionsByLecturer.Clear();
+        foreach (var question in _allQuestions)
+        {
+            if (string.IsNullOrEmpty(question.LecturerID))
+            {
+                question.LecturerID = "berninger"; // Fallback if LecturerID is missing
+            }
+            if (!_questionsByLecturer.TryGetValue(question.LecturerID, out var list))
+            {
+                list = new List<MultipleChoiceQuestion>();
+                _questionsByLecturer[question.LecturerID] = list;
+            }
+            list.Add(question);
+        }
 
         // Clear answered indices to reset tracking
-        _answeredIndices.Clear();
+        _answeredByLecturer.Clear();
+    }
+
+    /// <summary>
+    /// Rebuilds the flat list of all questions in a stable order (sorted by lecturer ID).
+    /// </summary>
+    private void RebuildAllQuestions()
+    {
+        _allQuestions = _questionsByLecturer
+            .OrderBy(kvp => kvp.Key)
+            .SelectMany(kvp => kvp.Value)
+            .ToList();
     }
 
     /// <summary>
@@ -123,13 +153,30 @@ public class QuestionPool
         // Clear existing questions if not keeping them
         if (!keepExisting)
         {
-            _questions.Clear();
+            _questionsByLecturer.Clear();
+            _allQuestions.Clear();
         }
-        // Add new questions to the pool
-        _questions.AddRange(newQuestions);
+
+        // Add new questions to the grouped dictionary
+        foreach (var q in newQuestions)
+        {
+            if (string.IsNullOrEmpty(q.LecturerID))
+            {
+                q.LecturerID = "berninger";
+            }
+            if (!_questionsByLecturer.TryGetValue(q.LecturerID, out var list))
+            {
+                list = new List<MultipleChoiceQuestion>();
+                _questionsByLecturer[q.LecturerID] = list;
+            }
+            list.Add(q);
+        }
+
+        // Rebuild the flat list in stable order
+        RebuildAllQuestions();
 
         // Save the updated question list to the XML file
-        _xmlSerializer.SaveToFile(_questions);
+        _xmlSerializer.SaveToFile(_allQuestions);
 
         // Send final success message via callback
         updateStatus?.Invoke("Questions generated!");
@@ -530,37 +577,72 @@ public class QuestionPool
     }
 
     /// <summary>
-    /// Retrieves a random unanswered question from the pool along with its index.
+    /// Retrieves a random unanswered question for the specified lecturer from the pool along with its local and global indices.
+    /// The global index corresponds to the position in the XML/flat list, used for audio file naming.
     /// </summary>
-    /// <returns>A tuple containing the question and its index, or (null, -1) if no unanswered questions remain.</returns>
-    public (MultipleChoiceQuestion Question, int Index) GetNextQuestion()
+    /// <param name="lecturerID">The ID of the lecturer to get a question for.</param>
+    /// <returns>A tuple containing the question, its local index in the lecturer's list, and its global index in the flat list, or (null, -1, -1) if no unanswered questions remain for that lecturer.</returns>
+    public (MultipleChoiceQuestion Question, int LocalIndex, int GlobalIndex) GetNextQuestion(string lecturerID)
     {
-        // Get indices of unanswered questions
-        var availableIndices = Enumerable.Range(0, _questions.Count)
-            .Where(i => !_answeredIndices.Contains(i))
+        if (string.IsNullOrEmpty(lecturerID) || !_questionsByLecturer.TryGetValue(lecturerID, out var questions))
+        {
+            return (null, -1, -1);
+        }
+
+        // Get answered set for this lecturer
+        if (!_answeredByLecturer.TryGetValue(lecturerID, out var answered))
+        {
+            answered = new HashSet<int>();
+            _answeredByLecturer[lecturerID] = answered;
+        }
+
+        // Get indices of unanswered questions (local)
+        var availableIndices = Enumerable.Range(0, questions.Count)
+            .Where(i => !answered.Contains(i))
             .ToList();
 
         // Return null if no unanswered questions are available
         if (availableIndices.Count == 0)
         {
-            return (null, -1);
+            return (null, -1, -1);
         }
 
-        // Select a random index from available indices
-        var selectedIndex = availableIndices[_randomNumberGenerator.Next(availableIndices.Count)];
-        return (_questions[selectedIndex], selectedIndex);
+        // Select a random local index from available indices
+        var localIndex = availableIndices[_randomNumberGenerator.Next(availableIndices.Count)];
+        var q = questions[localIndex];
+
+        // Find the global index in the flat list
+        int globalIndex = _allQuestions.IndexOf(q);
+        if (globalIndex == -1)
+        {
+            // Should not happen if lists are consistent
+            Console.WriteLine($"Warning: Question not found in flat list for {lecturerID}.");
+            return (null, -1, -1);
+        }
+
+        return (q, localIndex, globalIndex);
     }
 
     /// <summary>
-    /// Marks a question as answered by its index.
+    /// Marks a question as answered by its lecturer ID and local index.
     /// </summary>
-    /// <param name="index">The index of the question in the pool.</param>
-    public void MarkAsAnswered(int index)
+    /// <param name="lecturerID">The ID of the lecturer.</param>
+    /// <param name="localIndex">The local index of the question in the lecturer's list.</param>
+    public void MarkAsAnswered(string lecturerID, int localIndex)
     {
-        // Add the index to the answered set if valid
-        if (index >= 0 && index < _questions.Count)
+        if (string.IsNullOrEmpty(lecturerID) || !_questionsByLecturer.TryGetValue(lecturerID, out var questions))
         {
-            _answeredIndices.Add(index);
+            return;
+        }
+
+        if (localIndex >= 0 && localIndex < questions.Count)
+        {
+            if (!_answeredByLecturer.TryGetValue(lecturerID, out var answered))
+            {
+                answered = new HashSet<int>();
+                _answeredByLecturer[lecturerID] = answered;
+            }
+            answered.Add(localIndex);
         }
     }
 
@@ -569,65 +651,138 @@ public class QuestionPool
     /// </summary>
     public void ResetAnswered()
     {
-        // Clear the answered indices set
-        _answeredIndices.Clear();
+        foreach (var answered in _answeredByLecturer.Values)
+        {
+            answered.Clear();
+        }
     }
 
     /// <summary>
-    /// Deletes a question from the pool by its index and adjusts answered indices.
+    /// Deletes a question from the pool by its lecturer ID and local index and adjusts answered indices.
     /// </summary>
-    /// <param name="index">The index of the question to delete.</param>
-    public void DeleteQuestion(int index)
+    /// <param name="lecturerID">The ID of the lecturer.</param>
+    /// <param name="localIndex">The local index of the question in the lecturer's list to delete.</param>
+    public void DeleteQuestion(string lecturerID, int localIndex)
     {
-        // Validate the index and remove the question
-        if (index >= 0 && index < _questions.Count)
+        if (string.IsNullOrEmpty(lecturerID) || !_questionsByLecturer.TryGetValue(lecturerID, out var questions))
         {
-            _questions.RemoveAt(index);
+            return;
+        }
+
+        // Validate the index and remove the question
+        if (localIndex >= 0 && localIndex < questions.Count)
+        {
+            questions.RemoveAt(localIndex);
 
             // Adjust answered indices to account for the removed question
-            var newAnswered = new HashSet<int>();
-            foreach (var i in _answeredIndices)
+            if (_answeredByLecturer.TryGetValue(lecturerID, out var answered))
             {
-                if (i < index)
+                var newAnswered = new HashSet<int>();
+                foreach (var i in answered)
                 {
-                    newAnswered.Add(i);
+                    if (i < localIndex)
+                    {
+                        newAnswered.Add(i);
+                    }
+                    else if (i > localIndex)
+                    {
+                        newAnswered.Add(i - 1);
+                    }
                 }
-                else if (i > index)
-                {
-                    newAnswered.Add(i - 1);
-                }
+                _answeredByLecturer[lecturerID] = newAnswered;
             }
-            _answeredIndices = newAnswered;
+
+            // Rebuild the flat list
+            RebuildAllQuestions();
 
             // Save the updated question list to the XML file
-            _xmlSerializer.SaveToFile(_questions);
+            _xmlSerializer.SaveToFile(_allQuestions);
         }
     }
 
     /// <summary>
-    /// Edits a question in the pool by replacing it with a new one at the specified index.
+    /// Edits a question in the pool by replacing it with a new one at the specified lecturer ID and local index.
+    /// Assumes the updated question has the same LecturerID; if not, it will be moved to the new group.
     /// </summary>
-    /// <param name="index">The index of the question to edit.</param>
+    /// <param name="lecturerID">The current ID of the lecturer for the question to edit.</param>
+    /// <param name="localIndex">The local index of the question in the current lecturer's list.</param>
     /// <param name="updatedQuestion">The updated question object.</param>
-    public void EditQuestion(int index, MultipleChoiceQuestion updatedQuestion)
+    public void EditQuestion(string lecturerID, int localIndex, MultipleChoiceQuestion updatedQuestion)
     {
-        // Validate the index and question, then update the question
-        if (index >= 0 && index < _questions.Count && updatedQuestion != null)
+        if (string.IsNullOrEmpty(lecturerID) || !_questionsByLecturer.TryGetValue(lecturerID, out var questions) || updatedQuestion == null)
         {
-            _questions[index] = updatedQuestion;
+            return;
+        }
+
+        // Validate the index
+        if (localIndex >= 0 && localIndex < questions.Count)
+        {
+            // If LecturerID changed, remove from old group and add to new
+            if (updatedQuestion.LecturerID != lecturerID)
+            {
+                questions.RemoveAt(localIndex);
+
+                // Adjust answered for old lecturer
+                if (_answeredByLecturer.TryGetValue(lecturerID, out var oldAnswered))
+                {
+                    var newOldAnswered = new HashSet<int>();
+                    foreach (var i in oldAnswered)
+                    {
+                        if (i < localIndex)
+                        {
+                            newOldAnswered.Add(i);
+                        }
+                        else if (i > localIndex)
+                        {
+                            newOldAnswered.Add(i - 1);
+                        }
+                    }
+                    _answeredByLecturer[lecturerID] = newOldAnswered;
+                }
+
+                // Add to new group
+                if (!_questionsByLecturer.TryGetValue(updatedQuestion.LecturerID, out var newList))
+                {
+                    newList = new List<MultipleChoiceQuestion>();
+                    _questionsByLecturer[updatedQuestion.LecturerID] = newList;
+                }
+                newList.Add(updatedQuestion);
+
+                // Answered for new lecturer remains unchanged
+            }
+            else
+            {
+                // Same group, just update
+                questions[localIndex] = updatedQuestion;
+            }
+
+            // Rebuild the flat list
+            RebuildAllQuestions();
 
             // Save the updated question list to the XML file
-            _xmlSerializer.SaveToFile(_questions);
+            _xmlSerializer.SaveToFile(_allQuestions);
         }
     }
 
     /// <summary>
-    /// Gets all questions in the pool as a read-only list.
+    /// Gets all questions in the pool as a read-only list (flattened).
     /// </summary>
-    public IReadOnlyList<MultipleChoiceQuestion> AllQuestions => _questions.AsReadOnly();
+    public IReadOnlyList<MultipleChoiceQuestion> AllQuestions => _allQuestions.AsReadOnly();
 
     /// <summary>
-    /// Gets the number of unanswered questions in the pool.
+    /// Gets the number of unanswered questions in the pool (total across all lecturers).
     /// </summary>
-    public int UnansweredCount => _questions.Count - _answeredIndices.Count;
+    public int UnansweredCount
+    {
+        get
+        {
+            int total = 0;
+            foreach (var kvp in _questionsByLecturer)
+            {
+                var answeredCount = _answeredByLecturer.TryGetValue(kvp.Key, out var answered) ? answered.Count : 0;
+                total += kvp.Value.Count - answeredCount;
+            }
+            return total;
+        }
+    }
 }

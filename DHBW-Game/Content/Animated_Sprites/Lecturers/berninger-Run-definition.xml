@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Animated_Sprites/Lecturers/berninger-Run</Texture>
+	<Regions>
+		<!-- Definiere die einzelnen Frames für die Animation -->
+		<Region name="running-1" x="0" y="0" width="35" height="35" />
+		<Region name="running-2" x="35" y="0" width="35" height="35" />
+		<Region name="running-3" x="70" y="0" width="35" height="35" />
+		<Region name="running-4" x="105" y="0" width="35" height="35" />
+		<Region name="running-5" x="0" y="35" width="35" height="35" />
+		<Region name="running-6" x="35" y="35" width="35" height="35" />
+		<Region name="running-7" x="70" y="35" width="35" height="35" />
+		<Region name="running-8" x="105" y="35" width="35" height="35" />
+	</Regions>
+	<Animations>
+		<Animation name="running-animation" delay="200">
+			<Frame region="running-1" />
+			<Frame region="running-2" />
+			<Frame region="running-3" />
+			<Frame region="running-4" />
+			<Frame region="running-5" />
+			<Frame region="running-6" />
+			<Frame region="running-7" />
+			<Frame region="running-8" />
+		</Animation>
+	</Animations>
+</TextureAtlas>

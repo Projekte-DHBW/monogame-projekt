@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using GameObjects.Static_Sprites.Whiteboard;
 using GameLibrary.Rendering;
 
 namespace DHBW_Game.Levels
@@ -155,8 +156,13 @@ namespace DHBW_Game.Levels
                                                         y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2f);
                             foundPlayer = true;
                             break;
-                        case 'D': // Dozent
-                            Enemy enemy = new Professor(mass: 1.5f, isElastic: false);
+                        case 'D': // Lecturers
+                            Enemy enemy = new Professor("berninger", mass: 1.5f, isElastic: false);
+                            enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                            Enemys.Add(enemy);
+                            break;
+                        case 'W': // Lecturers
+                            enemy = new Professor("schwenker", mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
@@ -187,6 +193,21 @@ namespace DHBW_Game.Levels
                             enemy = new FinalProfessor(mass: 1.5f, isElastic: false);
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
+                            break;
+                        case '1': // Whiteboard 1 Sprite
+                            Whiteboard whiteboard = new Whiteboard();
+                            whiteboard.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboard);
+                            break;
+                        case '2': // Whiteboard 2 Sprite
+                            Whiteboard whiteboard2 = new Whiteboard("whiteboard2");
+                            whiteboard2.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboard2);
+                            break;
+                        case '3': // Whiteboard 3 Sprite
+                            Whiteboard whiteboard3 = new Whiteboard("whiteboard3");
+                            whiteboard3.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE - 15));
+                            BackgroundSprites.Add(whiteboard3);
                             break;
                     }
 
