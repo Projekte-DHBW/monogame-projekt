@@ -17,7 +17,7 @@ public class Desk : GameObject
 
     public Desk(float mass, bool isElastic)
     {
-        Collider = new RectangleCollider(this, new Vector2(0, 0), 400, 360, 0, isElastic);
+        Collider = new RectangleCollider(this, new Vector2(0, 0), 152, 84, 0, isElastic);
 
         PhysicsComponent = new PhysicsComponent(this, mass);
 
