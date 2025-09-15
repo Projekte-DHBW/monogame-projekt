@@ -219,6 +219,7 @@ public class GameSceneUI : ContainerRuntime
         // Update the GumService to handle UI updates
         GumService.Default.Update(gameTime);
         _GPAIndicatorUI.Update(gameTime);
+        _optionsPanel.Update(gameTime);
     }
 
     /// <summary>

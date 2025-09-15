@@ -5,6 +5,7 @@ using GameLibrary;
 using GameLibrary.Graphics;
 using Gum.DataTypes;
 using Gum.Forms.Controls;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using MonoGameGum.GueDeriving;
 
@@ -56,6 +57,8 @@ namespace DHBW_Game.UI
         private List<ContainerRuntime> _pages;
         private int _currentPage = 0;
         private readonly bool _includeDeepSettings;
+        private float _resetFeedbackTimer = 0f;
+        private const string ResetButtonText = "Reset Progress";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OptionsPanel"/> class.
@@ -152,7 +155,7 @@ namespace DHBW_Game.UI
 
                 // Reset game progress button
                 ResetGameProgressButton = new AnimatedButton(atlas);
-                ResetGameProgressButton.Text = "Reset Progress";
+                ResetGameProgressButton.Text = ResetButtonText;
                 ResetGameProgressButton.Anchor(Gum.Wireframe.Anchor.Top);
                 ResetGameProgressButton.Visual.Y = sliderBaseY + sliderSpacing; // Vertical position (similar to audio sliders)
                 ResetGameProgressButton.Height = 40f;
@@ -273,7 +276,20 @@ namespace DHBW_Game.UI
             // A UI interaction occurred, play the sound effect
             Core.Audio.PlaySoundEffect(_uiSoundEffect);
 
-            SaveManager.ResetProgress();
+            try
+            {
+                SaveManager.ResetProgress();
+                ResetGameProgressButton.Text = "Game Progress Deleted!"; // Temporary feedback text
+                ResetGameProgressButton.IsEnabled = false; // Disable to prevent spam clicks
+            }
+            catch (Exception ex)
+            {
+                ResetGameProgressButton.Text = "Reset Failed!"; // Error feedback
+                Console.WriteLine(ex.Message); // Log for debugging
+            }
+
+            // Start a timer to clear the message
+            _resetFeedbackTimer = 2f; // 2 seconds
         }
 
         /// <summary>
@@ -333,6 +349,20 @@ namespace DHBW_Game.UI
             Core.Audio.PlaySoundEffect(_uiSoundEffect);
             // Invoke the provided back action (e.g., show title or pause panel)
             _onBack?.Invoke();
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (_resetFeedbackTimer > 0f)
+            {
+                _resetFeedbackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (_resetFeedbackTimer <= 0f)
+                {
+                    ResetGameProgressButton.Text = ResetButtonText; // Revert to original
+                    ResetGameProgressButton.IsEnabled = true; // Re-enable
+                }
+            }
         }
 
         /// <summary>
