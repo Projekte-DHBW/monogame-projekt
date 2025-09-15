@@ -17,23 +17,18 @@ public class Elevator : GameObject
     //private AnimatedSprite _elevator;
     private TextureAtlas elevatorAtlas;
     private bool _isActivated;
-    private bool _isMirrored;
+    private bool _isEntranceElevator;
+    private AnimatedSpriteOnce _openingElevator;
+    private AnimatedSpriteOnce _closingElevator;
+    private AnimatedSpriteOnce _closingEntranceElevator;
+    private Sprite _openElevator;
+    private Sprite _closedElevator;
 
-    /*
-    public Elevator(float mass, bool isElastic) 
+  
+    public Elevator(bool isEntranceElevator = true)
     {
-        // Use rectangle collider
-        Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
-
-        PhysicsComponent = new PhysicsComponent(this, mass);
-
-        ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
-    }*/
-
-    public Elevator(bool isActivated = true, bool isMirrored = false)
-    {
-        _isActivated = isActivated;
-        _isMirrored = isMirrored;
+        _isActivated = false;
+        _isEntranceElevator = isEntranceElevator;
     }
 
     /// <summary>
@@ -43,25 +38,36 @@ public class Elevator : GameObject
     public override void Initialize(Vector2 position)
     {
         base.Initialize(position);
-        UpdateSprite();
         Position = position;
     }
 
     public override void LoadContent()
     {
-        elevatorAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Elevator/Elevator-definition.xml");
-        UpdateSprite();
+        TextureAtlas elevatorAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Elevator/Elevator-definition.xml");
+
+        _openingElevator = elevatorAtlas.CreateAnimatedSpriteOnce("elevatorOpening-animation");
+        _openingElevator.Scale = new Vector2(4.0f, 4.0f);
+
+        _closingElevator = elevatorAtlas.CreateAnimatedSpriteOnce("elevatorClosing-animation");
+        _closingElevator.Scale = new Vector2(4.0f, 4.0f);
+
+        _closingEntranceElevator = elevatorAtlas.CreateAnimatedSpriteOnce("entranceElevatorClosing-animation");
+        _closingEntranceElevator.Scale = new Vector2(4.0f, 4.0f);
+
+        var elevatorRegionOpen = elevatorAtlas.GetRegion("elevatorOpen");
+        _openElevator = new Sprite(elevatorRegionOpen);
+        _openElevator.Scale = new Vector2(4.0f, 4.0f);
+
+        var elevatorRegionClosed = elevatorAtlas.GetRegion("elevatorClosed");
+        _closedElevator = new Sprite(elevatorRegionClosed);
+        _closedElevator.Scale = new Vector2(4.0f, 4.0f);
+
+        Sprite = _closingEntranceElevator;
 
         base.LoadContent();
     }
 
-    private void UpdateSprite()
-    {
-        var elevatorRegion = _isActivated ? elevatorAtlas.GetRegion("elevatorOpen") : elevatorAtlas.GetRegion("elevatorClosed");
-        Sprite = new Sprite(elevatorRegion);
-        Sprite.Scale = new Vector2(4.0f, 4.0f);
-        Sprite.Effects = _isMirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-    }
+   
 
     /// <summary>
     /// Updates the sprite which is set and also handles the input.
@@ -70,6 +76,37 @@ public class Elevator : GameObject
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        if (!_isEntranceElevator)
+        {
+            return;
+        }
+        if (Math.Abs(Position.X - ServiceLocator.Get<Player.Player>().Position.X) < 200)
+        {
+            Activate();
+            if (_openingElevator.IsFinished)
+            {
+                Sprite = _openElevator;
+            }
+            else if (Sprite != _openingElevator)
+            {
+                Sprite = _openingElevator;
+                _closingElevator.ResetAnimation();
+            }
+
+        } 
+        else 
+        {
+            Deactivate();
+            if (_closingElevator.IsFinished)
+            {
+                Sprite = _closedElevator;
+            }
+            else if (Sprite != _closingElevator)
+            {
+                Sprite = _closingElevator;
+                _openingElevator.ResetAnimation();
+            }
+        }
     }
 
     /// <summary>
@@ -81,17 +118,13 @@ public class Elevator : GameObject
         base.Draw();
     }
 
-    public void Activate()
+    private void Activate()
     {
         _isActivated = true;
-        UpdateSprite();
     }
 
-    public void Deactivate()
+    private void Deactivate()
     {
         _isActivated = false;
-        UpdateSprite();
     }
-
-    public bool IsActivated => _isActivated;
 }

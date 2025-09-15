@@ -13,6 +13,6 @@ namespace DHBW_Game.Levels
         public const int EMPTY_TILE = 0;
         public const int SOLID_TILE = 1;
         public const int PLAYER_START = 0;
-        public const int EXIT_TILE = 2;
+        public const int EXIT_TILE = 0;
     }
 }

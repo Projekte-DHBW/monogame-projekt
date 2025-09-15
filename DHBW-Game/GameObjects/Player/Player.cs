@@ -53,10 +53,10 @@ public class Player : GameObject
         PhysicsComponent = new PhysicsComponent(this, mass);
 
         ServiceLocator.Get<PhysicsEngine>().Add(PhysicsComponent);
-
         _timeSinceLanded = float.MaxValue;
         _wasOnGround = false;
         _jumpBufferTimer = 0f;
+        ServiceLocator.Register(this);
     }
 
     /// <summary>
