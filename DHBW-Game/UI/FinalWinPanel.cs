@@ -121,6 +121,8 @@ public class FinalWinPanel : Panel
         average.X = 10f;
         average.Y = 45f;
         AddChild(average);
+
+        quitButton.IsFocused = true;
     }
 
 

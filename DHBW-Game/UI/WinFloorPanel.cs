@@ -110,6 +110,8 @@ public class WinFloorPanel : Panel
         grade.X = 10f;
         grade.Y = 30f;
         AddChild(grade);
+
+        _NextfloorButton.IsFocused = true;
     }
 
 
