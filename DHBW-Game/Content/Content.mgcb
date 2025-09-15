@@ -418,6 +418,10 @@
 /copy:Static_Sprites/Whiteboard-definition.xml
 
 #begin Static_Sprites/Whiteboard.png
+#begin Static_Sprites/Goal-definition.xml
+/copy:Static_Sprites/Goal-definition.xml
+
+#begin Static_Sprites/Goal.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -428,6 +432,7 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Static_Sprites/Whiteboard.png
+/build:Static_Sprites/Goal.png
 
 #begin Tiles/TilesetA.png
 /copy:Tiles/TilesetA.png
