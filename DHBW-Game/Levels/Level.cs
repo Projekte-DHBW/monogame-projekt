@@ -292,15 +292,11 @@ namespace DHBW_Game.Levels
         {
             if (_backgroundTexture != null)
             {
-                Vector2 parallaxPosition = new Vector2(
-                    _backgroundDestination.X + (_camera.Position.X * 0.3f),
-                    _backgroundDestination.Y + (_camera.Position.Y * 0.2f) 
-                );
 
                 _camera.Draw(
                     spriteBatch,
                     _backgroundTexture,
-                    parallaxPosition,
+                    Vector2.Zero,
                     null,
                     Color.White,
                     0f,
