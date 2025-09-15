@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using GameLibrary.Rendering;
 
 namespace DHBW_Game.Levels
 {
@@ -28,16 +29,19 @@ namespace DHBW_Game.Levels
         private Player _player;
         private List<Vector2> _exitPositions = new List<Vector2>();
         private ContentManager _content;
+        private Texture2D _backgroundTexture; // Background image
+        private Rectangle _backgroundDestination; // Size and position of the background
+        private Camera _camera = ServiceLocator.Get<Camera>();
+
+        
         public List<GameObject> Objects { get; private set; } = new List<GameObject>();
         public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
-
         public List<GameObject> BackgroundSprites { get; private set; } = new List<GameObject>();
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
         public bool IsCompleted { get; private set; }
         public Vector2 StartPosition { get; private set; }
-
 
         /// <summary>
         /// Initialize the level from a text file
@@ -64,6 +68,16 @@ namespace DHBW_Game.Levels
             // Initialize empty tilemap (will be populated in LoadLevel)
             _tilemap = new Tilemap(_tileset, 0, 0);
 
+            // Load background image
+            try
+            {
+                _backgroundTexture = _content.Load<Texture2D>("Backgrounds/background");
+            }
+            catch (ContentLoadException)
+            {
+                // If the background image is not found, set it to null
+                _backgroundTexture = null;
+            }
         }
 
         /// <summary>
@@ -107,9 +121,21 @@ namespace DHBW_Game.Levels
             // Create new tilemap with correct dimensions using the stored tileset
             _tilemap = new Tilemap(_tileset, width, height);
 
+            if (_backgroundTexture != null)
+            {
+                float scaleFactor = 3f;
+                int scaledWidth = (int)(_backgroundTexture.Width * scaleFactor);
+                int scaledHeight = (int)(_backgroundTexture.Height * scaleFactor);
+                
+
+                int offsetX = -(scaledWidth - _backgroundTexture.Width) / 3;
+                int offsetY = -(scaledHeight - _backgroundTexture.Height) / 3;
+                
+                _backgroundDestination = new Rectangle(offsetX, offsetY, scaledWidth, scaledHeight);
+            }
+
             // Store tile IDs for second pass rectangle merging
             int[,] tileIds = new int[height, width];
-
 
             // Parse level data and set tiles
             bool foundPlayer = false;
@@ -181,7 +207,6 @@ namespace DHBW_Game.Levels
             // Create player
             _player = new Player(mass: 2f, isElastic: false);
             _player.Initialize(StartPosition);
-           
 
             if (_exitPositions.Count == 0)
             {
@@ -265,6 +290,28 @@ namespace DHBW_Game.Levels
         /// </summary>
         public void Draw(SpriteBatch spriteBatch)
         {
+            if (_backgroundTexture != null)
+            {
+                Vector2 parallaxPosition = new Vector2(
+                    _backgroundDestination.X + (_camera.Position.X * 0.3f),
+                    _backgroundDestination.Y + (_camera.Position.Y * 0.2f) 
+                );
+
+                _camera.Draw(
+                    spriteBatch,
+                    _backgroundTexture,
+                    parallaxPosition,
+                    null,
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    new Vector2((float)_backgroundDestination.Width / _backgroundTexture.Width, 
+                               (float)_backgroundDestination.Height / _backgroundTexture.Height),
+                    SpriteEffects.None,
+                    1.0f
+                );
+            }
+
             _tilemap.Draw(spriteBatch);
 
             foreach (var sprite in BackgroundSprites)
@@ -279,12 +326,11 @@ namespace DHBW_Game.Levels
 
 
             _player?.Draw();
-
         }
 
         private void BuildOptimizedRectangleCover(int[,] tileIds, int width, int height, int solidId)
         {
-            // Maske: true = noch nicht abgedeckt
+            // Mask: true = not yet covered
             bool[,] mask = new bool[height, width];
             int remaining = 0;
             for (int y = 0; y < height; y++)
@@ -302,7 +348,7 @@ namespace DHBW_Game.Levels
             if (remaining == 0)
                 return;
 
-            // Wiederhole bis alle SOLID Tiles abgedeckt
+            // Repeat until all SOLID tiles are covered
             while (remaining > 0)
             {
                 // Find the largest rectangle of true cells
@@ -317,10 +363,10 @@ namespace DHBW_Game.Levels
                     bestArea = 1;
                 }
 
-                // Erstelle Collider
+                // Create collider
                 CreateColliderForRectangle(bestLeft, bestTop, bestW, bestH);
 
-                // Markiere Bereich als abgedeckt
+                // Mark area as covered
                 for (int dy = 0; dy < bestH; dy++)
                 {
                     for (int dx = 0; dx < bestW; dx++)
@@ -332,8 +378,6 @@ namespace DHBW_Game.Levels
                         }
                     }
                 }
-
-                // (Optional) Early exit heuristic; not needed here
             }
         }
 
@@ -362,7 +406,7 @@ namespace DHBW_Game.Levels
 
             for (int y = 0; y < height; y++)
             {
-                // Update Histogramm
+                // Update histogram
                 for (int x = 0; x < width; x++)
                 {
                     heights[x] = mask[y, x] ? heights[x] + 1 : 0;
