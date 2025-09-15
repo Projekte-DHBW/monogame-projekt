@@ -145,8 +145,6 @@ public class Professor : Enemy
         {
             _hasCollided = true;
 
-            ServiceLocator.Get<Game1>().QuestionPause();
-
             GameScene scene = (GameScene)ServiceLocator.Get<Scene>();
             scene.ShowQuestion();
         }
