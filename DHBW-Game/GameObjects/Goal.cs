@@ -15,14 +15,14 @@ using DHBW_Game.Scenes;
 
 namespace GameObjects.Enemy;
 
-public class FinalProfessor : Enemy
+public class Goal : Enemy
 {
     /// <summary>
     /// Creates a new <see cref="Professor"/> object.
     /// </summary>
     /// <param name="mass">The mass of the physics component.</param>
     /// <param name="isElastic">Whether the collider is elastic.</param>
-    public FinalProfessor(float mass, bool isElastic) : base (mass, isElastic)
+    public Goal(float mass, bool isElastic) : base (mass, isElastic)
     {
         // Use circle collider
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
