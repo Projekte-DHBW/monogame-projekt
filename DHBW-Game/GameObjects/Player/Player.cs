@@ -260,10 +260,5 @@ public class Player : GameObject
     public override void TriggerCollision(Collider collider)
     {
         base.TriggerCollision(collider);
-
-        if ((collider.GameObject is Enemy.Student) && (Math.Abs(PhysicsComponent.Velocity.X) > 100))
-        {
-            PhysicsComponent.Forces.Add(new Vector2(-20*PhysicsComponent.Velocity.X, 0));
-        }
     }
 }
