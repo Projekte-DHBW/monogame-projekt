@@ -3,7 +3,6 @@ using GameLibrary;
 using GameLibrary.Entities;
 using GameLibrary.Graphics;
 using GameLibrary.Physics;
-using GameLibrary.Physics.Colliders;
 using GameObjects.Enemy;
 using GameObjects.Player;
 using GameObjects.Static_Sprites.Door_Open;
@@ -19,6 +18,7 @@ using GameObjects.Static_Sprites.Whiteboard;
 using GameObjects.Static_Sprites.Elevator;
 using GameObjects.Static_Sprites.Desk;
 using GameLibrary.Rendering;
+using GameObjects;
 
 namespace DHBW_Game.Levels
 {
@@ -204,9 +204,9 @@ namespace DHBW_Game.Levels
                             BackgroundSprites.Add(fireExtinguisher);
                             break;
                         case 'G': // End, Goal
-                            enemy = new Goal(mass: 1.5f, isElastic: false);
-                            enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
-                            Enemys.Add(enemy);
+                            Goal goal = new Goal();
+                            goal.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                            BackgroundSprites.Add(goal);
                             break;
                         case '1': // Whiteboard 1 Sprite
                             Whiteboard whiteboard = new Whiteboard();

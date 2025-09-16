@@ -201,8 +201,8 @@ namespace DHBW_Game.Scenes
                                     null,
                                     null,
                                     null);
-            //_collisionEngine.VisualizeColliders();
             _currentLevel?.Draw(Core.SpriteBatch);
+            //_collisionEngine.VisualizeColliders();
             Core.SpriteBatch.End();
 
             base.Draw(gameTime);
