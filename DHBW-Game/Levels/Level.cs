@@ -30,7 +30,6 @@ namespace DHBW_Game.Levels
         private Tilemap _tilemap;
         private Tileset _tileset;
         private Player _player;
-        private List<Vector2> _exitPositions = new List<Vector2>();
         private ContentManager _content;
         private Texture2D _backgroundTexture; // Background image
         private Rectangle _backgroundDestination; // Size and position of the background
@@ -44,7 +43,6 @@ namespace DHBW_Game.Levels
 
         public int Width => _tilemap?.Columns ?? 0;
         public int Height => _tilemap?.Rows ?? 0;
-        public bool IsCompleted { get; private set; }
         public Vector2 StartPosition { get; private set; }
 
         /// <summary>
@@ -101,7 +99,6 @@ namespace DHBW_Game.Levels
             Enemys.Clear();
             BackgroundSprites.Clear();
             MoveableObjects.Clear();
-            _exitPositions.Clear();
             _player = null;
 
             List<string> lines = new List<string>();
@@ -175,18 +172,15 @@ namespace DHBW_Game.Levels
                             enemy.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
                             Enemys.Add(enemy);
                             break;
-                        case 'X': // Exit
-                            _exitPositions.Add(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
-                            break;
                         case 'E': // Exit Elevator Sprite
-                            Elevator elevator = new Elevator();
-                            elevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
-                            BackgroundSprites.Add(elevator);
+                            Elevator exitElevator = new Elevator();
+                            exitElevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(exitElevator);
                             break;
-                        case 'M': // Mirrored Elevator Sprite, initially open
-                            Elevator mirroredElevator = new Elevator(false);
-                            mirroredElevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE +28));
-                            BackgroundSprites.Add(mirroredElevator);
+                        case 'M': // Startpoint Elevator Sprite, initially open
+                            Elevator startElevator = new Elevator(false);
+                            startElevator.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE +28));
+                            BackgroundSprites.Add(startElevator);
                             break;
                         case 'O': // Door Open Sprite
                             Door_Open openDoor = new Door_Open();
@@ -269,9 +263,6 @@ namespace DHBW_Game.Levels
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            if (IsCompleted)
-                return;
-
             foreach (var obj in Objects)
             {
                 obj.Update(gameTime);
@@ -294,35 +285,6 @@ namespace DHBW_Game.Levels
 
             // Update player
             _player?.Update(gameTime);
-
-            // Check if player reached any exit
-            if (_player != null && !IsCompleted)
-            {
-                const float PLAYER_COLLISION_RADIUS = 32f;
-
-                foreach (Vector2 exitPos in _exitPositions)
-                {
-                    Rectangle exitBounds = new Rectangle(
-                        (int)exitPos.X,
-                        (int)exitPos.Y,
-                        Tiles.TILE_SIZE,
-                        Tiles.TILE_SIZE
-                    );
-
-                    Vector2 playerPos = _player.Position;
-                    bool playerInExitX = playerPos.X + PLAYER_COLLISION_RADIUS > exitBounds.Left &&
-                                      playerPos.X - PLAYER_COLLISION_RADIUS < exitBounds.Right;
-                    bool playerInExitY = playerPos.Y + PLAYER_COLLISION_RADIUS > exitBounds.Top &&
-                                      playerPos.Y - PLAYER_COLLISION_RADIUS < exitBounds.Bottom;
-
-                    if (playerInExitX && playerInExitY)
-                    {
-                        IsCompleted = true;
-                        break;
-                    }
-                }
-            }
-
         }
 
 
