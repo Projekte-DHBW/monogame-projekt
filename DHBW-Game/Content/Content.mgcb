@@ -262,6 +262,18 @@
 /processorParam:Quality=Best
 /build:audio/VoiceLines/schwenker5.wav
 
+#begin backgrounds/background.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:backgrounds/background.png
+
 #begin fonts/04B_30_5x.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -330,18 +342,6 @@
 /processorParam:TextureFormat=Color
 /build:images/logo.jpg
 
-#begin Backgrounds/background.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:backgrounds/background.png
-
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 
@@ -353,6 +353,21 @@
 
 #begin Levels/02.txt
 /copy:Levels/02.txt
+
+#begin Static_Sprites/Caution_Board-definition.xml
+/copy:Static_Sprites/Caution_Board-definition.xml
+
+#begin Static_Sprites/Caution_Board.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Caution_Board.png
 
 #begin Static_Sprites/Desk-definition.xml
 /copy:Static_Sprites/Desk-definition.xml
@@ -399,6 +414,21 @@
 /processorParam:TextureFormat=Color
 /build:Static_Sprites/Door/Door_Open.png
 
+#begin Static_Sprites/EnergyDrink-definition.xml
+/copy:Static_Sprites/EnergyDrink-definition.xml
+
+#begin Static_Sprites/EnergyDrink.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/EnergyDrink.png
+
 #begin Static_Sprites/Fire_Extinguisher-definition.xml
 /copy:Static_Sprites/Fire_Extinguisher-definition.xml
 
@@ -414,10 +444,6 @@
 /processorParam:TextureFormat=Color
 /build:Static_Sprites/Fire_Extinguisher.png
 
-#begin Static_Sprites/Whiteboard-definition.xml
-/copy:Static_Sprites/Whiteboard-definition.xml
-
-#begin Static_Sprites/Whiteboard.png
 #begin Static_Sprites/Goal-definition.xml
 /copy:Static_Sprites/Goal-definition.xml
 
@@ -431,8 +457,22 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Static_Sprites/Whiteboard.png
 /build:Static_Sprites/Goal.png
+
+#begin Static_Sprites/Whiteboard-definition.xml
+/copy:Static_Sprites/Whiteboard-definition.xml
+
+#begin Static_Sprites/Whiteboard.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Static_Sprites/Whiteboard.png
 
 #begin Tiles/TilesetA.png
 /copy:Tiles/TilesetA.png
