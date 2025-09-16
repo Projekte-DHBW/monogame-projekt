@@ -184,6 +184,25 @@ public class Player : GameObject
         {
             _jumpDuration = 0.1; // Start jump force duration
             _jumpBufferTimer = 0f; // Consume buffer
+
+            // Detect if this is a wall jump and push away for skill-based mechanic
+            float slopeAngle = Collider.SlopeAngle;
+            float twoPi = 2f * (float)Math.PI;
+            slopeAngle = ((slopeAngle % twoPi) + twoPi) % twoPi; // Normalize to [0, 2π)
+            float modPi = slopeAngle % (float)Math.PI;
+            float effectiveAngle = Math.Min(modPi, (float)Math.PI - modPi);
+
+            float wallThresholdInRadians = (float)Math.PI / 4f; // 45 degrees
+            if (effectiveAngle > wallThresholdInRadians)
+            {
+                // Reconstruct unit normal (matches PhysicsEngine logic)
+                Vector2 tangent = new Vector2((float)Math.Cos(slopeAngle), (float)Math.Sin(slopeAngle));
+                Vector2 unitNormal = new Vector2(tangent.Y, -tangent.X);
+
+                // Apply push force away from wall
+                float pushMagnitude = 40000f; // Strong enough to require quick recovery for multi-jumps
+                PhysicsComponent.Forces.Add(unitNormal * pushMagnitude);
+            }
         }
 
         // Add jump force if duration active
@@ -195,7 +214,6 @@ public class Player : GameObject
 
         // Set friction skip flag for this frame (only if on ground and jumping soon)
         PhysicsComponent.SkipFrictionThisFrame = Collider.IsOnGround && wantsToJump && _timeSinceLanded < LandingGraceTime;
-
     }
 
     /// <summary>
