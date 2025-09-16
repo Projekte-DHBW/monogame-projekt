@@ -434,7 +434,7 @@ namespace DHBW_Game.Levels
             float centerX = (leftTile + widthTiles / 2f) * tileSize;
             float centerY = (topTile + heightTiles / 2f) * tileSize;
 
-            var seg = new TestSegment(wPx, hPx, 0f, isElastic: false, frictionCoefficient: 1f);
+            var seg = new Segment(wPx, hPx, 0f, isElastic: false, frictionCoefficient: 1f);
             seg.Initialize(new Vector2(centerX, centerY));
             Objects.Add(seg);
         }
