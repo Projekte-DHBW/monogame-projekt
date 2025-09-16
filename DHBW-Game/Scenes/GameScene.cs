@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using DHBW_Game.Question_System;
 using DHBW_Game.Save_System;
-using Microsoft.Xna.Framework.Input;
 using MonoGameGum;
 using MonoGameTutorial;
 using MonoGameTutorial.UI;
@@ -178,16 +177,18 @@ namespace DHBW_Game.Scenes
 
             // Update the current level
             _currentLevel?.Update(gameTime);
+        }
 
-            // Check if the current level is completed
-            if (_currentLevel?.IsCompleted == true)
-            {
-                // Save progress for the next level
-                SaveManager.SaveProgress(_currentLevelNumber + 1);
+        /// <summary>
+        /// Saves the game progress and shows the win panel for the level.
+        /// </summary>
+        public void LevelCompleted()
+        {
+            // Save progress for the next level
+            SaveManager.SaveProgress(_currentLevelNumber + 1);
 
-                ServiceLocator.Get<Game1>().GameOver();
-                ShowWinFloorPanel();
-            }
+            ServiceLocator.Get<Game1>().GameOver();
+            ShowWinFloorPanel();
         }
 
         public override void Draw(GameTime gameTime)
