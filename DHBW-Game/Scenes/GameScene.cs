@@ -141,6 +141,16 @@ namespace DHBW_Game.Scenes
             if (_ui != null)
                 _ui.ShowFinalWinPanel();
         }
+        public void ShowEnergySprite()
+        {
+            if (_ui != null)
+                _ui.ShowEnergySprite();
+        }
+        public void HideEnergySprite()
+        {
+            if (_ui != null)
+                _ui.HideEnergySprite();
+        }
 
         public override void Update(GameTime gameTime)
         {

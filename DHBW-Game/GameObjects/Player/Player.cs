@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 using GameObjects.Animate;
+using MonoGameTutorial.UI;
+using DHBW_Game.Scenes;
 
 namespace GameObjects.Player;
 
@@ -24,6 +26,10 @@ public class Player : GameObject
     private Sprite _playerStanding;
     private AnimateGameObject _animatePlayer;
     private AnimationReturn _playerAnimationReturn;
+    public bool _boosted { get; private set; }
+    private double _boostDuration;
+    private int _boostFactor;
+    private bool _isSliding;
     private bool _moveUp;
     private bool _moveDown;
     private bool _moveLeft;
@@ -62,6 +68,9 @@ public class Player : GameObject
         _timeSinceLanded = float.MaxValue;
         _wasOnGround = false;
         _jumpBufferTimer = 0f;
+        _boosted = false;
+        _boostDuration = 0f;
+        _boostFactor = 1;
         ServiceLocator.Register(this);
     }
 
@@ -139,11 +148,11 @@ public class Player : GameObject
         float forceMagnitude;
         if (Collider.IsOnGround)
         {
-            forceMagnitude = 4000;
+            forceMagnitude = _boosted ? (4000 * _boostFactor) : 4000;
         }
         else
         {
-            forceMagnitude = 2000;
+            forceMagnitude = _boosted ? (2000 * _boostFactor) : 2000;
         }
 
         // Upwards movement (jumping) results in a force over the set jump duration so that the jump "event" which is a button press still leads to an acceleration
@@ -209,12 +218,16 @@ public class Player : GameObject
         // Add jump force if duration active
         if (_jumpDuration > 0)
         {
-            PhysicsComponent.Forces.Add(-Vector2.UnitY * 15000);
+            PhysicsComponent.Forces.Add(-Vector2.UnitY * (_boosted ? (15000 * _boostFactor) : 15000));
         }
         _jumpDuration -= gameTime.ElapsedGameTime.TotalSeconds;
 
         // Set friction skip flag for this frame (only if on ground and jumping soon)
-        PhysicsComponent.SkipFrictionThisFrame = Collider.IsOnGround && wantsToJump && _timeSinceLanded < LandingGraceTime;
+        PhysicsComponent.SkipFrictionThisFrame = Collider.IsOnGround && wantsToJump && _timeSinceLanded < LandingGraceTime || _isSliding;
+        if (_isSliding)
+        {
+            _isSliding = false;
+        }
     }
 
     /// <summary>
@@ -284,6 +297,16 @@ public class Player : GameObject
                 _secondaryCollider = null;
             }
             _usingSecondaryCollider = false;
+        }
+
+        if (_boostDuration > 0)
+        {
+            _boostDuration -= gameTime.ElapsedGameTime.TotalSeconds;
+        }
+        else if (_boosted)
+        {
+            _boosted = false;
+            ServiceLocator.Get<GameScene>().HideEnergySprite();
         }
 
         _playerAnimationReturn = _animatePlayer.GetAnimation(_moveUp, _moveDown, _moveLeft, _moveRight, PhysicsComponent);
@@ -368,5 +391,17 @@ public class Player : GameObject
     public override void TriggerCollision(Collider collider)
     {
         base.TriggerCollision(collider);
+    }
+
+    public void Boost(int boostFactor, double boostDuration)
+    {
+        _boosted = true;
+        _boostDuration = boostDuration;
+        _boostFactor = boostFactor;
+        ServiceLocator.Get<GameScene>().ShowEnergySprite();
+    }
+    public void Slide()
+    {
+        _isSliding = true;
     }
 }
