@@ -239,7 +239,7 @@ public class Player : GameObject
             // Compute offset once
             Vector2 bottomCenter = Position + new Vector2(0, Height / 2);
             _slopeOffset = ServiceLocator.Get<CollisionEngine>().GetVerticalDistanceToSurface(bottomCenter, Collider.GroundCollider);
-            Console.WriteLine(_slopeOffset);
+
             if (_secondaryCollider == null)
             {
                 // Create secondary collider at sprite's offset position
