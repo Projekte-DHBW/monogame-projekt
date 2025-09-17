@@ -25,6 +25,7 @@ public class CircleCollider : Collider
     /// <param name="radius">The length from the center of the circle collider to the edge.</param>
     public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius) : base(gameObject, localPosition)
     {
+        CanRoll = true;
         Radius = radius;
         SetTexture();
     }
@@ -38,6 +39,7 @@ public class CircleCollider : Collider
     /// <param name="isElastic">Whether the collider is elastic.</param>
     public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius, bool isElastic) : base(gameObject, localPosition, isElastic)
     {
+        CanRoll = true;
         Radius = radius;
         SetTexture();
     }
@@ -52,6 +54,7 @@ public class CircleCollider : Collider
     /// <param name="frictionCoefficient">The friction coefficient of the collider.</param>
     public CircleCollider(GameObject gameObject, Vector2 localPosition, int radius, bool isElastic, float frictionCoefficient) : base(gameObject, localPosition, isElastic, frictionCoefficient)
     {
+        CanRoll = true;
         Radius = radius;
         SetTexture();
     }
