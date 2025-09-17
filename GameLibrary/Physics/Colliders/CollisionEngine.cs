@@ -22,7 +22,7 @@ namespace GameLibrary.Physics.Colliders
         public CollisionEngine()
         {
         }
-        
+
         /// <summary>
         /// Adds a new collider which is managed by the collision engine.
         /// </summary>
@@ -31,7 +31,26 @@ namespace GameLibrary.Physics.Colliders
         {
             _colliders.Add(collider);
         }
-        
+
+        /// <summary>
+        /// Removes a collider from the collision engine.
+        /// </summary>
+        /// <param name="collider">The collider to remove.</param>
+        public void Remove(Collider collider)
+        {
+            _colliders.Remove(collider);
+        }
+
+        /// <summary>
+        /// Returns a copy of the list of all colliders managed by this collision engine.
+        /// This prevents external modifications to the internal list.
+        /// </summary>
+        /// <returns>A new list containing copies of the current colliders.</returns>
+        public List<Collider> GetCollidersCopy()
+        {
+            return new List<Collider>(_colliders);
+        }
+
         /// <summary>
         /// Visualizes all colliders by calling their respective Draw methods.
         /// Requires the colliders to implement everything necessary to be able to draw them by calling their Draw method.
@@ -148,6 +167,10 @@ namespace GameLibrary.Physics.Colliders
                 {
                     Collider collider2 = _colliders[j];
 
+                    // Skip if either ignores the other
+                    if (collider1.IgnoreColliders.Contains(collider2) || collider2.IgnoreColliders.Contains(collider1))
+                        continue;
+
                     // Skip if both are static (no events or physics needed)
                     if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
                         continue;
@@ -180,6 +203,10 @@ namespace GameLibrary.Physics.Colliders
                     {
                         Collider collider2 = _colliders[j];
 
+                        // Skip if either ignores the other
+                        if (collider1.IgnoreColliders.Contains(collider2) || collider2.IgnoreColliders.Contains(collider1))
+                            continue;
+
                         // Skip if both are static because static colliders can't move – even if a collision between them occurs
                         if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
                             continue;
@@ -190,7 +217,7 @@ namespace GameLibrary.Physics.Colliders
                         if (data.Intersects && !IsTriggerPair(collider1, collider2))
                         {
                             hadIntersections = true;
-                            Console.WriteLine($"Physical collision detected between {collider1} and {collider2}");
+                            Console.WriteLine($"Physical collision detected between {collider1.GameObject} and {collider2.GameObject}");
                             HandlePhysicalCollision(collider1, collider2, data);
                         }
                     }
@@ -217,6 +244,10 @@ namespace GameLibrary.Physics.Colliders
 
                 foreach (var otherCollider in _colliders.Where(c => c != dynamicCollider))
                 {
+                    // Skip if either ignores the other
+                    if (dynamicCollider.IgnoreColliders.Contains(otherCollider) || otherCollider.IgnoreColliders.Contains(dynamicCollider))
+                        continue;
+
                     // Skip if this pair is a trigger (e.g., don't "stand" on enemies)
                     if (IsTriggerPair(dynamicCollider, otherCollider))
                         continue;

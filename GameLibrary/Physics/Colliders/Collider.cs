@@ -55,6 +55,11 @@ public abstract class Collider
     public string CollisionGroup { get; set; } = "default";
 
     /// <summary>
+    /// A set of colliders to ignore during collision checks.
+    /// </summary>
+    public HashSet<Collider> IgnoreColliders { get; } = new HashSet<Collider>();
+
+    /// <summary>
     /// Gets or sets whether this collider can act as a ground surface for other colliders (e.g., for jumping or friction).
     /// </summary>
     public bool CanBeGround { get; set; } = false;  // Default to false
