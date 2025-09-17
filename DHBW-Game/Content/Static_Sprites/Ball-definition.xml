@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Static_Sprites/Ball</Texture>
+	<Regions>
+		<Region name="ball" x="0" y="0" width="32" height="32" />
+	</Regions>
+</TextureAtlas>
