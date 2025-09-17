@@ -240,7 +240,7 @@ namespace DHBW_Game.Levels
                             break;
                         case 'G': // End, Goal
                             Goal goal = new Goal();
-                            goal.Initialize(new Vector2(x * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE / 2));
+                            goal.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE + Tiles.TILE_SIZE));
                             BackgroundSprites.Add(goal);
                             break;
                         case '1': // Whiteboard 1 Sprite
