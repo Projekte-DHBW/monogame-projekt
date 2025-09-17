@@ -49,6 +49,11 @@ public abstract class Collider
     public float FrictionCoefficient { get; set; } = 1f;
 
     /// <summary>
+    /// Gets or sets whether the collider can roll. This is important for applying friction.
+    /// </summary>
+    public bool CanRoll { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the collision group for this collider (e.g., "player", "enemy", "movable", "default").
     /// Used to determine if a collision pair should be treated as a trigger (event only) or physical.
     /// </summary>

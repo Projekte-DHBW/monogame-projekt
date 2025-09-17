@@ -124,7 +124,7 @@ namespace GameLibrary.Physics
                         Vector2 velocityDirection = Vector2.Normalize(physicsObject.Velocity);
 
                         // Check generic skip flag (set by owning object, e.g., Player)
-                        bool skipFriction = physicsObject.SkipFrictionThisFrame;
+                        bool skipFriction = physicsObject.SkipFrictionThisFrame || physicsObject.Collider.CanRoll;
 
                         if (!skipFriction)
                         {
