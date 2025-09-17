@@ -18,7 +18,7 @@ public class Goal : GameObject
     {
         // Use rectangle collider
         Collider = new RectangleCollider(this, new Vector2(0, 0), 40, 256, 0, false);
-        Collider.CollisionGroup = "enemy";
+        Collider.CollisionGroup = "interactive";
 
         ServiceLocator.Get<CollisionEngine>().Add(Collider);
     }
