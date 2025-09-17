@@ -263,6 +263,11 @@ namespace DHBW_Game.Levels
                             desk.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             MoveableObjects.Add(desk);
                             break;
+                        case 'B': // Basketball
+                            Basketball ball = new Basketball(mass: 1f);
+                            ball.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            MoveableObjects.Add(ball);
+                            break;
                     }
                 }
             }
