@@ -35,6 +35,11 @@ public class Enemy : GameObject
     protected TimeSpan _elapsed;
     protected TimeSpan _cooldown;
 
+    // Variables for stuck detection
+    protected bool _recentlySwitchedByTimer; // Flag to ignore stuck checks right after a timer-based direction switch
+    protected TimeSpan _ignoreStuckDuration = TimeSpan.FromMilliseconds(500); // Short grace period
+    protected TimeSpan _timeSinceSwitch;
+
     /// <summary>
     /// Creates a new <see cref="Enemy"/> object.
     /// </summary>
@@ -65,6 +70,8 @@ public class Enemy : GameObject
         _moveDown = false;
         _moveLeft = false;
         _moveRight = true;
+        _recentlySwitchedByTimer = false;
+        _timeSinceSwitch = TimeSpan.Zero;
     }
 
     /// <summary>
@@ -76,10 +83,12 @@ public class Enemy : GameObject
         base.Update(gameTime);
 
         _elapsed += gameTime.ElapsedGameTime;
+        _timeSinceSwitch += gameTime.ElapsedGameTime;
 
+        // Handle timer-based direction switch
         if (_elapsed >= _cooldown)
         {
-            _elapsed -= _cooldown;
+            _elapsed = TimeSpan.Zero; // Reset to walk full duration in new direction
             if (_moveRight)
             {
                 _moveRight = false;
@@ -90,7 +99,39 @@ public class Enemy : GameObject
                 _moveLeft = false;
                 _moveRight = true;
             }
+            _recentlySwitchedByTimer = true;
+            _timeSinceSwitch = TimeSpan.Zero;
         }
+
+        // Stuck detection grace period: After a timer switch, wait a bit before checking for stuck (allows velocity to reverse)
+        if (_recentlySwitchedByTimer && _timeSinceSwitch >= _ignoreStuckDuration)
+        {
+            _recentlySwitchedByTimer = false;
+        }
+
+        // Stuck detection: If trying to move but X-velocity is near zero (hitting wall), switch direction
+        // Ignore if recently switched by timer to avoid false positives during deceleration
+        if (!_recentlySwitchedByTimer)
+        {
+            const float stuckThreshold = 10f; // Small velocity threshold
+            if ((_moveRight && Math.Abs(PhysicsComponent.Velocity.X) < stuckThreshold) ||
+                (_moveLeft && Math.Abs(PhysicsComponent.Velocity.X) < stuckThreshold))
+            {
+                // Switch direction and reset timer for full walk in new direction
+                if (_moveRight)
+                {
+                    _moveRight = false;
+                    _moveLeft = true;
+                }
+                else
+                {
+                    _moveLeft = false;
+                    _moveRight = true;
+                }
+                _elapsed = TimeSpan.Zero;
+            }
+        }
+
         Vector2 nextDirection = Vector2.Zero;
 
         if (_moveRight)
