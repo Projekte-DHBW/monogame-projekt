@@ -35,6 +35,10 @@ public class Enemy : GameObject
     protected TimeSpan _elapsed;
     protected TimeSpan _cooldown;
 
+    // Cooldown to prevent rapid direction flips
+    protected TimeSpan _turnCooldown = TimeSpan.FromMilliseconds(500);
+    protected TimeSpan _turnCooldownRemaining = TimeSpan.Zero;
+
     /// <summary>
     /// Creates a new <see cref="Enemy"/> object.
     /// </summary>
@@ -77,20 +81,20 @@ public class Enemy : GameObject
 
         _elapsed += gameTime.ElapsedGameTime;
 
+        // Decrement turn cooldown
+        _turnCooldownRemaining -= gameTime.ElapsedGameTime;
+        if (_turnCooldownRemaining < TimeSpan.Zero)
+        {
+            _turnCooldownRemaining = TimeSpan.Zero;
+        }
+
+        // Handle timer-based direction switch
         if (_elapsed >= _cooldown)
         {
-            _elapsed -= _cooldown;
-            if (_moveRight)
-            {
-                _moveRight = false;
-                _moveLeft = true;
-            }
-            else
-            {
-                _moveLeft = false;
-                _moveRight = true;
-            }
+            _elapsed = TimeSpan.Zero; // Reset to walk full duration in new direction
+            SwitchDirection();
         }
+
         Vector2 nextDirection = Vector2.Zero;
 
         if (_moveRight)
@@ -158,5 +162,30 @@ public class Enemy : GameObject
     public override void TriggerCollision(Collider collider)
     {
 
+    }
+
+    public override void OnPhysicalCollision(Collider other)
+    {
+        // Check if this is a wall (static collider, e.g., ground/platform without physics component)
+        if (other.PhysicsComponent == null && _turnCooldownRemaining <= TimeSpan.Zero) // Assuming walls are static
+        {
+            SwitchDirection();
+        }
+    }
+
+    private void SwitchDirection()
+    {
+        if (_moveRight)
+        {
+            _moveRight = false;
+            _moveLeft = true;
+        }
+        else
+        {
+            _moveLeft = false;
+            _moveRight = true;
+        }
+        _elapsed = TimeSpan.Zero; // Reset timer for full walk in new direction
+        _turnCooldownRemaining = _turnCooldown; // Start cooldown
     }
 }
