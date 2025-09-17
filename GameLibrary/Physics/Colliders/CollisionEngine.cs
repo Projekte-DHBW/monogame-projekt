@@ -7,7 +7,7 @@ namespace GameLibrary.Physics.Colliders
 {
     public class CollisionEngine
     {
-        private struct CollisionData
+        public struct CollisionData
         {
             public bool Intersects; // True if colliders intersect
             public Vector2 Normal; // Unit normal vector for collision resolution (points from collider1 to collider2)
@@ -22,7 +22,7 @@ namespace GameLibrary.Physics.Colliders
         public CollisionEngine()
         {
         }
-        
+
         /// <summary>
         /// Adds a new collider which is managed by the collision engine.
         /// </summary>
@@ -31,7 +31,26 @@ namespace GameLibrary.Physics.Colliders
         {
             _colliders.Add(collider);
         }
-        
+
+        /// <summary>
+        /// Removes a collider from the collision engine.
+        /// </summary>
+        /// <param name="collider">The collider to remove.</param>
+        public void Remove(Collider collider)
+        {
+            _colliders.Remove(collider);
+        }
+
+        /// <summary>
+        /// Returns a copy of the list of all colliders managed by this collision engine.
+        /// This prevents external modifications to the internal list.
+        /// </summary>
+        /// <returns>A new list containing copies of the current colliders.</returns>
+        public List<Collider> GetCollidersCopy()
+        {
+            return new List<Collider>(_colliders);
+        }
+
         /// <summary>
         /// Visualizes all colliders by calling their respective Draw methods.
         /// Requires the colliders to implement everything necessary to be able to draw them by calling their Draw method.
@@ -42,6 +61,80 @@ namespace GameLibrary.Physics.Colliders
             {
                 collider.Draw(Core.SpriteBatch);
             }
+        }
+
+        /// <summary>
+        /// Computes the vertical distance from a starting point downward to the surface of a target collider.
+        /// This is useful for visual adjustments, such as offsetting sprites to hug slopes.
+        /// Currently supports RectangleColliders (e.g., segments).
+        /// </summary>
+        /// <param name="startPoint">The starting point (e.g., bottom center of a sprite) from which to cast downward.</param>
+        /// <param name="targetCollider">The collider (ground surface) to intersect with.</param>
+        /// <returns>The vertical distance (in pixels) to the closest intersection point below the start; 0 if no valid hit.</returns>
+        public float GetVerticalDistanceToSurface(Vector2 startPoint, Collider targetCollider)
+        {
+            if (targetCollider is not RectangleCollider rect)
+            {
+                return 0f; // Fallback for non-rectangle colliders
+            }
+
+            float centerX = startPoint.X;
+            float bottomY = startPoint.Y;
+
+            // Get vertices using the public method
+            float groundRotation = rect.Rotation * (float)Math.PI / 180f; // Degrees to radians
+            Vector2[] vertices = GetRectangleVertices(rect.GlobalPosition, rect.Width, rect.Height, groundRotation);
+
+            // Edges: 0-1, 1-2, 2-3, 3-0
+            Vector2[][] edges = new Vector2[4][]
+            {
+                new Vector2[] { vertices[0], vertices[1] },
+                new Vector2[] { vertices[1], vertices[2] },
+                new Vector2[] { vertices[2], vertices[3] },
+                new Vector2[] { vertices[3], vertices[0] }
+            };
+
+            float minHitY = float.MaxValue;
+
+            foreach (var edge in edges)
+            {
+                Vector2 p1 = edge[0];
+                Vector2 p2 = edge[1];
+
+                float dx = p2.X - p1.X;
+                float dy = p2.Y - p1.Y;
+
+                if (Math.Abs(dx) < float.Epsilon)
+                {
+                    // Vertical edge: check if x matches within epsilon
+                    if (Math.Abs(p1.X - centerX) < float.Epsilon)
+                    {
+                        float minY = Math.Min(p1.Y, p2.Y);
+                        float maxY = Math.Max(p1.Y, p2.Y);
+                        if (bottomY <= maxY)
+                        {
+                            float hitY = Math.Max(bottomY, minY);
+                            if (hitY < minHitY)
+                                minHitY = hitY;
+                        }
+                    }
+                    continue;
+                }
+
+                // Parametric t for intersection with vertical line at centerX
+                float t = (centerX - p1.X) / dx;
+                if (t >= 0f && t <= 1f)
+                {
+                    float hitY = p1.Y + t * dy;
+                    if (hitY >= bottomY && hitY < minHitY)
+                        minHitY = hitY;
+                }
+            }
+
+            if (minHitY == float.MaxValue)
+                return 0f; // No hit (unlikely if on ground
+
+            return minHitY - bottomY;
         }
 
         /// <summary>
@@ -73,6 +166,10 @@ namespace GameLibrary.Physics.Colliders
                 for (int j = i + 1; j < _colliders.Count; j++)
                 {
                     Collider collider2 = _colliders[j];
+
+                    // Skip if either ignores the other
+                    if (collider1.IgnoreColliders.Contains(collider2) || collider2.IgnoreColliders.Contains(collider1))
+                        continue;
 
                     // Skip if both are static (no events or physics needed)
                     if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
@@ -106,6 +203,10 @@ namespace GameLibrary.Physics.Colliders
                     {
                         Collider collider2 = _colliders[j];
 
+                        // Skip if either ignores the other
+                        if (collider1.IgnoreColliders.Contains(collider2) || collider2.IgnoreColliders.Contains(collider1))
+                            continue;
+
                         // Skip if both are static because static colliders can't move – even if a collision between them occurs
                         if (collider1.PhysicsComponent == null && collider2.PhysicsComponent == null)
                             continue;
@@ -116,7 +217,7 @@ namespace GameLibrary.Physics.Colliders
                         if (data.Intersects && !IsTriggerPair(collider1, collider2))
                         {
                             hadIntersections = true;
-                            Console.WriteLine($"Physical collision detected between {collider1} and {collider2}");
+                            Console.WriteLine($"Physical collision detected between {collider1.GameObject} and {collider2.GameObject}");
                             HandlePhysicalCollision(collider1, collider2, data);
                         }
                     }
@@ -143,6 +244,10 @@ namespace GameLibrary.Physics.Colliders
 
                 foreach (var otherCollider in _colliders.Where(c => c != dynamicCollider))
                 {
+                    // Skip if either ignores the other
+                    if (dynamicCollider.IgnoreColliders.Contains(otherCollider) || otherCollider.IgnoreColliders.Contains(dynamicCollider))
+                        continue;
+
                     // Skip if this pair is a trigger (e.g., don't "stand" on enemies)
                     if (IsTriggerPair(dynamicCollider, otherCollider))
                         continue;
@@ -210,7 +315,7 @@ namespace GameLibrary.Physics.Colliders
         private void Collision(Collider dynamicCollider1, Collider dynamicCollider2, CollisionData collisionData)
         {
             Vector2 normal = collisionData.Normal;
-            
+
             // Normalize the normal vector to get a unit normal
             float normalLength = normal.Length();
             if (normalLength == 0)
@@ -219,17 +324,17 @@ namespace GameLibrary.Physics.Colliders
                 return;
             }
             Vector2 unitNormal = normal / normalLength;
-    
+
             // Get velocities and masses
             Vector2 v1 = dynamicCollider1.PhysicsComponent.Velocity;
             Vector2 v2 = dynamicCollider2.PhysicsComponent.Velocity;
             float m1 = dynamicCollider1.PhysicsComponent.Mass;
             float m2 = dynamicCollider2.PhysicsComponent.Mass;
-    
+
             // Project velocities onto the unit normal (scalar components)
             float u1 = Vector2.Dot(v1, unitNormal);
             float u2 = Vector2.Dot(v2, unitNormal);
-    
+
             // Compute new scalar components along the normal for elastic collision
             // Special case if total mass is zero (though unlikely, avoid division by zero)
             float totalMass = m1 + m2;
@@ -239,21 +344,21 @@ namespace GameLibrary.Physics.Colliders
             }
             float u1_new = (u1 * (m1 - m2) + 2 * m2 * u2) / totalMass;
             float u2_new = (u2 * (m2 - m1) + 2 * m1 * u1) / totalMass;
-    
+
             // Compute tangential components
             Vector2 v1_normal = u1 * unitNormal;
             Vector2 v1_tangent = v1 - v1_normal;
             Vector2 v2_normal = u2 * unitNormal;
             Vector2 v2_tangent = v2 - v2_normal;
-    
+
             // Reconstruct new velocities
             Vector2 new_v1 = v1_tangent + u1_new * unitNormal;
             Vector2 new_v2 = v2_tangent + u2_new * unitNormal;
-    
+
             // Set new velocities
             dynamicCollider1.PhysicsComponent.NewVelocity = new_v1;
             dynamicCollider2.PhysicsComponent.NewVelocity = new_v2;
-    
+
             // Nudge positions to prevent sticking
             Separate(dynamicCollider1, dynamicCollider2, unitNormal, collisionData.Depth);
         }
@@ -268,7 +373,7 @@ namespace GameLibrary.Physics.Colliders
         private void Bounce(Collider staticCollider, Collider dynamicCollider, CollisionData collisionData)
         {
             Vector2 normal = collisionData.Normal;
-            
+
             // Normalize the normal vector
             float normalLength = normal.Length();
             if (normalLength == 0)
@@ -277,21 +382,21 @@ namespace GameLibrary.Physics.Colliders
                 return;
             }
             Vector2 unitNormal = normal / normalLength;
-            
+
             if (staticCollider.IsElastic || dynamicCollider.IsElastic)
             {
                 // Get the dynamic object's velocity
                 Vector2 velocity = dynamicCollider.PhysicsComponent.Velocity;
-    
+
                 // Project velocity onto the unit normal (scalar component)
                 float v_normal = Vector2.Dot(velocity, unitNormal);
-    
+
                 // Reflect the normal component: v_new = v - 2 * (v · n) * n
                 Vector2 newVelocity = velocity - 2 * v_normal * unitNormal;
-    
+
                 // Apply energy loss (0.8 factor)
                 newVelocity *= 0.8f;
-    
+
                 // Set new velocity
                 dynamicCollider.PhysicsComponent.NewVelocity = newVelocity;
             }
@@ -303,10 +408,10 @@ namespace GameLibrary.Physics.Colliders
                 float v_along_slope = Vector2.Dot(dynamicCollider.PhysicsComponent.Velocity, slopeDirection);
                 dynamicCollider.PhysicsComponent.NewVelocity = slopeDirection * v_along_slope;
             }
-            
+
             // Nudge position to prevent sticking, using unit normal for consistent distance
             Separate(staticCollider, dynamicCollider, unitNormal, collisionData.Depth);
-            
+
             // If the deflection speed of the dynamic collider is low enough, we can set IsOnGround to True to mitigate an infinite bounce
             CheckDeflectionSpeed(dynamicCollider, unitNormal);
             if (dynamicCollider.IsOnGround)
@@ -314,7 +419,7 @@ namespace GameLibrary.Physics.Colliders
                 dynamicCollider.GroundCollider = staticCollider;
             }
         }
-        
+
         /// <summary>
         /// Sets the slope angle of the ground for a dynamic collider which is on the ground.
         /// </summary>
@@ -327,8 +432,8 @@ namespace GameLibrary.Physics.Colliders
             float slopeAngle = (float)Math.Atan2(tangent.Y, tangent.X);
             dynamicCollider.SlopeAngle = slopeAngle;
         }
-        
-        
+
+
         /// <summary>
         /// Gets the collision data for a potential collision between two colliders.
         /// </summary>
@@ -339,21 +444,21 @@ namespace GameLibrary.Physics.Colliders
         {
             // Initialize default result (no collision)
             CollisionData data = new CollisionData { Intersects = false, Normal = Vector2.Zero, Depth = 0f };
-        
+
             // Handle circle-circle collision
             if (CircleAndCircle(collider1, collider2))
             {
                 CircleCollider circle1 = (CircleCollider)collider1;
                 CircleCollider circle2 = (CircleCollider)collider2;
-                
+
                 // Calculate distance between circle centers
                 Vector2 delta = circle2.GlobalPosition - circle1.GlobalPosition;
                 float dist = delta.Length();
                 float sumRadii = circle1.Radius + circle2.Radius;
-                
+
                 // Check for intersection with small epsilon for numerical stability
                 if (dist >= sumRadii + 0.1f) return data; // No intersection
-        
+
                 // Set intersection data
                 data.Intersects = true;
                 data.Depth = sumRadii - dist; // Penetration depth is how much circles overlap
@@ -366,17 +471,17 @@ namespace GameLibrary.Physics.Colliders
             {
                 RectangleCollider rect1 = (RectangleCollider)collider1;
                 RectangleCollider rect2 = (RectangleCollider)collider2;
-        
+
                 // Get rectangle centers and rotations (in radians for math)
                 Vector2 center1 = rect1.GlobalPosition;
                 Vector2 center2 = rect2.GlobalPosition;
                 float angle1 = MathHelper.ToRadians(rect1.Rotation);
                 float angle2 = MathHelper.ToRadians(rect2.Rotation);
-        
+
                 // Compute vertices for both rectangles (for SAT projection)
                 Vector2[] vertices1 = GetRectangleVertices(center1, rect1.Width, rect1.Height, angle1);
                 Vector2[] vertices2 = GetRectangleVertices(center2, rect2.Width, rect2.Height, angle2);
-        
+
                 // Define axes to test (normals to edges of both rectangles)
                 Vector2 edge10 = vertices1[1] - vertices1[0];
                 Vector2 axis10 = new Vector2(-edge10.Y, edge10.X); axis10.Normalize();
@@ -386,13 +491,13 @@ namespace GameLibrary.Physics.Colliders
                 Vector2 axis20 = new Vector2(-edge20.Y, edge20.X); axis20.Normalize();
                 Vector2 edge21 = vertices2[2] - vertices2[1];
                 Vector2 axis21 = new Vector2(-edge21.Y, edge21.X); axis21.Normalize();
-        
+
                 Vector2[] axes = { axis10, axis11, axis20, axis21 };
-        
+
                 // Find minimum overlap and corresponding axis (for normal and depth)
                 float minOverlap = float.MaxValue;
                 Vector2 minAxis = Vector2.Zero;
-        
+
                 foreach (Vector2 axis in axes)
                 {
                     // Project vertices onto axis; no overlap means no collision
@@ -407,11 +512,11 @@ namespace GameLibrary.Physics.Colliders
                         minAxis = axis;
                     }
                 }
-        
+
                 // Intersection confirmed; set data
                 data.Intersects = true;
                 data.Depth = minOverlap;
-                
+
                 // Adjust normal direction to point from rect1 to rect2
                 Vector2 delta = center2 - center1;
                 if (Vector2.Dot(delta, minAxis) < 0)
@@ -419,7 +524,7 @@ namespace GameLibrary.Physics.Colliders
                     minAxis = -minAxis;
                 }
                 data.Normal = minAxis;
-        
+
                 return data;
             }
             // Handle rectangle-circle collision
@@ -429,32 +534,32 @@ namespace GameLibrary.Physics.Colliders
                 RectangleCollider rect = collider1 is RectangleCollider ? (RectangleCollider)collider1 : (RectangleCollider)collider2;
                 CircleCollider circle = collider1 is CircleCollider ? (CircleCollider)collider1 : (CircleCollider)collider2;
                 bool rectIsCollider1 = collider1 is RectangleCollider;
-        
+
                 // Get centers and rectangle rotation
                 Vector2 rectCenter = rect.GlobalPosition;
                 Vector2 circleCenter = circle.GlobalPosition;
                 float angle = MathHelper.ToRadians(rect.Rotation);
                 float cos = (float)Math.Cos(angle);
                 float sin = (float)Math.Sin(angle);
-        
+
                 // Transform circle center to rectangle's local space
                 Vector2 delta = circleCenter - rectCenter;
                 Vector2 localPos = new Vector2(delta.X * cos + delta.Y * sin, -delta.X * sin + delta.Y * cos);
-        
+
                 // Find closest point on rectangle to circle center
                 float halfW = rect.Width / 2f;
                 float halfH = rect.Height / 2f;
                 float closestX = MathHelper.Clamp(localPos.X, -halfW, halfW);
                 float closestY = MathHelper.Clamp(localPos.Y, -halfH, halfH);
-        
+
                 // Calculate distance from circle center to closest point
                 float dx = localPos.X - closestX;
                 float dy = localPos.Y - closestY;
                 float distSquared = dx * dx + dy * dy;
-        
+
                 // Check for intersection with epsilon for numerical stability
                 if (distSquared > circle.Radius * circle.Radius + 0.1f) return data; // No intersection
-        
+
                 // Intersection confirmed; compute depth
                 data.Intersects = true;
                 if (distSquared > 0)
@@ -471,7 +576,7 @@ namespace GameLibrary.Physics.Colliders
                     float distTop = halfH - localPos.Y;
                     data.Depth = Math.Min(Math.Min(distLeft, distRight), Math.Min(distBottom, distTop)) + circle.Radius;
                 }
-        
+
                 // Compute normal in local space (from closest point to circle center)
                 Vector2 localNormal = new Vector2(dx, dy);
                 if (localNormal.LengthSquared() < 0.0001f)
@@ -482,11 +587,11 @@ namespace GameLibrary.Physics.Colliders
                 {
                     localNormal.Normalize(); // On edge, use direction to circle center
                 }
-        
+
                 // Transform normal back to world space
                 Vector2 worldNormal = new Vector2(localNormal.X * cos - localNormal.Y * sin, localNormal.X * sin + localNormal.Y * cos);
                 worldNormal.Normalize();
-        
+
                 // Ensure the normal points from rect to circle
                 if (Vector2.Dot(worldNormal, circleCenter - rectCenter) < 0)
                 {
@@ -498,10 +603,10 @@ namespace GameLibrary.Physics.Colliders
                     worldNormal = -worldNormal;
                 }
                 data.Normal = worldNormal;
-        
+
                 return data;
             }
-        
+
             // Return default (no collision) for unsupported collider types
             return data;
         }
@@ -519,7 +624,7 @@ namespace GameLibrary.Physics.Colliders
             // Add small extra distance to prevent colliders from sticking due to numerical errors
             float extra = 1f;
             float totalSeparation = penetrationDepth + extra;
-            
+
             // Calculate correction vector to push colliders apart along the normal
             Vector2 correction = unitNormal * totalSeparation;
 
@@ -547,16 +652,16 @@ namespace GameLibrary.Physics.Colliders
             // Calculate the component of velocity normal to the surface
             float normalSpeed = Math.Abs(Vector2.Dot(collider.PhysicsComponent.NewVelocity, unitNormal));
             float deflectionThreshold = 60f;
-            
+
             if (normalSpeed < deflectionThreshold)
             {
                 collider.IsOnGround = true;
-            
+
                 // Zero the normal component
                 collider.PhysicsComponent.NewVelocity -= Vector2.Dot(collider.PhysicsComponent.NewVelocity, unitNormal) * unitNormal;
             }
         }
-        
+
         /// <summary>
         /// Computes the four vertices of a rectangle given its center, dimensions, and rotation.
         /// Used for Separating Axis Theorem (SAT) in rectangle-rectangle collision detection.
@@ -571,32 +676,32 @@ namespace GameLibrary.Physics.Colliders
             // Precompute sine and cosine for rotation
             float cos = (float)Math.Cos(angle);
             float sin = (float)Math.Sin(angle);
-            
+
             // Calculate half-dimensions for vertex offsets
             float halfWidth = width / 2f;
             float halfHeight = height / 2f;
 
             // Initialize vertex array
             Vector2[] vertices = new Vector2[4];
-            
+
             // Bottom-left vertex: rotate (-halfWidth, -halfHeight) around center
             vertices[0] = center + new Vector2(
                 (-halfWidth * cos - -halfHeight * sin),
                 (-halfWidth * sin + -halfHeight * cos)
             );
-            
+
             // Bottom-right vertex: rotate (halfWidth, -halfHeight) around center
             vertices[1] = center + new Vector2(
                 (halfWidth * cos - -halfHeight * sin),
                 (halfWidth * sin + -halfHeight * cos)
             );
-            
+
             // Top-right vertex: rotate (halfWidth, halfHeight) around center
             vertices[2] = center + new Vector2(
                 (halfWidth * cos - halfHeight * sin),
                 (halfWidth * sin + halfHeight * cos)
             );
-            
+
             // Top-left vertex: rotate (-halfWidth, halfHeight) around center
             vertices[3] = center + new Vector2(
                 (-halfWidth * cos - halfHeight * sin),
@@ -621,7 +726,7 @@ namespace GameLibrary.Physics.Colliders
             float min1, max1, min2, max2;
             ProjectVertices(vertices1, axis, out min1, out max1);
             ProjectVertices(vertices2, axis, out min2, out max2);
-            
+
             // Check for overlap and compute penetration depth
             if (min1 <= max2 && min2 <= max1)
             {
@@ -629,7 +734,7 @@ namespace GameLibrary.Physics.Colliders
                 overlap = Math.Min(max1, max2) - Math.Max(min1, min2);
                 return true;
             }
-            
+
             // No overlap; set depth to 0
             overlap = 0f;
             return false;
@@ -647,7 +752,7 @@ namespace GameLibrary.Physics.Colliders
         {
             min = float.MaxValue;
             max = float.MinValue;
-            
+
             // Project each vertex onto the axis using dot product
             foreach (Vector2 vertex in vertices)
             {
@@ -678,7 +783,7 @@ namespace GameLibrary.Physics.Colliders
         {
             return collider1 is RectangleCollider && collider2 is RectangleCollider;
         }
-        
+
         /// <summary>
         /// Helper method which returns true if one of the passed colliders is a circle collider and the other one a rectangle collider.
         /// Otherwise, returns false.

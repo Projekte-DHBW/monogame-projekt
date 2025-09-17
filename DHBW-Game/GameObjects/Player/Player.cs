@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 using GameObjects.Animate;
-using GameObjects.Enemy;
 
 namespace GameObjects.Player;
 
@@ -21,7 +20,7 @@ public class Player : GameObject
     private AnimatedSprite _playerRunning;
     private AnimatedSpriteOnce _playerJumping;
     private AnimatedSpriteOnce _playerTransitionJ2F;
-    private AnimatedSprite _playerFalling; 
+    private AnimatedSprite _playerFalling;
     private Sprite _playerStanding;
     private AnimateGameObject _animatePlayer;
     private AnimationReturn _playerAnimationReturn;
@@ -36,6 +35,12 @@ public class Player : GameObject
     private float _jumpBufferTimer;
     private const float JumpBufferTime = 0.2f; // Window before landing to buffer jump input
     private const float LandingGraceTime = 0.2f; // Window after landing to press jump without slowdown
+    private const int Height = 130;
+    private const int Width = 50;
+    private Collider _secondaryCollider; // Null when not needed
+    private bool _usingSecondaryCollider;
+    private float _slopeOffset;
+    private const float SlopeThresholdInRadians = (float)Math.PI / 36f; // 5 degrees
 
     /// <summary>
     /// Creates a new <see cref="Player"/> object.
@@ -48,7 +53,7 @@ public class Player : GameObject
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
 
         // Use rectangle collider
-        Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
+        Collider = new RectangleCollider(this, new Vector2(0, 0), Width, Height, 0, isElastic);
         Collider.CollisionGroup = "player";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
@@ -186,13 +191,9 @@ public class Player : GameObject
             _jumpBufferTimer = 0f; // Consume buffer
 
             // Detect if this is a wall jump and push away for skill-based mechanic
-            float slopeAngle = Collider.SlopeAngle;
-            float twoPi = 2f * (float)Math.PI;
-            slopeAngle = ((slopeAngle % twoPi) + twoPi) % twoPi; // Normalize to [0, 2π)
-            float modPi = slopeAngle % (float)Math.PI;
-            float effectiveAngle = Math.Min(modPi, (float)Math.PI - modPi);
-
-            float wallThresholdInRadians = (float)Math.PI / 4f; // 45 degrees
+            float slopeAngle = Collider.SlopeAngle; // Radians
+            float effectiveAngle = Helper.GetEffectiveSlopeAngleRadians(slopeAngle);
+            float wallThresholdInRadians = (float)Math.PI / 4f; // 45 degrees equivalent
             if (effectiveAngle > wallThresholdInRadians)
             {
                 // Reconstruct unit normal (matches PhysicsEngine logic)
@@ -227,6 +228,64 @@ public class Player : GameObject
         // Handle any player input
         HandleInput(gameTime);
 
+        // Reset offset each frame
+        _slopeOffset = 0f;
+
+        // Detect if on slope
+        float effectiveAngle = Helper.GetEffectiveSlopeAngleRadians(Collider.SlopeAngle);
+
+        if (Collider.IsOnGround && Collider.GroundCollider != null && effectiveAngle > SlopeThresholdInRadians)
+        {
+            // Compute offset once
+            Vector2 bottomCenter = Position + new Vector2(0, Height / 2);
+            _slopeOffset = ServiceLocator.Get<CollisionEngine>().GetVerticalDistanceToSurface(bottomCenter, Collider.GroundCollider);
+
+            if (_secondaryCollider == null)
+            {
+                // Create secondary collider at sprite's offset position
+                _secondaryCollider = new RectangleCollider(this, new Vector2(0, 0), Width, Height, 0, Collider.IsElastic); // Match primary
+                _secondaryCollider.CollisionGroup = "player"; // For consistent triggers with lecturers
+                _secondaryCollider.CanBeGround = false;
+                _secondaryCollider.FrictionCoefficient = Collider.FrictionCoefficient;
+                ServiceLocator.Get<CollisionEngine>().Add(_secondaryCollider);
+            }
+
+            // Position secondary using stored offset
+            _secondaryCollider.LocalPosition = Vector2.UnitY * _slopeOffset;
+
+            // Configure ignores for primary (only collides with ground, ignores secondary and others)
+            Collider.IgnoreColliders.Clear();
+            Collider.IgnoreColliders.Add(_secondaryCollider);
+            foreach (var other in ServiceLocator.Get<CollisionEngine>().GetCollidersCopy())
+            {
+                if (other != Collider && other != Collider.GroundCollider)
+                {
+                    Collider.IgnoreColliders.Add(other);
+                }
+            }
+
+            // Configure ignores for secondary (ignores primary and ground)
+            _secondaryCollider.IgnoreColliders.Clear();
+            _secondaryCollider.IgnoreColliders.Add(Collider);
+            if (Collider.GroundCollider != null)
+            {
+                _secondaryCollider.IgnoreColliders.Add(Collider.GroundCollider);
+            }
+
+            _usingSecondaryCollider = true;
+        }
+        else
+        {
+            if (_secondaryCollider != null)
+            {
+                // Clean up
+                Collider.IgnoreColliders.Clear(); // Reset primary ignores
+                ServiceLocator.Get<CollisionEngine>().Remove(_secondaryCollider);
+                _secondaryCollider = null;
+            }
+            _usingSecondaryCollider = false;
+        }
+
         _playerAnimationReturn = _animatePlayer.GetAnimation(_moveUp, _moveDown, _moveLeft, _moveRight, PhysicsComponent);
 
         switch (_playerAnimationReturn.State)
@@ -250,6 +309,17 @@ public class Player : GameObject
                 }
                 else
                     if (Sprite != _playerFalling)
+                    {
+                    Sprite = _playerTransitionJ2F;
+                }
+                break;
+            case State.Slide: // Use fall animation for sliding
+                if ((Sprite == _playerTransitionJ2F) && (_playerTransitionJ2F.IsFinished))
+                {
+                    Sprite = _playerFalling;
+                    _playerTransitionJ2F.ResetAnimation();
+                }
+                else if (Sprite != _playerFalling)
                 {
                     Sprite = _playerTransitionJ2F;
                 }
@@ -272,7 +342,27 @@ public class Player : GameObject
     /// </summary>
     public override void Draw()
     {
-        base.Draw();
+        if (!Collider.IsOnGround || Collider.GroundCollider == null)
+        {
+            base.Draw();
+            return;
+        }
+
+        float effectiveAngle = Helper.GetEffectiveSlopeAngleRadians(Collider.SlopeAngle);
+
+        // When not on a slope: return
+        // Otherwise: offset the sprite to look like it's on the slope (without this,
+        // there is a gap between the sprite and the slope due to the rectangle collider colliding at one of its corners)
+        // To see this in action: activate collider visualization
+        if (effectiveAngle < SlopeThresholdInRadians)
+        {
+            base.Draw();
+            return;
+        }
+
+        // Apply the stored offset to the draw position
+        Vector2 drawPosition = Position + Vector2.UnitY * _slopeOffset;
+        ServiceLocator.Get<Camera>().Draw(Sprite, drawPosition);
     }
 
     public override void TriggerCollision(Collider collider)

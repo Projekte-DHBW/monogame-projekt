@@ -18,7 +18,7 @@ public class RectangleCollider : Collider
     public int Height { get; init; }
     
     /// <summary>
-    /// Gets the rotation of the rectangle collider.
+    /// Gets the rotation of the rectangle collider in degrees.
     /// </summary>
     public float Rotation { get; init; }
     

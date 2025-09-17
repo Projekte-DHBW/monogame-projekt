@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameLibrary.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,7 +38,7 @@ public abstract class Collider
     public Collider GroundCollider { get; set; } = null; // Collider on which the collider is on when IsOnGround is true
     
     /// <summary>
-    /// Gets or sets the slope angle of the ground when <see cref="IsOnGround"/> is True. This is important for calculating the sliding motion due to gravity.
+    /// Gets or sets the slope angle of the ground in radians when <see cref="IsOnGround"/> is True. This is important for calculating the sliding motion due to gravity.
     /// </summary>
     public float SlopeAngle { get; set; } = 0f;
     
@@ -53,6 +54,11 @@ public abstract class Collider
     /// Used to determine if a collision pair should be treated as a trigger (event only) or physical.
     /// </summary>
     public string CollisionGroup { get; set; } = "default";
+
+    /// <summary>
+    /// A set of colliders to ignore during collision checks.
+    /// </summary>
+    public HashSet<Collider> IgnoreColliders { get; } = new HashSet<Collider>();
 
     /// <summary>
     /// Gets or sets whether this collider can act as a ground surface for other colliders (e.g., for jumping or friction).
