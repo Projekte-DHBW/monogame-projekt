@@ -164,21 +164,9 @@ namespace GameLibrary.Physics
                     physicsObject.NewVelocity = Vector2.Normalize(physicsObject.NewVelocity) * maxSpeed;
                 }
                 
-                float angle = physicsObject.Collider.SlopeAngle;
+                float effective = Helper.GetEffectiveSlopeAngleRadians(physicsObject.Collider.SlopeAngle);
+                float toleranceInRadians = (float)Math.PI / 180f; // ~1 degree
 
-                // Normalize to [0, 2π)
-                float twoPi = 2f * (float)Math.PI;
-                angle = angle % twoPi;
-                if (angle < 0f) angle += twoPi;
-                
-                // Compute modulo π
-                float modPi = angle % (float)Math.PI;
-
-                // Effective absolute deviation from flat
-                float effective = Math.Min(modPi, (float)Math.PI - modPi);
-
-                float toleranceInRadians = 1f * (float)Math.PI / 180f; // ~0.01745f
-                
                 // Only use min speed when not on a slope because the slope friction logic needs the velocity vector to point along the slope. This is not the case when the x component is zeroed when it is below the min speed (such as when changing directions from sliding uphill, due to momentum, to sliding downhill).
                 if (Math.Abs(physicsObject.NewVelocity.X) < minSpeed && effective < toleranceInRadians)
                 {

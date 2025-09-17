@@ -37,7 +37,7 @@ public abstract class Collider
     public Collider GroundCollider { get; set; } = null; // Collider on which the collider is on when IsOnGround is true
     
     /// <summary>
-    /// Gets or sets the slope angle of the ground when <see cref="IsOnGround"/> is True. This is important for calculating the sliding motion due to gravity.
+    /// Gets or sets the slope angle of the ground in radians when <see cref="IsOnGround"/> is True. This is important for calculating the sliding motion due to gravity.
     /// </summary>
     public float SlopeAngle { get; set; } = 0f;
     

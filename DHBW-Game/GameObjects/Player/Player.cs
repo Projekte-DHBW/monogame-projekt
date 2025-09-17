@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 using GameObjects.Animate;
-using GameObjects.Enemy;
 
 namespace GameObjects.Player;
 
@@ -21,7 +20,7 @@ public class Player : GameObject
     private AnimatedSprite _playerRunning;
     private AnimatedSpriteOnce _playerJumping;
     private AnimatedSpriteOnce _playerTransitionJ2F;
-    private AnimatedSprite _playerFalling; 
+    private AnimatedSprite _playerFalling;
     private Sprite _playerStanding;
     private AnimateGameObject _animatePlayer;
     private AnimationReturn _playerAnimationReturn;
@@ -36,6 +35,8 @@ public class Player : GameObject
     private float _jumpBufferTimer;
     private const float JumpBufferTime = 0.2f; // Window before landing to buffer jump input
     private const float LandingGraceTime = 0.2f; // Window after landing to press jump without slowdown
+    private const int Height = 130;
+    private const int Width = 50;
 
     /// <summary>
     /// Creates a new <see cref="Player"/> object.
@@ -48,7 +49,7 @@ public class Player : GameObject
         //Collider = new CircleCollider(this, new Vector2(0, 0), 30, isElastic);
 
         // Use rectangle collider
-        Collider = new RectangleCollider(this, new Vector2(0, 0), 50, 130, 0, isElastic);
+        Collider = new RectangleCollider(this, new Vector2(0, 0), Width, Height, 0, isElastic);
         Collider.CollisionGroup = "player";
 
         PhysicsComponent = new PhysicsComponent(this, mass);
@@ -186,13 +187,9 @@ public class Player : GameObject
             _jumpBufferTimer = 0f; // Consume buffer
 
             // Detect if this is a wall jump and push away for skill-based mechanic
-            float slopeAngle = Collider.SlopeAngle;
-            float twoPi = 2f * (float)Math.PI;
-            slopeAngle = ((slopeAngle % twoPi) + twoPi) % twoPi; // Normalize to [0, 2π)
-            float modPi = slopeAngle % (float)Math.PI;
-            float effectiveAngle = Math.Min(modPi, (float)Math.PI - modPi);
-
-            float wallThresholdInRadians = (float)Math.PI / 4f; // 45 degrees
+            float slopeAngle = Collider.SlopeAngle; // Radians
+            float effectiveAngle = Helper.GetEffectiveSlopeAngleRadians(slopeAngle);
+            float wallThresholdInRadians = (float)Math.PI / 4f; // 45 degrees equivalent
             if (effectiveAngle > wallThresholdInRadians)
             {
                 // Reconstruct unit normal (matches PhysicsEngine logic)
@@ -250,6 +247,17 @@ public class Player : GameObject
                 }
                 else
                     if (Sprite != _playerFalling)
+                    {
+                    Sprite = _playerTransitionJ2F;
+                }
+                break;
+            case State.Slide: // Use fall animation for sliding
+                if ((Sprite == _playerTransitionJ2F) && (_playerTransitionJ2F.IsFinished))
+                {
+                    Sprite = _playerFalling;
+                    _playerTransitionJ2F.ResetAnimation();
+                }
+                else if (Sprite != _playerFalling)
                 {
                     Sprite = _playerTransitionJ2F;
                 }
@@ -272,7 +280,36 @@ public class Player : GameObject
     /// </summary>
     public override void Draw()
     {
-        base.Draw();
+        if (!Collider.IsOnGround || Collider.GroundCollider == null)
+        {
+            base.Draw();
+            return;
+        }
+
+        float effectiveAngle = Helper.GetEffectiveSlopeAngleRadians(Collider.SlopeAngle);
+        float toleranceInRadians = (float)Math.PI / 180f; // ~1 degree
+
+        // When not on a slope: return
+        // Otherwise: offset the sprite to look like it's on the slope (without this,
+        // there is a gap between the sprite and the slope due to the rectangle collider colliding at one of its corners)
+        // To see this in action: activate collider visualization
+        if (effectiveAngle < toleranceInRadians)
+        {
+            base.Draw();
+            return;
+        }
+
+        // Bottom center start position
+        int halfHeight = Height / 2;
+        Vector2 bottomCenter = Position + new Vector2(0, halfHeight);
+
+        // Get offset from CollisionEngine
+        CollisionEngine ce = ServiceLocator.Get<PhysicsEngine>().CollisionEngine;
+        float offset = ce.GetVerticalDistanceToSurface(bottomCenter, Collider.GroundCollider);
+
+        // Apply the offset to the draw position
+        Vector2 drawPosition = Position + Vector2.UnitY * offset;
+        ServiceLocator.Get<Camera>().Draw(Sprite, drawPosition);
     }
 
     public override void TriggerCollision(Collider collider)

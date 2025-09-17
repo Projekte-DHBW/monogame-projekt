@@ -35,8 +35,7 @@ namespace DHBW_Game.Levels
         private Rectangle _backgroundDestination; // Size and position of the background
         private Camera _camera = ServiceLocator.Get<Camera>();
 
-        
-        public List<GameObject> Objects { get; private set; } = new List<GameObject>();
+        public List<GameObject> Segments { get; private set; } = new List<GameObject>();
         public List<Enemy> Enemys { get; private set; } = new List<Enemy>();
         public List<GameObject> BackgroundSprites { get; private set; } = new List<GameObject>();
         public List<GameObject> MoveableObjects { get; private set; } = new List<GameObject>();
@@ -95,11 +94,28 @@ namespace DHBW_Game.Levels
             physicsEngine.CollisionEngine.ClearColliders();
 
             // Clear lists and references
-            Objects.Clear();
+            Segments.Clear();
             Enemys.Clear();
             BackgroundSprites.Clear();
             MoveableObjects.Clear();
             _player = null;
+
+            // Define bracket pairs
+            var bracketPairs = new Dictionary<char, char>
+            {
+                { '[', ']' },
+                { '(', ')' },
+                { '{', '}' }
+            };
+
+            // Collect starts and ends for each opening bracket
+            var starts = new Dictionary<char, List<(int x, int y)>>();
+            var ends = new Dictionary<char, List<(int x, int y)>>();
+            foreach (var open in bracketPairs.Keys)
+            {
+                starts[open] = new List<(int x, int y)>();
+                ends[open] = new List<(int x, int y)>();
+            }
 
             List<string> lines = new List<string>();
 
@@ -120,7 +136,7 @@ namespace DHBW_Game.Levels
             int width = lines[0].Length;
             int height = lines.Count;
 
-            // Create new tilemap with correct dimensions using the stored tileset
+            // Create new tilemap with correct dimensions (all empty by default—no need to set tiles)
             _tilemap = new Tilemap(_tileset, width, height);
 
             if (_backgroundTexture != null)
@@ -128,18 +144,17 @@ namespace DHBW_Game.Levels
                 float scaleFactor = 3f;
                 int scaledWidth = (int)(_backgroundTexture.Width * scaleFactor);
                 int scaledHeight = (int)(_backgroundTexture.Height * scaleFactor);
-                
 
                 int offsetX = -(scaledWidth - _backgroundTexture.Width) / 3;
                 int offsetY = -(scaledHeight - _backgroundTexture.Height) / 3;
-                
+
                 _backgroundDestination = new Rectangle(offsetX, offsetY, scaledWidth, scaledHeight);
             }
 
-            // Store tile IDs for second pass rectangle merging
+            // Store tile IDs for collision merging (only solids matter)
             int[,] tileIds = new int[height, width];
 
-            // Parse level data and set tiles
+            // Parse level data
             bool foundPlayer = false;
             for (int y = 0; y < height; y++)
             {
@@ -149,6 +164,32 @@ namespace DHBW_Game.Levels
                 for (int x = 0; x < width; x++)
                 {
                     char tileChar = lines[y][x];
+
+                    // Set collision ID: only '#' is solid, everything else empty
+                    tileIds[y, x] = (tileChar == '#') ? Tiles.SOLID_TILE : Tiles.EMPTY_TILE;
+
+                    // Handle slope markers
+                    if (bracketPairs.ContainsKey(tileChar))
+                    {
+                        starts[tileChar].Add((x, y));
+                    }
+                    else if (bracketPairs.ContainsValue(tileChar))
+                    {
+                        // Find the opening bracket for this closing
+                        char opening = '\0';
+                        foreach (var pair in bracketPairs)
+                        {
+                            if (pair.Value == tileChar)
+                            {
+                                opening = pair.Key;
+                                break;
+                            }
+                        }
+                        if (opening != '\0')
+                        {
+                            ends[opening].Add((x, y));
+                        }
+                    }
 
                     switch (tileChar)
                     {
@@ -223,39 +264,103 @@ namespace DHBW_Game.Levels
                             MoveableObjects.Add(desk);
                             break;
                     }
+                }
+            }
 
-                    int id = GetTileIdFromChar(tileChar);
-                    tileIds[y, x] = id;
-                    _tilemap.SetTile(x, y, id);
+            // Process slopes for each bracket type
+            foreach (var opening in starts.Keys)
+            {
+                var sList = starts[opening];
+                var eList = ends[opening];
+
+                if (sList.Count != eList.Count)
+                    throw new Exception($"Mismatched slope markers for {opening}-{bracketPairs[opening]}! Number of opens: {sList.Count}, closes: {eList.Count}");
+
+                // Sort starts and ends by x position (assuming left-to-right slopes; y as tiebreaker)
+                sList.Sort((a, b) => a.x != b.x ? a.x.CompareTo(b.x) : a.y.CompareTo(b.y));
+                eList.Sort((a, b) => a.x != b.x ? a.x.CompareTo(b.x) : a.y.CompareTo(b.y));
+
+                for (int i = 0; i < sList.Count; i++)
+                {
+                    var s = sList[i];
+                    var e = eList[i];
+
+                    // If start x > end x, swap to ensure consistent direction
+                    if (s.x > e.x)
+                    {
+                        var temp = s;
+                        s = e;
+                        e = temp;
+                    }
+
+                    int tileSize = Tiles.TILE_SIZE;
+                    float dx = (e.x - s.x) * tileSize;
+                    float dy = (e.y - s.y) * tileSize;
+                    float length = (float)Math.Sqrt(dx * dx + dy * dy);
+                    float rotation = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
+
+                    Vector2 startPos = new Vector2(s.x * tileSize + tileSize / 2f, s.y * tileSize + tileSize / 2f);
+                    Vector2 endPos = new Vector2(e.x * tileSize + tileSize / 2f, e.y * tileSize + tileSize / 2f);
+                    Vector2 center = (startPos + endPos) / 2f;
+
+                    float thickness = Tiles.TILE_SIZE;
+
+                    // Generate tiled texture
+                    int targetWidth = (int)Math.Ceiling(length); // Round up to avoid gaps
+                    int targetHeight = (int)thickness;
+                    Texture2D tiledTexture = CreateTiledTexture(targetWidth, targetHeight);
+                    var seg = new Segment((int)length, (int)thickness, rotation, isElastic: false, frictionCoefficient: 0.1f, tiledTexture); // Use lower friction for slopes
+                    seg.Initialize(center);
+                    Segments.Add(seg);
                 }
             }
 
             if (!foundPlayer)
-                throw new Exception("Level must have a player start position (P)!");
+                throw new Exception("No player start position found in level file!");
 
-            // Build merged solid rectangles & create colliders
+            // Build optimized colliders for solid tiles
             BuildOptimizedRectangleCover(tileIds, width, height, Tiles.SOLID_TILE);
 
             // Create player
             _player = new Player(mass: 2f, isElastic: false);
             _player.Initialize(StartPosition);
-
         }
-        
 
         /// <summary>
-        /// Get the tile ID corresponding to a character in the level file
+        /// Creates a tiled texture for a segment of given dimensions.
+        /// Uses the solid tile from the tileset to fill the area in a grid pattern.
         /// </summary>
-        private int GetTileIdFromChar(char tileChar)
+        private Texture2D CreateTiledTexture(int widthPx, int heightPx)
         {
-            return tileChar switch
+            RenderTarget2D rt = new RenderTarget2D(Core.GraphicsDevice, widthPx, heightPx);
+            Core.GraphicsDevice.SetRenderTarget(rt);
+            Core.GraphicsDevice.Clear(Color.Transparent);
+
+            using (SpriteBatch tempBatch = new SpriteBatch(Core.GraphicsDevice))
             {
-                '.' => Tiles.EMPTY_TILE,  // Empty space
-                '#' => Tiles.SOLID_TILE,  // Wall/Floor
-                'P' => Tiles.PLAYER_START,  // Player start (empty tile)
-                'X' => Tiles.EXIT_TILE,  // Exit
-                _ => Tiles.EMPTY_TILE     // Default to empty
-            };
+                tempBatch.Begin();
+
+                // Get the solid tile region from tileset
+                TextureRegion tileRegion = _tileset.GetTile(Tiles.SOLID_TILE);
+                int tileSizeInt = Tiles.TILE_SIZE;
+
+                // Tile in a 2D grid across the width and height
+                int numTilesX = (int)Math.Ceiling((double)widthPx / tileSizeInt);
+                int numTilesY = (int)Math.Ceiling((double)heightPx / tileSizeInt);
+                for (int tileY = 0; tileY < numTilesY; tileY++)
+                {
+                    for (int tileX = 0; tileX < numTilesX; tileX++)
+                    {
+                        Vector2 tilePos = new Vector2(tileX * tileSizeInt, tileY * tileSizeInt);
+                        tempBatch.Draw(tileRegion.Texture, tilePos, tileRegion.SourceRectangle, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                tempBatch.End();
+            }
+
+            Core.GraphicsDevice.SetRenderTarget(null);
+            return rt;
         }
 
         /// <summary>
@@ -263,9 +368,9 @@ namespace DHBW_Game.Levels
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            foreach (var obj in Objects)
+            foreach (var seg in Segments)
             {
-                obj.Update(gameTime);
+                seg.Update(gameTime);
             }
 
             foreach (var enemy in Enemys)
@@ -287,8 +392,6 @@ namespace DHBW_Game.Levels
             _player?.Update(gameTime);
         }
 
-
-
         /// <summary>
         /// Draw the level
         /// </summary>
@@ -305,7 +408,7 @@ namespace DHBW_Game.Levels
                     Color.White,
                     0f,
                     Vector2.Zero,
-                    new Vector2((float)_backgroundDestination.Width / _backgroundTexture.Width, 
+                    new Vector2((float)_backgroundDestination.Width / _backgroundTexture.Width,
                                (float)_backgroundDestination.Height / _backgroundTexture.Height),
                     SpriteEffects.None,
                     1.0f
@@ -313,6 +416,11 @@ namespace DHBW_Game.Levels
             }
 
             _tilemap.Draw(spriteBatch);
+
+            foreach (var seg in Segments)
+            {
+                seg.Draw();
+            }
 
             foreach (var sprite in BackgroundSprites)
             {
@@ -328,7 +436,6 @@ namespace DHBW_Game.Levels
             {
                 enemy.Draw();
             }
-
 
             _player?.Draw();
         }
@@ -396,9 +503,10 @@ namespace DHBW_Game.Levels
             float centerX = (leftTile + widthTiles / 2f) * tileSize;
             float centerY = (topTile + heightTiles / 2f) * tileSize;
 
-            var seg = new Segment(wPx, hPx, 0f, isElastic: false, frictionCoefficient: 1f);
+            Texture2D tiledTexture = CreateTiledTexture(wPx, hPx);
+            var seg = new Segment(wPx, hPx, 0f, isElastic: false, frictionCoefficient: 1f, tiledTexture);
             seg.Initialize(new Vector2(centerX, centerY));
-            Objects.Add(seg);
+            Segments.Add(seg);
         }
 
         private bool LargestRectangleInMask(bool[,] mask, int width, int height,
