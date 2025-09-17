@@ -8,6 +8,7 @@ using Gum.Forms.Controls;
 using GameLibrary.Physics;
 using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 
@@ -92,6 +93,10 @@ public class Game1 : Core
         
         // Load the background theme music.
         _themeSong = Content.Load<Song>("audio/theme");
+
+        // Load the hit sound effect
+        SoundEffect hitSound = Core.Content.Load<SoundEffect>("audio/bounce");
+        ServiceLocator.Register(hitSound, "hit");
     }
 
     private void InitializeGum()

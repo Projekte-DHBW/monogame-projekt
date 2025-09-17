@@ -5,6 +5,7 @@ using GameLibrary.Physics;
 using GameLibrary.Physics.Colliders;
 using GameLibrary.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace DHBW_Game.GameObjects;
@@ -13,6 +14,8 @@ public class Basketball : GameObject
 {
     private float _rotation = 0f;
     private Vector2 _origin;
+
+    private SoundEffect _hitSound;
 
     public Basketball(float mass)
     {
@@ -33,11 +36,13 @@ public class Basketball : GameObject
     public override void Initialize(Vector2 position)
     {
         base.Initialize(position);
-
     }
 
     public override void LoadContent()
     {
+        // Load hit sound
+        _hitSound = ServiceLocator.Get<SoundEffect>("hit");
+
         TextureAtlas ballAtlas = TextureAtlas.FromFile(Core.Content, "Static_Sprites/Ball-definition.xml");
 
         // Create the basketball sprite
@@ -84,5 +89,20 @@ public class Basketball : GameObject
             SpriteEffects.None,
             0f
         );
+    }
+
+    public override void OnPhysicalCollision(Collider other)
+    {
+        float impactSpeed = PhysicsComponent.Velocity.LengthSquared();
+
+        if (impactSpeed < 50f) return; // Skip sound for very light impacts
+
+        const float maxImpact = 800f;
+        float normalized = MathHelper.Clamp(impactSpeed / maxImpact, 0f, 1f);
+
+        float volume = normalized;
+        float pitch = 0.8f + normalized * 0.4f; // 0.8 to 1.2 for variation
+
+        Core.Audio.PlaySoundEffect(_hitSound, volume * 0.25f, pitch, 0.0f, false);
     }
 }

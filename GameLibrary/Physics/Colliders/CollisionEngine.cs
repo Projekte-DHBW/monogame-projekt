@@ -198,6 +198,10 @@ namespace GameLibrary.Physics.Colliders
             {
                 Collision(collider1, collider2, collisionData);
             }
+
+            // Notify both game objects of the physical collision
+            collider1.GameObject.OnPhysicalCollision(collider2);
+            collider2.GameObject.OnPhysicalCollision(collider1);
         }
 
         /// <summary>

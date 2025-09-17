@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGameTutorial;
 using GameObjects.Animate;
 using GameObjects.Enemy;
+using Microsoft.Xna.Framework.Audio;
 
 namespace GameObjects.Player;
 
@@ -29,6 +30,8 @@ public class Player : GameObject
     private bool _moveDown;
     private bool _moveLeft;
     private bool _moveRight;
+
+    private SoundEffect _hitSound;
 
     // Fields for bunnyhop mechanic
     private float _timeSinceLanded = float.MaxValue; // Reset to 0 on landing
@@ -74,6 +77,9 @@ public class Player : GameObject
 
     public override void LoadContent()
     {
+        // Load sound
+        _hitSound = ServiceLocator.Get<SoundEffect>("hit");
+
         // Load the player texture atlases
         TextureAtlas playerRunningAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Run-definition.xml");
         TextureAtlas playerStandingAtlas = TextureAtlas.FromFile(Core.Content, "Animated_Sprites/Player/Idle-definition.xml");
@@ -184,6 +190,9 @@ public class Player : GameObject
         {
             _jumpDuration = 0.1; // Start jump force duration
             _jumpBufferTimer = 0f; // Consume buffer
+
+            // Play jump sound
+            Core.Audio.PlaySoundEffect(_hitSound, 0.25f, 1.0f, 0.0f, false);
         }
 
         // Add jump force if duration active
@@ -260,5 +269,11 @@ public class Player : GameObject
     public override void TriggerCollision(Collider collider)
     {
         base.TriggerCollision(collider);
+    }
+
+    public override void OnPhysicalCollision(Collider other)
+    {
+        // Play hit sound on physical collision (e.g., walls, basketball)
+        Core.Audio.PlaySoundEffect(_hitSound, 0.25f, 1.0f, 0.0f, false);
     }
 }
