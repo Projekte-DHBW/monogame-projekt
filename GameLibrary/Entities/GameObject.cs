@@ -88,4 +88,9 @@ public abstract class GameObject
     {
 
     }
+
+    public virtual void OnPhysicalCollision(Collider other)
+    {
+
+    }
 }
