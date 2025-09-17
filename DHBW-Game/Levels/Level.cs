@@ -268,6 +268,16 @@ namespace DHBW_Game.Levels
                             ball.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
                             MoveableObjects.Add(ball);
                             break;
+                        case 'U': // Power-Up Energy-Drink
+                            EnergyDrink energyDrink = new EnergyDrink();
+                            energyDrink.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(energyDrink);
+                            break;
+                        case 'A': // SlipperyZone
+                            SlipperyZone slipperyZone = new SlipperyZone();
+                            slipperyZone.Initialize(new Vector2(x * Tiles.TILE_SIZE, y * Tiles.TILE_SIZE));
+                            BackgroundSprites.Add(slipperyZone);
+                            break;
                     }
                 }
             }

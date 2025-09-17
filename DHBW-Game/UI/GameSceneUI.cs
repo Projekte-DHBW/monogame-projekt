@@ -45,6 +45,7 @@ public class GameSceneUI : ContainerRuntime
     private ContainerRuntime Container;
     private Panel hud;
     private TextRuntime floorText;
+    private SpriteRuntime _energySprite;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GameSceneUI"/> class.
@@ -133,6 +134,20 @@ public class GameSceneUI : ContainerRuntime
         floorText.OutlineThickness = 1;
 
         hud.AddChild(floorText);
+
+        TextureAtlas energyDrinkAtlas = TextureAtlas.FromFile(Core.Content, "Static_Sprites/EnergyDrink-definition.xml");
+
+        // Create the energyDrink sprite
+        var energyDrinkRegion = energyDrinkAtlas.GetRegion("energyDrink");
+        _energySprite = new SpriteRuntime();
+        _energySprite.Texture = energyDrinkRegion.Texture;
+        _energySprite.Anchor(Gum.Wireframe.Anchor.TopRight);
+        _energySprite.Y = 10;
+        _energySprite.X = 0;
+        _energySprite.Height = 50;
+        _energySprite.Width = 50;
+        _energySprite.Visible = false;
+        hud.AddChild(_energySprite);
     }
 
     /// <summary>
@@ -208,6 +223,22 @@ public class GameSceneUI : ContainerRuntime
     {
         _finalWinPanel.UpdateGrade(_GPAIndicatorUI.Stage.GetCurrentGrade(_GPAIndicatorUI.Value), _GPAIndicatorUI.Stage.GetCurrentColor(_GPAIndicatorUI.Value * 100));
         _finalWinPanel.Show();
+    }
+
+    /// <summary>
+    /// Shows the Energy-Sprite.
+    /// </summary>
+    public void ShowEnergySprite()
+    {
+        _energySprite.Visible = true;
+    }
+
+    /// <summary>
+    /// Hides the Energy-Sprite.
+    /// </summary>
+    public void HideEnergySprite()
+    {
+        _energySprite.Visible = false;
     }
 
     /// <summary>
