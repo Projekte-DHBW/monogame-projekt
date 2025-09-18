@@ -97,6 +97,9 @@ public class Student : Enemy
             case State.Run:
                 Sprite = _enemyRunning;
                 break;
+            default:
+                Sprite = _enemyRunning;
+                break;
                 /*
             case State.Jump:
                 if (Sprite != _enemyJumping)
